@@ -15,7 +15,7 @@ trait Main
 {
 
   def execute (arguments : Seq [String] ) : Unit =
-    print ("Under construction ...")
+    print ("Under construction ...\n")
 
   def main (arguments : Array [String] ) : Unit =
     execute (arguments .toSeq)

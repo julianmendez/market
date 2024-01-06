@@ -6,7 +6,7 @@
 class Main
 
   execute (arguments : Seq [String] ) : Unit =
-    print ("Under construction ...")
+    print ("Under construction ...\n")
 
   main (arguments : Array [String] ) : Unit =
     execute (arguments .toSeq)
