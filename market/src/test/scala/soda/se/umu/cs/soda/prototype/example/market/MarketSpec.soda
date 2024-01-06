@@ -1,0 +1,33 @@
+
+class MarketSpec ()
+  extends
+    org.scalatest.funsuite.AnyFunSuite
+
+  check [A : Type] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
+    assert (obtained == expected)
+
+
+  market01 : Market = Market01_ ()
+
+  market02 : Market = Market02_ ()
+
+  market03 : Market = Market03_ ()
+
+  test ("should advertise an item") (
+    check (
+      obtained := market01 .advertise (1)
+    ) (
+      expected := market02 .as_market ()
+    )
+  )
+
+  test ("should sell an item") (
+    check (
+      obtained := market02 .sell (1) (2)
+    ) (
+      expected := market03 .as_market ()
+    )
+  )
+
+end
+

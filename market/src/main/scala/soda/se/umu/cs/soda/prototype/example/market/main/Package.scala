@@ -1,0 +1,31 @@
+package soda.se.umu.cs.soda.prototype.example.market.main
+
+/*
+ * This package contains classes to model a market
+ *
+ */
+
+trait Package
+
+/**
+ * This is the main entry point.
+ */
+
+trait Main
+{
+
+  def execute (arguments : Seq [String] ) : Unit =
+    print ("Under construction ...")
+
+  def main (arguments : Array [String] ) : Unit =
+    execute (arguments .toSeq)
+
+}
+
+object EntryPoint {
+  def main (args: Array [String]): Unit = Main_ ().main (args)
+}
+
+
+case class Main_ () extends Main
+

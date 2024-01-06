@@ -1,0 +1,61 @@
+
+class Item
+
+  abstract
+    owner : Int
+    price : Int
+    advertised : Boolean
+
+end
+
+class Market
+
+  abstract
+    accounts : Seq [Int]
+    items : Seq [Item]
+
+  mk_market (new_accounts : Seq [Int] ) (new_items : Seq [Item] ) : Market =
+    Market_ (new_accounts) (new_items)
+
+  as_market () : Market =
+    mk_market (accounts) (items)
+
+  _advertise_item (item : Item) : Item =
+    Item_ (item .owner) (item .price) (true)
+
+  _advertise (items : Seq [Item] ) (item_id : Int) : Seq [Item] =
+    items .updated (item_id , _advertise_item (items .apply (item_id) ) )
+
+  advertise (item_id : Int) : Market =
+    mk_market (accounts) (_advertise (items) (item_id) )
+
+  _hide_item (item : Item) : Item =
+    Item_ (item .owner) (item .price) (false)
+
+  _remove_ad (items : Seq [Item] ) (item_id : Int) : Seq [Item] =
+    items .updated (item_id , _hide_item (items .apply (item_id) ) )
+
+  remove_ad (item_id : Int) (price : Int) : Market =
+    mk_market (accounts) (_remove_ad (items) (item_id) )
+
+  _transfer (accounts0 : Seq [Int] ) (origin : Int) (target : Int) (amount : Int) : Seq [Int] =
+    accounts0
+      .updated (origin , accounts .apply (origin) - amount)
+      .updated (target , accounts .apply (target) + amount)
+
+  _give (items0 : Seq [Item] ) (item_id : Int) (buyer : Int) (price : Int)
+      : Seq [Item] =
+    items0
+      .updated (item_id , Item_ (buyer) (price) (false) )
+
+  _sell_item (item : Item) (item_id : Int) (buyer : Int) : Market =
+    mk_market (
+      _transfer (accounts) (buyer) (item .owner) (item .price) ) (
+      _give (items) (item_id) (buyer) (item .price)
+    )
+
+  sell (item_id : Int) (buyer : Int) : Market =
+    _sell_item (items .apply (item_id) ) (item_id) (buyer)
+
+end
+

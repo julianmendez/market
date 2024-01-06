@@ -1,0 +1,49 @@
+
+class Market01
+  extends
+    Market
+
+   accounts : Seq [Int] =
+     Seq [Int] (1000, 500, 12000)
+
+   items : Seq [Item] =
+     Seq [Item] (
+       Item_ (0) (125) (false) ,
+       Item_ (1) (375) (false) ,
+       Item_ (1) (10) (false)
+     )
+
+end
+
+class Market02
+  extends
+    Market
+
+   accounts : Seq [Int] =
+     Seq [Int] (1000, 500, 12000)
+
+   items : Seq [Item] =
+     Seq [Item] (
+       Item_ (0) (125) (false) ,
+       Item_ (1) (375) (true) ,
+       Item_ (1) (10) (false)
+     )
+
+end
+
+class Market03
+  extends
+    Market
+
+   accounts : Seq [Int] =
+     Seq [Int] (1000, 875, 11625)
+
+   items : Seq [Item] =
+     Seq [Item] (
+       Item_ (0) (125) (false) ,
+       Item_ (2) (375) (false) ,
+       Item_ (1) (10) (false)
+     )
+
+end
+

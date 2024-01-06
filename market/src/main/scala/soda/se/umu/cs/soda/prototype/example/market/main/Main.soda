@@ -1,0 +1,15 @@
+
+/**
+ * This is the main entry point.
+ */
+
+class Main
+
+  execute (arguments : Seq [String] ) : Unit =
+    print ("Under construction ...")
+
+  main (arguments : Array [String] ) : Unit =
+    execute (arguments .toSeq)
+
+end
+
