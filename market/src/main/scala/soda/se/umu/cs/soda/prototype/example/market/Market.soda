@@ -18,11 +18,15 @@ class Market
     accounts : List [Int]
     items : List [Item]
 
+end
+
+class MarketMod
+
   mk_market (new_accounts : List [Int] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts) (new_items)
 
-  as_market () : Market =
-    mk_market (accounts) (items)
+  as_market (market : Market) : Market =
+    mk_market (market .accounts) (market .items)
 
   _advertise_item (item : Item) : Item =
     Item_ (item .owner) (item .price) (true)
@@ -30,8 +34,8 @@ class Market
   _advertise (items : List [Item] ) (item_id : Int) : List [Item] =
     items .updated (item_id , _advertise_item (items .apply (item_id) ) )
 
-  advertise (item_id : Int) : Market =
-    mk_market (accounts) (_advertise (items) (item_id) )
+  advertise (market : Market) (item_id : Int) : Market =
+    mk_market (market .accounts) (_advertise (market .items) (item_id) )
 
   _hide_item (item : Item) : Item =
     Item_ (item .owner) (item .price) (false)
@@ -39,27 +43,27 @@ class Market
   _remove_ad (items : List [Item] ) (item_id : Int) : List [Item] =
     items .updated (item_id , _hide_item (items .apply (item_id) ) )
 
-  remove_ad (item_id : Int) (price : Int) : Market =
-    mk_market (accounts) (_remove_ad (items) (item_id) )
+  remove_ad (market : Market) (item_id : Int) : Market =
+    mk_market (market .accounts) (_remove_ad (market .items) (item_id) )
 
-  _transfer (accounts0 : List [Int] ) (origin : Int) (target : Int) (amount : Int)
+  _transfer (accounts : List [Int] ) (origin : Int) (target : Int) (amount : Int)
       : List [Int] =
-    accounts0
+    accounts
       .updated (origin , accounts .apply (origin) - amount)
       .updated (target , accounts .apply (target) + amount)
 
-  _give (items0 : List [Item] ) (item_id : Int) (buyer : Int) (price : Int) : List [Item] =
-    items0
+  _give (items : List [Item] ) (item_id : Int) (buyer : Int) (price : Int) : List [Item] =
+    items
       .updated (item_id , Item_ (buyer) (price) (false) )
 
-  _sell_item (item : Item) (item_id : Int) (buyer : Int) : Market =
+  _sell_item (market : Market) (item : Item) (item_id : Int) (buyer : Int) : Market =
     mk_market (
-      _transfer (accounts) (buyer) (item .owner) (item .price) ) (
-      _give (items) (item_id) (buyer) (item .price)
+      _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
+      _give (market .items) (item_id) (buyer) (item .price)
     )
 
-  sell (item_id : Int) (buyer : Int) : Market =
-    _sell_item (items .apply (item_id) ) (item_id) (buyer)
+  sell (market : Market) (item_id : Int) (buyer : Int) : Market =
+    _sell_item (market) (market .items .apply (item_id) ) (item_id) (buyer)
 
 end
 
