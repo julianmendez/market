@@ -11,11 +11,11 @@ trait Market01
     Market
 {
 
-   lazy val accounts : Seq [Int] =
-     Seq [Int] (1000, 500, 12000)
+   lazy val accounts : List [Int] =
+     List [Int] (1000, 500, 12000)
 
-   lazy val items : Seq [Item] =
-     Seq [Item] (
+   lazy val items : List [Item] =
+     List [Item] (
        Item_ (0, 125, false) ,
        Item_ (1, 375, false) ,
        Item_ (1, 10, false)
@@ -30,11 +30,11 @@ trait Market02
     Market
 {
 
-   lazy val accounts : Seq [Int] =
-     Seq [Int] (1000, 500, 12000)
+   lazy val accounts : List [Int] =
+     List [Int] (1000, 500, 12000)
 
-   lazy val items : Seq [Item] =
-     Seq [Item] (
+   lazy val items : List [Item] =
+     List [Item] (
        Item_ (0, 125, false) ,
        Item_ (1, 375, true) ,
        Item_ (1, 10, false)
@@ -49,11 +49,11 @@ trait Market03
     Market
 {
 
-   lazy val accounts : Seq [Int] =
-     Seq [Int] (1000, 875, 11625)
+   lazy val accounts : List [Int] =
+     List [Int] (1000, 875, 11625)
 
-   lazy val items : Seq [Item] =
-     Seq [Item] (
+   lazy val items : List [Item] =
+     List [Item] (
        Item_ (0, 125, false) ,
        Item_ (2, 375, false) ,
        Item_ (1, 10, false)
