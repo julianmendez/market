@@ -3,10 +3,17 @@
 directive lean
 notation:max "Boolean" => Bool
 
+
+directive scala
+type Index = Int
+
+directive lean
+def Index : Type := Nat deriving DecidableEq
+
 class Item
 
   abstract
-    owner : Int
+    owner : Index
     price : Int
     advertised : Boolean
 
@@ -22,6 +29,22 @@ end
 
 class MarketMod
 
+  directive scala
+  def get [A] (list : List [A]) (index : Index) : A =
+    list.apply (index)
+
+  directive lean
+  def get {A : Type} (list : List (A)) (index : Index) : A :=
+    list.get! (index)
+
+  directive scala
+  def set [A] (list : List [A]) (index : Index) (element : A) : List [A] =
+    list.updated (index , element)
+
+  directive lean
+  def set {A : Type} (list : List (A)) (index : Index) (element : A) : List (A) :=
+    list.set (index) (element)
+
   mk_market (new_accounts : List [Int] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts) (new_items)
 
@@ -31,39 +54,38 @@ class MarketMod
   _advertise_item (item : Item) : Item =
     Item_ (item .owner) (item .price) (true)
 
-  _advertise (items : List [Item] ) (item_id : Int) : List [Item] =
-    items .updated (item_id , _advertise_item (items .apply (item_id) ) )
+  _advertise (items : List [Item] ) (item_id : Index) : List [Item] =
+    set (items) (item_id) (_advertise_item (get (items) (item_id) ) )
 
-  advertise (market : Market) (item_id : Int) : Market =
+  advertise (market : Market) (item_id : Index) : Market =
     mk_market (market .accounts) (_advertise (market .items) (item_id) )
 
   _hide_item (item : Item) : Item =
     Item_ (item .owner) (item .price) (false)
 
-  _remove_ad (items : List [Item] ) (item_id : Int) : List [Item] =
-    items .updated (item_id , _hide_item (items .apply (item_id) ) )
+  _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
+    set (items) (item_id) (_hide_item (get (items) (item_id) ) )
 
-  remove_ad (market : Market) (item_id : Int) : Market =
+  remove_ad (market : Market) (item_id : Index) : Market =
     mk_market (market .accounts) (_remove_ad (market .items) (item_id) )
 
-  _transfer (accounts : List [Int] ) (origin : Int) (target : Int) (amount : Int)
+  _transfer (accounts : List [Int] ) (origin : Index) (target : Index) (amount : Int)
       : List [Int] =
-    accounts
-      .updated (origin , accounts .apply (origin) - amount)
-      .updated (target , accounts .apply (target) + amount)
+    set (
+      set (accounts) (origin) ( (get (accounts) (origin) ) - amount)
+    ) (target) ( (get (accounts) (target) ) + amount)
 
-  _give (items : List [Item] ) (item_id : Int) (buyer : Int) (price : Int) : List [Item] =
-    items
-      .updated (item_id , Item_ (buyer) (price) (false) )
+  _give (items : List [Item] ) (item_id : Index) (buyer : Index) (price : Int) : List [Item] =
+    set (items) (item_id) (Item_ (buyer) (price) (false) )
 
-  _sell_item (market : Market) (item : Item) (item_id : Int) (buyer : Int) : Market =
+  _sell_item (market : Market) (item : Item) (item_id : Index) (buyer : Index) : Market =
     mk_market (
       _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
       _give (market .items) (item_id) (buyer) (item .price)
     )
 
-  sell (market : Market) (item_id : Int) (buyer : Int) : Market =
-    _sell_item (market) (market .items .apply (item_id) ) (item_id) (buyer)
+  sell (market : Market) (item_id : Index) (buyer : Index) : Market =
+    _sell_item (market) (get (market .items) (item_id) ) (item_id) (buyer)
 
 end
 

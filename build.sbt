@@ -26,7 +26,7 @@ lazy val commonSettings =
      * [[https://repo1.maven.org/maven2/org/scala-lang/scalap/]]
      * [[https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/]]
      */
-    crossScalaVersions := Seq(scala2_13, scala3_3),
+    crossScalaVersions := Seq(scala3_3),
     scalaVersion := scala3_3,
 
     /**
