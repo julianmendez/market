@@ -42,10 +42,10 @@ lazy val commonSettings =
     scalacOptions ++= Seq("-deprecation", "-feature")
   )
 
-lazy val market =
+lazy val marketCore =
   project
-    .withId("market")
-    .in(file("market"))
+    .withId("market-core")
+    .in(file("market-core"))
     .settings(
       commonSettings
     )
@@ -53,13 +53,13 @@ lazy val market =
 
 lazy val root =
   project
-    .withId("prototype")
+    .withId("market")
     .in(file("."))
-    .aggregate(market)
-    .dependsOn(market)
+    .aggregate(marketCore)
+    .dependsOn(marketCore)
     .settings(
       commonSettings,
       assembly / mainClass := Some("soda.se.umu.cs.soda.prototype.example.market.main.EntryPoint"),
-      assembly / assemblyJarName := "prototype-" + version.value + ".jar"
+      assembly / assemblyJarName := "market-" + version.value + ".jar"
     )
 
