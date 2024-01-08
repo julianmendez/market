@@ -13,6 +13,5 @@ build:
   stage: build
   script:
   - sbt '++ 3.3.1' scalaVersion sbtVersion version clean compile test package assembly
-  - sbt '++ 2.13.12' scalaVersion sbtVersion version clean compile test package assembly
 
 
