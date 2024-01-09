@@ -19,6 +19,7 @@ class Item
 
 end
 
+
 class Market
 
   abstract
@@ -26,6 +27,7 @@ class Market
     items : List [Item]
 
 end
+
 
 class MarketMod
 
