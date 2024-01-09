@@ -1,20 +1,21 @@
 
-
 directive lean
 notation:max "Boolean" => Bool
 notation:max "Some" => some
-notation:max "Index" => Nat
-
 
 directive scala
-type Index = Int
+type Nat = Int
+
+class Index = Nat
+
+class Money = Int
 
 
 class Item
 
   abstract
     owner : Index
-    price : Int
+    price : Money
     advertised : Boolean
 
 end
@@ -23,7 +24,7 @@ end
 class Market
 
   abstract
-    accounts : List [Int]
+    accounts : List [Money]
     items : List [Item]
 
 end
@@ -51,7 +52,7 @@ class MarketMod
     then list.set (index) (element)
     else list
 
-  mk_market (new_accounts : List [Int] ) (new_items : List [Item] ) : Market =
+  mk_market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts) (new_items)
 
   as_market (market : Market) : Market =
@@ -79,25 +80,25 @@ class MarketMod
   remove_ad (market : Market) (item_id : Index) : Market =
     mk_market (market .accounts) (_remove_ad (market .items) (item_id) )
 
-  _transfer_with_balances (accounts : List [Int] ) (origin : Index) (target : Index)
-      (amount : Int) (origin_balance : Int) (target_balance : Int) : List [Int] =
+  _transfer_with_balances (accounts : List [Money] ) (origin : Index) (target : Index)
+      (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
     set (set (accounts) (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
-  _transfer_with (accounts : List [Int] ) (origin : Index) (target : Index) (amount : Int)
-      (origin_balance : Int) : List [Int] =
+  _transfer_with (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
+      (origin_balance : Money) : List [Money] =
     match (get (accounts) (target) )
       case Some (target_balance) ==>
         _transfer_with_balances (accounts) (origin) (target) (amount) (origin_balance) (target_balance)
       case otherwise ==> accounts
 
-  _transfer (accounts : List [Int] ) (origin : Index) (target : Index) (amount : Int)
-      : List [Int] =
+  _transfer (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
+      : List [Money] =
     match (get (accounts) (origin) )
       case Some (origin_balance) ==>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
       case None ==> accounts
 
-  _give (items : List [Item] ) (item_id : Index) (buyer : Index) (price : Int) : List [Item] =
+  _give (items : List [Item] ) (item_id : Index) (buyer : Index) (price : Money) : List [Item] =
     set (items) (item_id) (Item_ (buyer) (price) (false) )
 
   _sell_item (market : Market) (item : Item) (item_id : Index) (buyer : Index) : Market =

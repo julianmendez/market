@@ -1,20 +1,21 @@
-
-
 notation:max "Boolean" => Bool
 notation:max "Some" => some
-notation:max "Index" => Nat
 
 /-
 directive scala
-type Index = Int
+type Nat = Int
 -/
+
+notation:max "Index" => Nat
+
+notation:max "Money" => Int
 
 namespace Item
 
 class Item where
   Item_ ::
     owner : Index
-    price : Int
+    price : Money
     advertised : Boolean
   deriving DecidableEq
 
@@ -29,7 +30,7 @@ namespace Market
 
 class Market where
   Market_ ::
-    accounts : List ( Int )
+    accounts : List ( Money )
     items : List ( Item )
   deriving DecidableEq
 
@@ -64,7 +65,7 @@ namespace MarketMod
     then list.set (index) (element)
     else list
 
- def   mk_market (new_accounts : List ( Int ) ) (new_items : List ( Item ) ) : Market :=
+ def   mk_market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
     Market_ (new_accounts) (new_items)
 
 
@@ -102,13 +103,13 @@ namespace MarketMod
     mk_market (market.accounts) (_remove_ad (market.items) (item_id) )
 
 
-def   _transfer_with_balances (accounts : List ( Int ) ) (origin : Index) (target : Index)
-       (amount : Int) (origin_balance : Int) (target_balance : Int) : List ( Int ) :=
+def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
+       (amount : Money) (origin_balance : Money) (target_balance : Money) : List ( Money ) :=
     set (set (accounts) (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
 
-def   _transfer_with (accounts : List ( Int ) ) (origin : Index) (target : Index) (amount : Int)
-       (origin_balance : Int) : List ( Int ) :=
+def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
+       (origin_balance : Money) : List ( Money ) :=
     match (get (accounts) (target) ) with
       | Some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target) (amount) (origin_balance) (target_balance)
@@ -116,8 +117,8 @@ def   _transfer_with (accounts : List ( Int ) ) (origin : Index) (target : Index
     
 
 
-def   _transfer (accounts : List ( Int ) ) (origin : Index) (target : Index) (amount : Int)
-       : List ( Int ) :=
+def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
+       : List ( Money ) :=
     match (get (accounts) (origin) ) with
       | Some (origin_balance) =>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
@@ -125,7 +126,7 @@ def   _transfer (accounts : List ( Int ) ) (origin : Index) (target : Index) (am
     
 
 
- def   _give (items : List ( Item ) ) (item_id : Index) (buyer : Index) (price : Int) : List ( Item ) :=
+ def   _give (items : List ( Item ) ) (item_id : Index) (buyer : Index) (price : Money) : List ( Item ) :=
     set (items) (item_id) (Item_ (buyer) (price) (false) )
 
 

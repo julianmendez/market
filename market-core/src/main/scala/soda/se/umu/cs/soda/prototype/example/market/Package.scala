@@ -7,40 +7,38 @@ package soda.se.umu.cs.soda.prototype.example.market
 
 trait Package
 
-
-
 /*
 directive lean
 notation:max "Boolean" => Bool
+notation:max "Some" => some
 */
 
-type Index = Int
+type Nat = Int
 
-/*
-directive lean
-def Index : Type := Nat deriving DecidableEq
-*/
+type Index = Nat
+
+type Money = Int
 
 trait Item
 {
 
   def   owner : Index
-  def   price : Int
+  def   price : Money
   def   advertised : Boolean
 
 }
 
-case class Item_ (owner : Index, price : Int, advertised : Boolean) extends Item
+case class Item_ (owner : Index, price : Money, advertised : Boolean) extends Item
 
 trait Market
 {
 
-  def   accounts : List [Int]
+  def   accounts : List [Money]
   def   items : List [Item]
 
 }
 
-case class Market_ (accounts : List [Int], items : List [Item]) extends Market
+case class Market_ (accounts : List [Money], items : List [Item]) extends Market
 
 trait MarketMod
 {
@@ -67,7 +65,7 @@ trait MarketMod
     else list
 */
 
-  def mk_market (new_accounts : List [Int] ) (new_items : List [Item] ) : Market =
+  def mk_market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts, new_items)
 
   def as_market (market : Market) : Market =
@@ -97,27 +95,27 @@ trait MarketMod
   def remove_ad (market : Market) (item_id : Index) : Market =
     mk_market (market .accounts) (_remove_ad (market .items) (item_id) )
 
-  private def _transfer_with_balances (accounts : List [Int] ) (origin : Index) (target : Index)
-      (amount : Int) (origin_balance : Int) (target_balance : Int) : List [Int] =
+  private def _transfer_with_balances (accounts : List [Money] ) (origin : Index) (target : Index)
+      (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
     set (set (accounts) (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
-  private def _transfer_with (accounts : List [Int] ) (origin : Index) (target : Index) (amount : Int)
-      (origin_balance : Int) : List [Int] =
+  private def _transfer_with (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
+      (origin_balance : Money) : List [Money] =
     (get (accounts) (target) ) match  {
       case Some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target) (amount) (origin_balance) (target_balance)
       case otherwise => accounts
     }
 
-  private def _transfer (accounts : List [Int] ) (origin : Index) (target : Index) (amount : Int)
-      : List [Int] =
+  private def _transfer (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
+      : List [Money] =
     (get (accounts) (origin) ) match  {
       case Some (origin_balance) =>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
       case None => accounts
     }
 
-  private def _give (items : List [Item] ) (item_id : Index) (buyer : Index) (price : Int) : List [Item] =
+  private def _give (items : List [Item] ) (item_id : Index) (buyer : Index) (price : Money) : List [Item] =
     set (items) (item_id) (Item_ (buyer, price, false) )
 
   private def _sell_item (market : Market) (item : Item) (item_id : Index) (buyer : Index) : Market =
