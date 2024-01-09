@@ -2,13 +2,13 @@
 
 directive lean
 notation:max "Boolean" => Bool
+notation:max "Some" => some
+notation:max "Index" => Nat
 
 
 directive scala
 type Index = Int
 
-directive lean
-def Index : Type := Nat deriving DecidableEq
 
 class Item
 
@@ -30,20 +30,24 @@ end
 class MarketMod
 
   directive scala
-  def get [A] (list : List [A]) (index : Index) : A =
-    list.apply (index)
+  def get [A] (list : List [A]) (index : Index) : Option [A] =
+    list.lift (index)
 
   directive lean
-  def get {A : Type} (list : List (A)) (index : Index) : A :=
-    list.get! (index)
+  def get {A : Type} (list : List (A)) (index : Index) : Option (A) :=
+    list.get? (index)
 
   directive scala
   def set [A] (list : List [A]) (index : Index) (element : A) : List [A] =
-    list.updated (index , element)
+    if (index < list.length)
+    then list.updated (index , element)
+    else list
 
   directive lean
   def set {A : Type} (list : List (A)) (index : Index) (element : A) : List (A) :=
-    list.set (index) (element)
+    if (index < list.length)
+    then list.set (index) (element)
+    else list
 
   mk_market (new_accounts : List [Int] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts) (new_items)
@@ -55,7 +59,9 @@ class MarketMod
     Item_ (item .owner) (item .price) (true)
 
   _advertise (items : List [Item] ) (item_id : Index) : List [Item] =
-    set (items) (item_id) (_advertise_item (get (items) (item_id) ) )
+    match (get (items) (item_id) )
+      case Some (item) ==> set (items) (item_id) (_advertise_item (item) )
+      case otherwise ==> items
 
   advertise (market : Market) (item_id : Index) : Market =
     mk_market (market .accounts) (_advertise (market .items) (item_id) )
@@ -64,16 +70,30 @@ class MarketMod
     Item_ (item .owner) (item .price) (false)
 
   _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
-    set (items) (item_id) (_hide_item (get (items) (item_id) ) )
+    match (get (items) (item_id) )
+      case Some (item) ==> set (items) (item_id) (_hide_item (item) )
+      case otherwise ==> items
 
   remove_ad (market : Market) (item_id : Index) : Market =
     mk_market (market .accounts) (_remove_ad (market .items) (item_id) )
 
+  _transfer_with_balances (accounts : List [Int] ) (origin : Index) (target : Index)
+      (amount : Int) (origin_balance : Int) (target_balance : Int) : List [Int] =
+    set (set (accounts) (origin) (origin_balance - amount) ) (target) (target_balance + amount)
+
+  _transfer_with (accounts : List [Int] ) (origin : Index) (target : Index) (amount : Int)
+      (origin_balance : Int) : List [Int] =
+    match (get (accounts) (target) )
+      case Some (target_balance) ==>
+        _transfer_with_balances (accounts) (origin) (target) (amount) (origin_balance) (target_balance)
+      case otherwise ==> accounts
+
   _transfer (accounts : List [Int] ) (origin : Index) (target : Index) (amount : Int)
       : List [Int] =
-    set (
-      set (accounts) (origin) ( (get (accounts) (origin) ) - amount)
-    ) (target) ( (get (accounts) (target) ) + amount)
+    match (get (accounts) (origin) )
+      case Some (origin_balance) ==>
+        _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
+      case None ==> accounts
 
   _give (items : List [Item] ) (item_id : Index) (buyer : Index) (price : Int) : List [Item] =
     set (items) (item_id) (Item_ (buyer) (price) (false) )
@@ -85,7 +105,11 @@ class MarketMod
     )
 
   sell (market : Market) (item_id : Index) (buyer : Index) : Market =
-    _sell_item (market) (get (market .items) (item_id) ) (item_id) (buyer)
+    match (get (market .items) (item_id) )
+      case Some (item) ==>
+        _sell_item (market) (item) (item_id) (buyer)
+      case otherwise ==>
+        market
 
 end
 
