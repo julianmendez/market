@@ -1,7 +1,10 @@
 
 directive lean
+/- Prelude for Soda types. -/
 notation:max "Boolean" => Bool
+notation:max "None" => none
 notation:max "Some" => some
+notation:max "Nil" => []
 
 directive scala
 type Nat = Int
@@ -51,6 +54,17 @@ class MarketMod
     if (index < list.length)
     then list.set (index) (element)
     else list
+
+  _tailrec_fold3 [A : Type] [B : Type] (sequence : List [A] ) (current : B)
+      (next_value : B -> A -> B) : B =
+    match sequence
+      case Nil ==> current
+      case (head) :: (tail) ==>
+        _tailrec_fold3 [A] [B] (tail) (next_value (current) (head) ) (next_value)
+
+  fold3 [A : Type] [B : Type] (sequence : List [A] ) (initial_value : B)
+      (next_value : B -> A -> B) : B =
+    _tailrec_fold3 [A] [B] (sequence) (initial_value) (next_value)
 
   mk_market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts) (new_items)
@@ -113,6 +127,21 @@ class MarketMod
         _sell_item (market) (item) (item_id) (buyer)
       case otherwise ==>
         market
+
+  _sum_pair (a : Money) (b : Money) : Money =
+    a + b
+
+  _sum (accounts : List [Money] ) : Money =
+    fold3 [Money] [Money] (accounts) (0) (_sum_pair)
+
+  assets (market : Market) : Money =
+    _sum (market .accounts)
+
+  directive lean
+  theorem
+    money_conservation_after_sell (market : Market) (item_id : Index) (buyer : Index) :
+      assets (sell (market) (item_id) (buyer) ) = assets (market) :=
+    by sorry
 
 end
 

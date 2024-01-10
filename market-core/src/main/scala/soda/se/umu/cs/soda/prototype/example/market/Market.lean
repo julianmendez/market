@@ -1,5 +1,8 @@
+/- Prelude for Soda types. -/
 notation:max "Boolean" => Bool
+notation:max "None" => none
 notation:max "Some" => some
+notation:max "Nil" => []
 
 /-
 directive scala
@@ -64,6 +67,20 @@ namespace MarketMod
     if (index < list.length)
     then list.set (index) (element)
     else list
+
+def   _tailrec_fold3 ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
+       (next_value : B -> A -> B) : B :=
+    match sequence with
+      | Nil => current
+      | (head) :: (tail) =>
+        _tailrec_fold3 ( A ) ( B ) (tail) (next_value (current) (head) ) (next_value)
+    
+
+
+def   fold3 ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B)
+       (next_value : B -> A -> B) : B :=
+    _tailrec_fold3 ( A ) ( B ) (sequence) (initial_value) (next_value)
+
 
  def   mk_market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
     Market_ (new_accounts) (new_items)
@@ -145,6 +162,23 @@ def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (
         market
     
 
+
+ def   _sum_pair (a : Money) (b : Money) : Money :=
+    a + b
+
+
+ def   _sum (accounts : List ( Money ) ) : Money :=
+    fold3 ( Money ) ( Money ) (accounts) (0) (_sum_pair)
+
+
+ def   assets (market : Market) : Money :=
+    _sum (market.accounts)
+
+
+  theorem
+    money_conservation_after_sell (market : Market) (item_id : Index) (buyer : Index) :
+      assets (sell (market) (item_id) (buyer) ) = assets (market) :=
+    by sorry
 
 end MarketMod
 

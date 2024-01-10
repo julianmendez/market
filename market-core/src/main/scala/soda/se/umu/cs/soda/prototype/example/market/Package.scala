@@ -9,8 +9,11 @@ trait Package
 
 /*
 directive lean
+/- Prelude for Soda types. -/
 notation:max "Boolean" => Bool
+notation:max "None" => none
 notation:max "Some" => some
+notation:max "Nil" => []
 */
 
 type Nat = Int
@@ -64,6 +67,18 @@ trait MarketMod
     then list.set (index) (element)
     else list
 */
+
+  private def _tailrec_fold3 [A , B ] (sequence : List [A] ) (current : B)
+      (next_value : B => A => B) : B =
+    sequence match  {
+      case Nil => current
+      case (head) :: (tail) =>
+        _tailrec_fold3 [A, B] (tail) (next_value (current) (head) ) (next_value)
+    }
+
+  def fold3 [A , B ] (sequence : List [A] ) (initial_value : B)
+      (next_value : B => A => B) : B =
+    _tailrec_fold3 [A, B] (sequence) (initial_value) (next_value)
 
   def mk_market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts, new_items)
@@ -131,6 +146,23 @@ trait MarketMod
       case otherwise =>
         market
     }
+
+  private def _sum_pair (a : Money) (b : Money) : Money =
+    a + b
+
+  private def _sum (accounts : List [Money] ) : Money =
+    fold3 [Money, Money] (accounts) (0) (_sum_pair)
+
+  def assets (market : Market) : Money =
+    _sum (market .accounts)
+
+/*
+  directive lean
+  theorem
+    money_conservation_after_sell (market : Market) (item_id : Index) (buyer : Index) :
+      assets (sell (market) (item_id) (buyer) ) = assets (market) :=
+    by sorry
+*/
 
 }
 
