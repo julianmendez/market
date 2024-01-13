@@ -55,16 +55,16 @@ class MarketMod
     then list.set (index) (element)
     else list
 
-  _tailrec_fold3 [A : Type] [B : Type] (sequence : List [A] ) (current : B)
+  _tailrec_fold [A : Type] [B : Type] (sequence : List [A] ) (current : B)
       (next_value : B -> A -> B) : B =
     match sequence
       case Nil ==> current
       case (head) :: (tail) ==>
-        _tailrec_fold3 [A] [B] (tail) (next_value (current) (head) ) (next_value)
+        _tailrec_fold [A] [B] (tail) (next_value (current) (head) ) (next_value)
 
-  fold3 [A : Type] [B : Type] (sequence : List [A] ) (initial_value : B)
+  fold [A : Type] [B : Type] (sequence : List [A] ) (initial_value : B)
       (next_value : B -> A -> B) : B =
-    _tailrec_fold3 [A] [B] (sequence) (initial_value) (next_value)
+    _tailrec_fold [A] [B] (sequence) (initial_value) (next_value)
 
   mk_market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts) (new_items)
@@ -72,23 +72,19 @@ class MarketMod
   as_market (market : Market) : Market =
     mk_market (market .accounts) (market .items)
 
-  _advertise_item (item : Item) : Item =
-    Item_ (item .owner) (item .price) (true)
-
   _advertise (items : List [Item] ) (item_id : Index) : List [Item] =
     match (get (items) (item_id) )
-      case Some (item) ==> set (items) (item_id) (_advertise_item (item) )
+      case Some (item) ==>
+        set (items) (item_id) (Item_ (item .owner) (item .price) (true) )
       case otherwise ==> items
 
   advertise (market : Market) (item_id : Index) : Market =
     mk_market (market .accounts) (_advertise (market .items) (item_id) )
 
-  _hide_item (item : Item) : Item =
-    Item_ (item .owner) (item .price) (false)
-
   _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
     match (get (items) (item_id) )
-      case Some (item) ==> set (items) (item_id) (_hide_item (item) )
+      case Some (item) ==>
+        set (items) (item_id) (Item_ (item .owner) (item .price) (false) )
       case otherwise ==> items
 
   remove_ad (market : Market) (item_id : Index) : Market =
@@ -112,30 +108,21 @@ class MarketMod
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
       case None ==> accounts
 
-  _give (items : List [Item] ) (item_id : Index) (buyer : Index) (price : Money) : List [Item] =
-    set (items) (item_id) (Item_ (buyer) (price) (false) )
-
-  _sell_item (market : Market) (item : Item) (item_id : Index) (buyer : Index) : Market =
-    mk_market (
-      _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
-      _give (market .items) (item_id) (buyer) (item .price)
-    )
-
   sell (market : Market) (item_id : Index) (buyer : Index) : Market =
     match (get (market .items) (item_id) )
       case Some (item) ==>
-        _sell_item (market) (item) (item_id) (buyer)
+        mk_market (
+          _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
+          set (market .items) (item_id) (Item_ (buyer) (item .price) (false) )
+        )
       case otherwise ==>
         market
 
   _sum_pair (a : Money) (b : Money) : Money =
     a + b
 
-  _sum (accounts : List [Money] ) : Money =
-    fold3 [Money] [Money] (accounts) (0) (_sum_pair)
-
   assets (market : Market) : Money =
-    _sum (market .accounts)
+    fold [Money] [Money] (market .accounts) (0) (_sum_pair)
 
   directive lean
   theorem

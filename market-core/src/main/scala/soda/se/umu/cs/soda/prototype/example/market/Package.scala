@@ -68,17 +68,17 @@ trait MarketMod
     else list
 */
 
-  private def _tailrec_fold3 [A , B ] (sequence : List [A] ) (current : B)
+  private def _tailrec_fold [A , B ] (sequence : List [A] ) (current : B)
       (next_value : B => A => B) : B =
     sequence match  {
       case Nil => current
       case (head) :: (tail) =>
-        _tailrec_fold3 [A, B] (tail) (next_value (current) (head) ) (next_value)
+        _tailrec_fold [A, B] (tail) (next_value (current) (head) ) (next_value)
     }
 
-  def fold3 [A , B ] (sequence : List [A] ) (initial_value : B)
+  def fold [A , B ] (sequence : List [A] ) (initial_value : B)
       (next_value : B => A => B) : B =
-    _tailrec_fold3 [A, B] (sequence) (initial_value) (next_value)
+    _tailrec_fold [A, B] (sequence) (initial_value) (next_value)
 
   def mk_market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts, new_items)
@@ -86,24 +86,20 @@ trait MarketMod
   def as_market (market : Market) : Market =
     mk_market (market .accounts) (market .items)
 
-  private def _advertise_item (item : Item) : Item =
-    Item_ (item .owner, item .price, true)
-
   private def _advertise (items : List [Item] ) (item_id : Index) : List [Item] =
     (get (items) (item_id) ) match  {
-      case Some (item) => set (items) (item_id) (_advertise_item (item) )
+      case Some (item) =>
+        set (items) (item_id) (Item_ (item .owner, item .price, true) )
       case otherwise => items
     }
 
   def advertise (market : Market) (item_id : Index) : Market =
     mk_market (market .accounts) (_advertise (market .items) (item_id) )
 
-  private def _hide_item (item : Item) : Item =
-    Item_ (item .owner, item .price, false)
-
   private def _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
     (get (items) (item_id) ) match  {
-      case Some (item) => set (items) (item_id) (_hide_item (item) )
+      case Some (item) =>
+        set (items) (item_id) (Item_ (item .owner, item .price, false) )
       case otherwise => items
     }
 
@@ -130,19 +126,13 @@ trait MarketMod
       case None => accounts
     }
 
-  private def _give (items : List [Item] ) (item_id : Index) (buyer : Index) (price : Money) : List [Item] =
-    set (items) (item_id) (Item_ (buyer, price, false) )
-
-  private def _sell_item (market : Market) (item : Item) (item_id : Index) (buyer : Index) : Market =
-    mk_market (
-      _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
-      _give (market .items) (item_id) (buyer) (item .price)
-    )
-
   def sell (market : Market) (item_id : Index) (buyer : Index) : Market =
     (get (market .items) (item_id) ) match  {
       case Some (item) =>
-        _sell_item (market) (item) (item_id) (buyer)
+        mk_market (
+          _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
+          set (market .items) (item_id) (Item_ (buyer, item .price, false) )
+        )
       case otherwise =>
         market
     }
@@ -150,11 +140,8 @@ trait MarketMod
   private def _sum_pair (a : Money) (b : Money) : Money =
     a + b
 
-  private def _sum (accounts : List [Money] ) : Money =
-    fold3 [Money, Money] (accounts) (0) (_sum_pair)
-
   def assets (market : Market) : Money =
-    _sum (market .accounts)
+    fold [Money, Money] (market .accounts) (0) (_sum_pair)
 
 /*
   directive lean
