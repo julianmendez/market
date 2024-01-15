@@ -68,10 +68,10 @@ namespace MarketMod
     then list.set (index) (element)
     else list
 
-def   _tailrec_fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
+private def   _tailrec_fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
        (next_value : B -> A -> B) : B :=
     match sequence with
-      | Nil => current
+      | [] => current
       | (head) :: (tail) =>
         _tailrec_fold ( A ) ( B ) (tail) (next_value (current) (head) ) (next_value)
     
@@ -90,9 +90,9 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
     mk_market (market.accounts) (market.items)
 
 
- def   _advertise (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
+ private def   _advertise (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
     match (get (items) (item_id) ) with
-      | Some (item) =>
+      | some (item) =>
         set (items) (item_id) (Item_ (item.owner) (item.price) (true) )
       | otherwise => items
     
@@ -102,9 +102,9 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
     mk_market (market.accounts) (_advertise (market.items) (item_id) )
 
 
- def   _remove_ad (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
+ private def   _remove_ad (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
     match (get (items) (item_id) ) with
-      | Some (item) =>
+      | some (item) =>
         set (items) (item_id) (Item_ (item.owner) (item.price) (false) )
       | otherwise => items
     
@@ -114,32 +114,32 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
     mk_market (market.accounts) (_remove_ad (market.items) (item_id) )
 
 
-def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
+private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
        (amount : Money) (origin_balance : Money) (target_balance : Money) : List ( Money ) :=
     set (set (accounts) (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
 
-def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
+private def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
        (origin_balance : Money) : List ( Money ) :=
     match (get (accounts) (target) ) with
-      | Some (target_balance) =>
+      | some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target) (amount) (origin_balance) (target_balance)
       | otherwise => accounts
     
 
 
-def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
+private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
        : List ( Money ) :=
     match (get (accounts) (origin) ) with
-      | Some (origin_balance) =>
+      | some (origin_balance) =>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
-      | None => accounts
+      | none => accounts
     
 
 
  def   sell (market : Market) (item_id : Index) (buyer : Index) : Market :=
     match (get (market.items) (item_id) ) with
-      | Some (item) =>
+      | some (item) =>
         mk_market (
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
           set (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
@@ -149,7 +149,7 @@ def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (
     
 
 
- def   _sum_pair (a : Money) (b : Money) : Money :=
+ private def   _sum_pair (a : Money) (b : Money) : Money :=
     a + b
 
 
