@@ -82,12 +82,36 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
     _tailrec_fold ( A ) ( B ) (sequence) (initial_value) (next_value)
 
 
- def   mk_market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
+ def   mk_Market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
     Market_ (new_accounts) (new_items)
 
 
  def   as_market (market : Market) : Market :=
-    mk_market (market.accounts) (market.items)
+    mk_Market (market.accounts) (market.items)
+
+
+ private def   _change_owner (items : List ( Item ) ) (item_id : Index) (new_owner : Index) : List ( Item ) :=
+    match (get (items) (item_id) ) with
+      | some (item) =>
+        set (items) (item_id) (Item_ (new_owner) (item.price) (item.advertised) )
+      | otherwise => items
+    
+
+
+ def   change_owner (market : Market) (item_id : Index) (new_owner : Index) : Market :=
+    mk_Market (market.accounts) (_change_owner (market.items) (item_id) (new_owner) )
+
+
+ private def   _change_price (items : List ( Item ) ) (item_id : Index) (new_price : Money) : List ( Item ) :=
+    match (get (items) (item_id) ) with
+      | some (item) =>
+        set (items) (item_id) (Item_ (item.owner) (new_price) (item.advertised) )
+      | otherwise => items
+    
+
+
+ def   change_price (market : Market) (item_id : Index) (new_price : Money) : Market :=
+    mk_Market (market.accounts) (_change_price (market.items) (item_id) (new_price) )
 
 
  private def   _advertise (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
@@ -99,7 +123,7 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
 
 
  def   advertise (market : Market) (item_id : Index) : Market :=
-    mk_market (market.accounts) (_advertise (market.items) (item_id) )
+    mk_Market (market.accounts) (_advertise (market.items) (item_id) )
 
 
  private def   _remove_ad (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
@@ -111,7 +135,7 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
 
 
  def   remove_ad (market : Market) (item_id : Index) : Market :=
-    mk_market (market.accounts) (_remove_ad (market.items) (item_id) )
+    mk_Market (market.accounts) (_remove_ad (market.items) (item_id) )
 
 
 private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
@@ -140,7 +164,7 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
  def   sell (market : Market) (item_id : Index) (buyer : Index) : Market :=
     match (get (market.items) (item_id) ) with
       | some (item) =>
-        mk_market (
+        mk_Market (
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
           set (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
         )
