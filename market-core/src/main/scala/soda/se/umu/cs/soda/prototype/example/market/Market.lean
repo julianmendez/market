@@ -46,28 +46,6 @@ open Market
 
 namespace MarketMod
 
-/-
-  directive scala
-  def get [A] (list : List [A]) (index : Index) : Option [A] =
-    list.lift (index)
--/
-
-  def get {A : Type} (list : List (A)) (index : Index) : Option (A) :=
-    list.get? (index)
-
-/-
-  directive scala
-  def set [A] (list : List [A]) (index : Index) (element : A) : List [A] =
-    if (index < list.length)
-    then list.updated (index , element)
-    else list
--/
-
-  def set {A : Type} (list : List (A)) (index : Index) (element : A) : List (A) :=
-    if (index < list.length)
-    then list.set (index) (element)
-    else list
-
 private def   _tailrec_fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
        (next_value : B -> A -> B) : B :=
     match sequence with
@@ -82,55 +60,114 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
     _tailrec_fold ( A ) ( B ) (sequence) (initial_value) (next_value)
 
 
- def   mk_market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
+ private def   _tailrec_reverse ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) : List ( A ) :=
+    match list with
+      | [] => accum
+      | (head) :: (tail) => _tailrec_reverse ( A ) (tail) ( (head) :: (accum) )
+    
+
+
+ def   reverse ( A : Type ) (list : List ( A ) ) : List ( A ) :=
+    _tailrec_reverse ( A ) (list) (Nil)
+
+
+ private def   _tailrec_concat ( A : Type ) (rev_first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
+    match rev_first with
+      | [] => second
+      | (head) :: (tail) => _tailrec_concat ( A ) (tail) ( (head) :: (second) )
+    
+
+
+ def   concat ( A : Type ) (first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
+    _tailrec_concat ( A ) (reverse ( A ) (first) ) (second)
+
+
+ def   monus1 (index : Index) : Index :=
+    if index <= 0
+    then 0
+    else index - 1
+
+
+ private def   _tailrec_get ( A : Type ) (list : List ( A ) ) (index : Index) : Option ( A ) :=
+    match list with
+      | [] => none
+      | (head) :: (tail) =>
+        if index == 0
+        then some (head)
+        else _tailrec_get ( A ) (tail) (monus1 (index) )
+    
+
+
+ def   get ( A : Type ) (list : List ( A ) ) (index : Index) : Option ( A ) :=
+    _tailrec_get ( A ) (list) (index)
+
+
+private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) (index : Index)
+       (element : A) : List ( A ) :=
+    match list with
+      | [] => reverse ( A ) (accum)
+      | (head) :: (tail) =>
+        if index == 0
+        then concat ( A ) (reverse ( A ) (accum) ) ( (element) :: (tail) )
+        else _tailrec_set ( A ) (tail) ( (head) :: (accum) ) (monus1 (index) ) (element)
+    
+
+
+ def   set ( A : Type ) (list : List ( A ) ) (index : Index) (element : A) : List ( A ) :=
+    _tailrec_set ( A ) (list) (Nil) (index) (element)
+
+
+ def   mk_Market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
     Market_ (new_accounts) (new_items)
 
 
  def   as_market (market : Market) : Market :=
-    mk_market (market.accounts) (market.items)
+    mk_Market (market.accounts) (market.items)
 
 
  private def   _advertise (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
-    match (get (items) (item_id) ) with
+    match (get ( Item ) (items) (item_id) ) with
       | some (item) =>
-        set (items) (item_id) (Item_ (item.owner) (item.price) (true) )
+        set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (true) )
       | otherwise => items
     
 
 
  def   advertise (market : Market) (item_id : Index) : Market :=
-    mk_market (market.accounts) (_advertise (market.items) (item_id) )
+    mk_Market (market.accounts) (_advertise (market.items) (item_id) )
 
 
  private def   _remove_ad (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
-    match (get (items) (item_id) ) with
+    match (get ( Item ) (items) (item_id) ) with
       | some (item) =>
-        set (items) (item_id) (Item_ (item.owner) (item.price) (false) )
+        set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (false) )
       | otherwise => items
     
 
 
  def   remove_ad (market : Market) (item_id : Index) : Market :=
-    mk_market (market.accounts) (_remove_ad (market.items) (item_id) )
+    mk_Market (market.accounts) (_remove_ad (market.items) (item_id) )
 
 
 private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
        (amount : Money) (origin_balance : Money) (target_balance : Money) : List ( Money ) :=
-    set (set (accounts) (origin) (origin_balance - amount) ) (target) (target_balance + amount)
+    set ( Money ) (set ( Money ) (accounts)
+      (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
 
 private def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
        (origin_balance : Money) : List ( Money ) :=
-    match (get (accounts) (target) ) with
+    match (get ( Money ) (accounts) (target) ) with
       | some (target_balance) =>
-        _transfer_with_balances (accounts) (origin) (target) (amount) (origin_balance) (target_balance)
+        _transfer_with_balances (accounts) (origin) (target)
+          (amount) (origin_balance) (target_balance)
       | otherwise => accounts
     
 
 
 private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
        : List ( Money ) :=
-    match (get (accounts) (origin) ) with
+    match (get ( Money ) (accounts) (origin) ) with
       | some (origin_balance) =>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
       | none => accounts
@@ -138,11 +175,11 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
 
 
  def   sell (market : Market) (item_id : Index) (buyer : Index) : Market :=
-    match (get (market.items) (item_id) ) with
+    match (get ( Item ) (market.items) (item_id) ) with
       | some (item) =>
-        mk_market (
+        mk_Market (
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
-          set (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
+          set ( Item ) (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
         )
       | otherwise =>
         market
