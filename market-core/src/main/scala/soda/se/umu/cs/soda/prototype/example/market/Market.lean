@@ -60,6 +60,18 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
     _tailrec_fold ( A ) ( B ) (sequence) (initial_value) (next_value)
 
 
+ private def   _tailrec_length ( A : Type ) (list : List ( A ) ) (accum : Index) : Index :=
+    match list with
+      | [] => accum
+      | (head) :: (tail) =>
+        _tailrec_length ( A ) (tail) (accum + 1)
+    
+
+
+ def   length ( A : Type ) (list : List ( A ) ) : Index :=
+    _tailrec_length ( A ) (list) (0)
+
+
  private def   _tailrec_reverse ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) : List ( A ) :=
     match list with
       | [] => accum
@@ -70,6 +82,18 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
  def   reverse ( A : Type ) (list : List ( A ) ) : List ( A ) :=
     _tailrec_reverse ( A ) (list) (Nil)
 
+
+  theorem
+    len_rev (A : Type) (list : List (A) )
+      : length (A) (reverse (A) (list)) = length (A) (list) := by
+    induction list with
+    | nil =>
+        constructor
+    | cons head tail h1 =>
+        rewrite [length, length, reverse] at h1
+        rewrite [length, length, reverse]
+        rewrite [_tailrec_reverse]
+        sorry
 
  private def   _tailrec_concat ( A : Type ) (rev_first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
     match rev_first with
