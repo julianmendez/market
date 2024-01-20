@@ -13,9 +13,9 @@ notation:max "Index" => Nat
 
 notation:max "Money" => Int
 
-namespace Item
+class Item
 
-class Item where
+where
   Item_ ::
     owner : Index
     price : Money
@@ -29,9 +29,9 @@ end Item
 
 open Item
 
-namespace Market
+class Market
 
-class Market where
+where
   Market_ ::
     accounts : List ( Money )
     items : List ( Item )
@@ -44,7 +44,15 @@ end Market
 
 open Market
 
+class MarketMod
+
+where
+  MarketMod_ ::
+    
+  deriving DecidableEq
+
 namespace MarketMod
+
 
 private def   _tailrec_fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
        (next_value : B -> A -> B) : B :=

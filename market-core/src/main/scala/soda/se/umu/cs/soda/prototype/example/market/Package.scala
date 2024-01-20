@@ -46,6 +46,8 @@ case class Market_ (accounts : List [Money], items : List [Item]) extends Market
 trait MarketMod
 {
 
+
+
   private def _tailrec_fold [A , B ] (sequence : List [A] ) (current : B)
       (next_value : B => A => B) : B =
     sequence match  {

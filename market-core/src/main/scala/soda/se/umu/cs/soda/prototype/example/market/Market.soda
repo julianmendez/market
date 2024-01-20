@@ -35,6 +35,8 @@ end
 
 class MarketMod
 
+  abstract
+
   _tailrec_fold [A : Type] [B : Type] (sequence : List [A] ) (current : B)
       (next_value : B -> A -> B) : B =
     match sequence
