@@ -92,6 +92,29 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
 
 
   theorem
+    add_succ (n : Index) (m : Index)
+      : (n = m) -> (n + 1 = m + 1) := by
+        intro h
+        rewrite [h]
+        rfl
+
+  theorem
+    len_base (A : Type) (list : List (A)) (accum : Index)
+      : _tailrec_length (A) (list) (accum + 1) = (_tailrec_length (A) (list) (accum)) + 1 := by
+       sorry
+
+  theorem
+    len_rev_base_nil (A : Type) (head : A) (tail : List (A))
+     : _tailrec_length (A) (_tailrec_reverse (A) (tail) ((head) :: ([])) ) (0) =
+     _tailrec_length (A) ((head) :: _tailrec_reverse (A) (tail) ([]) ) (0) := by
+       induction tail with
+       | nil =>
+         constructor
+       | cons hd tl ih =>
+         rewrite [_tailrec_reverse, _tailrec_reverse]
+         sorry
+
+  theorem
     len_rev (A : Type) (list : List (A) )
       : length (A) (reverse (A) (list)) = length (A) (list) := by
     induction list with
@@ -101,7 +124,11 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
         rewrite [length, length, reverse] at h1
         rewrite [length, length, reverse]
         rewrite [_tailrec_reverse]
-        sorry
+        rewrite [len_rev_base_nil]
+        rewrite [_tailrec_length, _tailrec_length]
+        rewrite [len_base, len_base]
+        apply add_succ
+        exact h1
 
  private def   _tailrec_concat ( A : Type ) (rev_first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
     match rev_first with
