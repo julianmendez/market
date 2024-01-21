@@ -54,19 +54,26 @@ where
 namespace MarketMod
 
 
-private def   _tailrec_fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
+/-foldl
+ (fold left)
+-/
+
+private def   _tailrec_foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
        (next_value : B -> A -> B) : B :=
     match sequence with
       | [] => current
       | (head) :: (tail) =>
-        _tailrec_fold ( A ) ( B ) (tail) (next_value (current) (head) ) (next_value)
+        _tailrec_foldl ( A ) ( B ) (tail) (next_value (current) (head) ) (next_value)
     
 
 
-def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B)
+def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B)
        (next_value : B -> A -> B) : B :=
-    _tailrec_fold ( A ) ( B ) (sequence) (initial_value) (next_value)
+    _tailrec_foldl ( A ) ( B ) (sequence) (initial_value) (next_value)
 
+
+/- length
+-/
 
  private def   _tailrec_length ( A : Type ) (list : List ( A ) ) (accum : Index) : Index :=
     match list with
@@ -76,9 +83,52 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
     
 
 
+  theorem
+    len_tailrec_accum (A : Type) (list : List (A) )
+      : forall (accum : Index) ,
+        _tailrec_length (A) (list) (accum)  = _tailrec_length (A) (list) (0) + accum := by
+      induction list with
+      | nil =>
+        intro n
+        rewrite [_tailrec_length, _tailrec_length]
+        simp
+      | cons head tail ih =>
+        intro n
+        rewrite [_tailrec_length, _tailrec_length]
+        simp
+        have h1 := by exact ih (1)
+        have h2 := by exact ih (n + 1)
+        rewrite [h1]
+        rewrite [h2]
+        simp [Nat.add_assoc, Nat.add_comm]
+
  def   length ( A : Type ) (list : List ( A ) ) : Index :=
     _tailrec_length ( A ) (list) (0)
 
+
+ def   length_def ( A : Type ) (list : List ( A ) ) : Index :=
+    match list with
+      | [] => 0
+      | (head) :: (tail) => length_def ( A ) (tail) + 1
+    
+
+
+  theorem
+    len_eq_len_def
+      : length = length_def := by
+    funext A list
+    rewrite [length]
+    induction list with
+    | nil =>
+      constructor
+    | cons head tail ih =>
+      rewrite [_tailrec_length, len_tailrec_accum]
+      rewrite [ih]
+      rewrite [length_def]
+      simp
+
+/- reverse
+-/
 
  private def   _tailrec_reverse ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) : List ( A ) :=
     match list with
@@ -92,43 +142,86 @@ def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B
 
 
   theorem
-    add_succ (n : Index) (m : Index)
-      : (n = m) -> (n + 1 = m + 1) := by
-        intro h
-        rewrite [h]
-        rfl
-
-  theorem
-    len_base (A : Type) (list : List (A)) (accum : Index)
-      : _tailrec_length (A) (list) (accum + 1) = (_tailrec_length (A) (list) (accum)) + 1 := by
-       sorry
-
-  theorem
-    len_rev_base_nil (A : Type) (head : A) (tail : List (A))
-     : _tailrec_length (A) (_tailrec_reverse (A) (tail) ((head) :: ([])) ) (0) =
-     _tailrec_length (A) ((head) :: _tailrec_reverse (A) (tail) ([]) ) (0) := by
-       induction tail with
-       | nil =>
-         constructor
-       | cons hd tl ih =>
-         rewrite [_tailrec_reverse, _tailrec_reverse]
-         sorry
+    len_rev_accum (A : Type) (list : List (A))
+      : forall (accum : List (A) ),
+        length_def (A) (_tailrec_reverse (A) (list) (accum)) =
+            length_def (A) (_tailrec_reverse (A) (list) ([])) + length_def (A) (accum) := by
+      induction list with
+      | nil =>
+        intro other
+        simp [_tailrec_reverse, length_def]
+      | cons head tail ih =>
+        simp [_tailrec_reverse, length_def]
+        intro other
+        have h1 := by exact ih ((head) :: ([]))
+        have h2 := by exact ih ((head) :: (other))
+        rewrite [h1]
+        rewrite [h2]
+        rewrite [length_def, length_def, length_def]
+        simp [Nat.add_assoc, Nat.add_comm]
 
   theorem
     len_rev (A : Type) (list : List (A) )
       : length (A) (reverse (A) (list)) = length (A) (list) := by
+    rewrite [len_eq_len_def, reverse]
     induction list with
     | nil =>
+      constructor
+    | cons head tail ih =>
+      rewrite [_tailrec_reverse, length_def, len_rev_accum]
+      rewrite [ih]
+      rewrite [length_def, length_def]
+      simp
+
+/- map
+-/
+
+private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B) (accum : List ( B ) )
+       : List ( B ) :=
+    match list with
+      | [] => accum
+      | (head) :: (tail) =>
+          _tailrec_map_rev ( A ) ( B ) (tail) (func) ( (func (head) ) :: (accum) )
+    
+
+
+ def   map ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B) : List ( B ) :=
+    reverse ( B ) (_tailrec_map_rev ( A ) ( B ) (list) (func) (Nil) )
+
+
+ def   map_def ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B ) : List ( B ) :=
+    match list with
+      | [] => []
+      | (head) :: (tail) => (func (head) ) :: (map_def ( A ) ( B ) (tail) (func) )
+    
+
+
+  theorem
+    map_eq_map_def (A : Type) (B : Type) (list : List (A)) (func : A -> B)
+      : map (A) (B) (list) (func) = map_def (A) (B) (list) (func) := by
+    rewrite [map, reverse]
+    induction list with
+    | nil =>
+      rewrite [map_def, _tailrec_map_rev, _tailrec_reverse]
+      rfl
+    | cons head tail ih =>
+      rewrite [map_def, _tailrec_map_rev]
+      sorry
+
+  theorem
+    len_map (A : Type) (B : Type) (list : List (A) ) (func : A -> B)
+      : length (B) (map (A) (B) (list) (func) ) = length (A) (list) := by
+      rewrite [map_eq_map_def, len_eq_len_def]
+      induction list with
+      | nil =>
         constructor
-    | cons head tail h1 =>
-        rewrite [length, length, reverse] at h1
-        rewrite [length, length, reverse]
-        rewrite [_tailrec_reverse]
-        rewrite [len_rev_base_nil]
-        rewrite [_tailrec_length, _tailrec_length]
-        rewrite [len_base, len_base]
-        apply add_succ
-        exact h1
+      | cons head tail ih =>
+        rewrite [map_def, length_def, length_def]
+        simp
+        exact ih
+
+/- concat
+-/
 
  private def   _tailrec_concat ( A : Type ) (rev_first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
     match rev_first with
@@ -175,6 +268,14 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
  def   set ( A : Type ) (list : List ( A ) ) (index : Index) (element : A) : List ( A ) :=
     _tailrec_set ( A ) (list) (Nil) (index) (element)
 
+
+
+
+  theorem
+    len_set (A : Type) (list : List (A)) (index : Index) (element : A)
+      : length (A) (set (A) (list) (index) (element) ) = length (A) (list) := by
+        rewrite [set]
+        sorry
 
  def   mk_Market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
     Market_ (new_accounts) (new_items)
@@ -250,7 +351,7 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
 
 
  def   assets (market : Market) : Money :=
-    fold ( Money ) ( Money ) (market.accounts) (0) (_sum_pair)
+    foldl ( Money ) ( Money ) (market.accounts) (0) (_sum_pair)
 
 
   theorem
@@ -279,15 +380,17 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
     sorry
 
   theorem
-    lemma_fold (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer : Index) :
-     fold (Money) (Money) ( (sell (Market_ (accounts) (items)) (item_id) (buyer) ).accounts) (0) (_sum_pair) =
-       fold (Money) (Money) (accounts) (0) (_sum_pair) :=
+    lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer :
+    Index) :
+     foldl (Money) (Money) ( (sell (Market_ (accounts) (items)) (item_id) (buyer) ).accounts)
+     (0) (_sum_pair) =
+       foldl (Money) (Money) (accounts) (0) (_sum_pair) :=
          sorry
 
   theorem
     conservation_of_money_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
       assets (sell (market) (item_id) (buyer) ) = assets (market) :=
-    lemma_fold (market.accounts) (market.items) (item_id) (buyer)
+    lemma_foldl (market.accounts) (market.items) (item_id) (buyer)
 
 end MarketMod
 
