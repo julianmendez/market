@@ -43,7 +43,7 @@ trait Market
 
 case class Market_ (accounts : List [Money], items : List [Item]) extends Market
 
-trait MarketMod
+trait MyList
 {
 
 
@@ -280,6 +280,24 @@ trait MarketMod
         sorry
 */
 
+}
+
+case class MyList_ () extends MyList
+
+trait MarketMod
+{
+
+
+
+/*
+  directive lean
+  notation:max "_mm.get" => MyList.get
+  notation:max "_mm.set" => MyList.set
+  notation:max "_mm.foldl" => MyList.foldl
+*/
+
+  private lazy val _mm : MyList = MyList_ ()
+
   def mk_Market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts, new_items)
 
@@ -287,9 +305,9 @@ trait MarketMod
     mk_Market (market .accounts) (market .items)
 
   private def _advertise (items : List [Item] ) (item_id : Index) : List [Item] =
-    (get [Item] (items) (item_id) ) match  {
+    (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
-        set [Item] (items) (item_id) (Item_ (item .owner, item .price, true) )
+        _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, true) )
       case otherwise => items
     }
 
@@ -297,9 +315,9 @@ trait MarketMod
     mk_Market (market .accounts) (_advertise (market .items) (item_id) )
 
   private def _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
-    (get [Item] (items) (item_id) ) match  {
+    (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
-        set [Item] (items) (item_id) (Item_ (item .owner, item .price, false) )
+        _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, false) )
       case otherwise => items
     }
 
@@ -308,12 +326,12 @@ trait MarketMod
 
   private def _transfer_with_balances (accounts : List [Money] ) (origin : Index) (target : Index)
       (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
-    set [Money] (set [Money] (accounts)
+    _mm .set [Money] (_mm .set [Money] (accounts)
       (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
   private def _transfer_with (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
       (origin_balance : Money) : List [Money] =
-    (get [Money] (accounts) (target) ) match  {
+    (_mm .get [Money] (accounts) (target) ) match  {
       case Some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
@@ -322,18 +340,18 @@ trait MarketMod
 
   private def _transfer (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
       : List [Money] =
-    (get [Money] (accounts) (origin) ) match  {
+    (_mm .get [Money] (accounts) (origin) ) match  {
       case Some (origin_balance) =>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
       case None => accounts
     }
 
   def sell (market : Market) (item_id : Index) (buyer : Index) : Market =
-    (get [Item] (market .items) (item_id) ) match  {
+    (_mm .get [Item] (market .items) (item_id) ) match  {
       case Some (item) =>
         mk_Market (
           _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
-          set [Item] (market .items) (item_id) (Item_ (buyer, item .price, false) )
+          _mm .set [Item] (market .items) (item_id) (Item_ (buyer, item .price, false) )
         )
       case otherwise =>
         market
@@ -343,7 +361,7 @@ trait MarketMod
     a + b
 
   def assets (market : Market) : Money =
-    foldl [Money, Money] (market .accounts) (0) (_sum_pair)
+    _mm .foldl [Money, Money] (market .accounts) (0) (_sum_pair)
 
 /*
   directive lean
@@ -387,9 +405,9 @@ trait MarketMod
   theorem
     lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer :
     Index) :
-     foldl (Money) (Money) ( (sell (Market_ (accounts, items)) (item_id) (buyer) ).accounts)
+     _mm.foldl (Money) (Money) ( (sell (Market_ (accounts, items)) (item_id) (buyer) ).accounts)
      (0) (_sum_pair) =
-       foldl (Money) (Money) (accounts) (0) (_sum_pair) :=
+       _mm.foldl (Money) (Money) (accounts) (0) (_sum_pair) :=
          sorry
 */
 

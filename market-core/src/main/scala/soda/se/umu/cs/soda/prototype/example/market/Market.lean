@@ -27,7 +27,7 @@ namespace Item
 
 end Item
 
-open Item
+notation "Item_" => Item.Item_
 
 class Market
 
@@ -42,16 +42,16 @@ namespace Market
 
 end Market
 
-open Market
+notation "Market_" => Market.Market_
 
-class MarketMod
+class MyList
 
 where
-  MarketMod_ ::
+  MyList_ ::
     
   deriving DecidableEq
 
-namespace MarketMod
+namespace MyList
 
 
 /-foldl
@@ -277,6 +277,29 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
         rewrite [set]
         sorry
 
+end MyList
+
+notation "MyList_" => MyList.MyList_
+
+class MarketMod
+
+where
+  MarketMod_ ::
+    
+  deriving DecidableEq
+
+namespace MarketMod
+
+
+  notation:max "_mm.get" => MyList.get
+  notation:max "_mm.set" => MyList.set
+  notation:max "_mm.foldl" => MyList.foldl
+
+/-
+  directive scala
+  private lazy val _mm : MyList = MyList_ ()
+-/
+
  def   mk_Market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
     Market_ (new_accounts) (new_items)
 
@@ -286,9 +309,9 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
 
 
  private def   _advertise (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
-    match (get ( Item ) (items) (item_id) ) with
+    match (_mm.get ( Item ) (items) (item_id) ) with
       | some (item) =>
-        set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (true) )
+        _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (true) )
       | otherwise => items
     
 
@@ -298,9 +321,9 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
 
 
  private def   _remove_ad (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
-    match (get ( Item ) (items) (item_id) ) with
+    match (_mm.get ( Item ) (items) (item_id) ) with
       | some (item) =>
-        set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (false) )
+        _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (false) )
       | otherwise => items
     
 
@@ -311,13 +334,13 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
 
 private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
        (amount : Money) (origin_balance : Money) (target_balance : Money) : List ( Money ) :=
-    set ( Money ) (set ( Money ) (accounts)
+    _mm.set ( Money ) (_mm.set ( Money ) (accounts)
       (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
 
 private def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
        (origin_balance : Money) : List ( Money ) :=
-    match (get ( Money ) (accounts) (target) ) with
+    match (_mm.get ( Money ) (accounts) (target) ) with
       | some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
@@ -327,7 +350,7 @@ private def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (targ
 
 private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
        : List ( Money ) :=
-    match (get ( Money ) (accounts) (origin) ) with
+    match (_mm.get ( Money ) (accounts) (origin) ) with
       | some (origin_balance) =>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
       | none => accounts
@@ -335,11 +358,11 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
 
 
  def   sell (market : Market) (item_id : Index) (buyer : Index) : Market :=
-    match (get ( Item ) (market.items) (item_id) ) with
+    match (_mm.get ( Item ) (market.items) (item_id) ) with
       | some (item) =>
         mk_Market (
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
-          set ( Item ) (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
+          _mm.set ( Item ) (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
         )
       | otherwise =>
         market
@@ -351,7 +374,7 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
 
 
  def   assets (market : Market) : Money :=
-    foldl ( Money ) ( Money ) (market.accounts) (0) (_sum_pair)
+    _mm.foldl ( Money ) ( Money ) (market.accounts) (0) (_sum_pair)
 
 
   theorem
@@ -382,9 +405,9 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
   theorem
     lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer :
     Index) :
-     foldl (Money) (Money) ( (sell (Market_ (accounts) (items)) (item_id) (buyer) ).accounts)
+     _mm.foldl (Money) (Money) ( (sell (Market_ (accounts) (items)) (item_id) (buyer) ).accounts)
      (0) (_sum_pair) =
-       foldl (Money) (Money) (accounts) (0) (_sum_pair) :=
+       _mm.foldl (Money) (Money) (accounts) (0) (_sum_pair) :=
          sorry
 
   theorem
@@ -394,4 +417,4 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
 
 end MarketMod
 
-open MarketMod
+notation "MarketMod_" => MarketMod.MarketMod_
