@@ -1,8 +1,8 @@
 /- Prelude for Soda types. -/
-notation:max "Boolean" => Bool
-notation:max "None" => none
-notation:max "Some" => some
-notation:max "Nil" => []
+notation "Boolean" => Bool
+notation "None" => none
+notation "Some" => some
+notation "Nil" => []
 
 /-
 directive scala
@@ -291,9 +291,9 @@ where
 namespace MarketMod
 
 
-  notation:max "_mm.get" => MyList.get
-  notation:max "_mm.set" => MyList.set
-  notation:max "_mm.foldl" => MyList.foldl
+  notation "_mm.get" => MyList.get
+  notation "_mm.set" => MyList.set
+  notation "_mm.foldl" => MyList.foldl
 
 /-
   directive scala
