@@ -7,7 +7,7 @@ class MarketSpec ()
     assert (obtained == expected)
 
 
-  module = MarketMod_ ()
+  module = MarketMod_ (true)
 
   market01 : Market = Market01_ ()
 

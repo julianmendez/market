@@ -9,9 +9,9 @@ directive scala
 type Nat = Int
 -/
 
-notation:max "Index" => Nat
+notation "Index" => Nat
 
-notation:max "Money" => Int
+notation "Money" => Int
 
 class Item
 
@@ -48,7 +48,7 @@ class MyList
 
 where
   MyList_ ::
-    
+    bit : Boolean
   deriving DecidableEq
 
 namespace MyList
@@ -285,20 +285,18 @@ class MarketMod
 
 where
   MarketMod_ ::
-    
+    bit : Boolean
   deriving DecidableEq
 
 namespace MarketMod
 
 
+ private def   _mm : MyList := MyList_ (true)
+
+
   notation "_mm.get" => MyList.get
   notation "_mm.set" => MyList.set
   notation "_mm.foldl" => MyList.foldl
-
-/-
-  directive scala
-  private lazy val _mm : MyList = MyList_ ()
--/
 
  def   mk_Market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
     Market_ (new_accounts) (new_items)

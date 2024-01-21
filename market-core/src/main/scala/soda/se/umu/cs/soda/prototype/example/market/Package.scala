@@ -46,7 +46,7 @@ case class Market_ (accounts : List [Money], items : List [Item]) extends Market
 trait MyList
 {
 
-
+  def   bit : Boolean
 
 /*
  * foldl
@@ -282,12 +282,14 @@ trait MyList
 
 }
 
-case class MyList_ () extends MyList
+case class MyList_ (bit : Boolean) extends MyList
 
 trait MarketMod
 {
 
+  def   bit : Boolean
 
+  private lazy val _mm : MyList = MyList_ (true)
 
 /*
   directive lean
@@ -295,8 +297,6 @@ trait MarketMod
   notation "_mm.set" => MyList.set
   notation "_mm.foldl" => MyList.foldl
 */
-
-  private lazy val _mm : MyList = MyList_ ()
 
   def mk_Market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts, new_items)
@@ -421,5 +421,5 @@ trait MarketMod
 
 }
 
-case class MarketMod_ () extends MarketMod
+case class MarketMod_ (bit : Boolean) extends MarketMod
 

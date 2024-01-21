@@ -36,6 +36,7 @@ end
 class MyList
 
   abstract
+    bit : Boolean
 
 /*
  * foldl
@@ -251,14 +252,14 @@ end
 class MarketMod
 
   abstract
+    bit : Boolean
+
+  _mm : MyList = MyList_ (true)
 
   directive lean
   notation "_mm.get" => MyList.get
   notation "_mm.set" => MyList.set
   notation "_mm.foldl" => MyList.foldl
-
-  directive scala
-  private lazy val _mm : MyList = MyList_ ()
 
   mk_Market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
     Market_ (new_accounts) (new_items)

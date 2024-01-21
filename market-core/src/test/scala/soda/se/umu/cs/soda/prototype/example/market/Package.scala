@@ -72,7 +72,7 @@ case class MarketSpec ()
   def check [A ] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
     assert (obtained == expected)
 
-  lazy val module = MarketMod_ ()
+  lazy val module = MarketMod_ (true)
 
   lazy val market01 : Market = Market01_ ()
 
