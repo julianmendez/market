@@ -69,6 +69,34 @@ trait MyList
  * length
  */
 
+  def length_fl [A ] (list : List [A] ) : Index =
+    foldl [A, Index] (list) (0) (
+       (accum : Index) =>
+         (elem : A) => accum + 1
+    )
+
+/*
+  directive lean
+  theorem
+    len_fl_accum (A : Type) (list : List (A) )
+       : forall (accum : Index) ,
+        _tailrec_foldl (A) (Index) (list) (accum) (fun (accum : Index) => fun (elem : A) => accum + 1) =
+           _tailrec_foldl (A) (Index) (list) (0) (fun (accum : Index) => fun (elem : A) => accum + 1) + accum := by
+      induction list with
+      | nil =>
+        intro n
+        rewrite [_tailrec_foldl, _tailrec_foldl]
+        simp
+      | cons head tail ih =>
+        intro n
+        rewrite [_tailrec_foldl, _tailrec_foldl]
+        have h1 := by exact ih (1)
+        have h2 := by exact ih (n + 1)
+        rewrite [h1]
+        rewrite [h2]
+        simp [Nat.add_assoc, Nat.add_comm]
+*/
+
   private def _tailrec_length [A ] (list : List [A] ) (accum : Index) : Index =
     list match  {
       case Nil => accum
@@ -79,7 +107,7 @@ trait MyList
 /*
   directive lean
   theorem
-    len_tailrec_accum (A : Type) (list : List (A) )
+    len_tr_accum (A : Type) (list : List (A) )
       : forall (accum : Index) ,
         _tailrec_length (A) (list) (accum)  = _tailrec_length (A) (list) (0) + accum := by
       induction list with
@@ -90,7 +118,6 @@ trait MyList
       | cons head tail ih =>
         intro n
         rewrite [_tailrec_length, _tailrec_length]
-        simp
         have h1 := by exact ih (1)
         have h2 := by exact ih (n + 1)
         rewrite [h1]
@@ -98,7 +125,7 @@ trait MyList
         simp [Nat.add_assoc, Nat.add_comm]
 */
 
-  def length [A ] (list : List [A] ) : Index =
+  def length_tr [A ] (list : List [A] ) : Index =
     _tailrec_length [A] (list) (0)
 
   def length_def [A ] (list : List [A] ) : Index =
@@ -107,22 +134,40 @@ trait MyList
       case (head) :: (tail) => length_def [A] (tail) + 1
     }
 
-/*
-  directive lean
-  theorem
-    len_eq_len_def
-      : length = length_def := by
-    funext A list
-    rewrite [length]
+/*  theorem
+    len_fl_eq_len_def (A : Type) (list : List (A))
+      : length_fl (A) (list) = length_def (A) (list) := by
+    rewrite [length_fl, foldl]
     induction list with
     | nil =>
-      constructor
+      rewrite [_tailrec_foldl, length_def]
+      rfl
     | cons head tail ih =>
-      rewrite [_tailrec_length, len_tailrec_accum]
+      rewrite [_tailrec_foldl, len_fl_accum]
       rewrite [ih]
       rewrite [length_def]
       simp
 */
+
+/*
+  directive lean
+  theorem
+    len_tr_eq_len_def
+      : length_tr = length_def := by
+    funext A list
+    rewrite [length_tr]
+    induction list with
+    | nil =>
+      constructor
+    | cons head tail ih =>
+      rewrite [_tailrec_length, len_tr_accum]
+      rewrite [ih]
+      rewrite [length_def]
+      simp
+*/
+
+  def length [A ] (list : List [A] ) : Index =
+    length_fl [A] (list)
 
 /*
  * reverse
@@ -163,8 +208,8 @@ trait MyList
   directive lean
   theorem
     len_rev (A : Type) (list : List (A) )
-      : length (A) (reverse (A) (list)) = length (A) (list) := by
-    rewrite [len_eq_len_def, reverse]
+      : length_tr (A) (reverse (A) (list)) = length_tr (A) (list) := by
+    rewrite [len_tr_eq_len_def, reverse]
     induction list with
     | nil =>
       constructor
@@ -215,8 +260,8 @@ trait MyList
   directive lean
   theorem
     len_map (A : Type) (B : Type) (list : List (A) ) (func : A -> B)
-      : length (B) (map (A) (B) (list) (func) ) = length (A) (list) := by
-      rewrite [map_eq_map_def, len_eq_len_def]
+      : length_tr (B) (map (A) (B) (list) (func) ) = length_tr (A) (list) := by
+      rewrite [map_eq_map_def, len_tr_eq_len_def]
       induction list with
       | nil =>
         constructor
