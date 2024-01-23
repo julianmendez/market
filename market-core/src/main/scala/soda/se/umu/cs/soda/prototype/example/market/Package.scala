@@ -85,16 +85,16 @@ trait MyList
       induction list with
       | nil =>
         intro n
-        rewrite [_tailrec_foldl, _tailrec_foldl]
-        simp
+        rewrite [_tailrec_foldl, _tailrec_foldl, Nat.zero_add]
+        rfl
       | cons head tail ih =>
         intro n
         rewrite [_tailrec_foldl, _tailrec_foldl]
-        have h1 := by exact ih (1)
-        have h2 := by exact ih (n + 1)
-        rewrite [h1]
-        rewrite [h2]
-        simp [Nat.add_assoc, Nat.add_comm]
+        rewrite [ih (1)]
+        rewrite [ih (n + 1)]
+        rewrite [Nat.add_assoc]
+        rewrite [Nat.add_comm 1]
+        rfl
 */
 
   private def _tailrec_length [A ] (list : List [A] ) (accum : Index) : Index =
@@ -113,16 +113,16 @@ trait MyList
       induction list with
       | nil =>
         intro n
-        rewrite [_tailrec_length, _tailrec_length]
-        simp
+        rewrite [_tailrec_length, _tailrec_length, Nat.zero_add]
+        rfl
       | cons head tail ih =>
         intro n
         rewrite [_tailrec_length, _tailrec_length]
-        have h1 := by exact ih (1)
-        have h2 := by exact ih (n + 1)
-        rewrite [h1]
-        rewrite [h2]
-        simp [Nat.add_assoc, Nat.add_comm]
+        rewrite [ih (1)]
+        rewrite [ih (n + 1)]
+        rewrite [Nat.add_assoc]
+        rewrite [Nat.add_comm 1]
+        rfl
 */
 
   def length_tr [A ] (list : List [A] ) : Index =
@@ -134,8 +134,10 @@ trait MyList
       case (head) :: (tail) => length_def [A] (tail) + 1
     }
 
-/*  theorem
-    len_fl_eq_len_def (A : Type) (list : List (A))
+/*
+  directive lean
+  theorem
+  len_fl_eq_len_def (A : Type) (list : List (A))
       : length_fl (A) (list) = length_def (A) (list) := by
     rewrite [length_fl, foldl]
     induction list with
@@ -146,7 +148,7 @@ trait MyList
       rewrite [_tailrec_foldl, len_fl_accum]
       rewrite [ih]
       rewrite [length_def]
-      simp
+      rfl
 */
 
 /*
@@ -158,12 +160,13 @@ trait MyList
     rewrite [length_tr]
     induction list with
     | nil =>
-      constructor
+      rewrite [_tailrec_length, length_def]
+      rfl
     | cons head tail ih =>
       rewrite [_tailrec_length, len_tr_accum]
       rewrite [ih]
       rewrite [length_def]
-      simp
+      rfl
 */
 
   def length [A ] (list : List [A] ) : Index =
@@ -179,8 +182,47 @@ trait MyList
       case (head) :: (tail) => _tailrec_reverse [A] (tail) ( (head) :: (accum) )
     }
 
-  def reverse [A ] (list : List [A] ) : List [A] =
+  def reverse_tr [A ] (list : List [A] ) : List [A] =
     _tailrec_reverse [A] (list) (Nil)
+
+  def reverse_fl [A ] (list : List [A] ) : List [A] =
+    foldl [A, List [A] ] (list) (Nil) (
+       (accum : List [A] ) =>
+         (elem : A) =>
+          (elem) :: (accum)
+    )
+
+/*
+  directive lean
+  theorem
+    rev_fl_accum (A : Type) (list : List (A))
+      : forall (current: List (A) ),
+        _tailrec_foldl (A) (List (A) ) (list) (current)
+          (fun (accum : List (A) ) =>
+            fun (elem : A) =>
+               (elem) :: (accum)
+          ) = _tailrec_reverse (A) (list) (current) := by
+      induction list with
+      | nil =>
+        intro other
+        rewrite [_tailrec_foldl,_tailrec_reverse]
+        rfl
+      | cons head tail ih =>
+        intro other
+        rewrite [_tailrec_foldl,_tailrec_reverse]
+        rewrite [ih ((head) :: (other))]
+        rfl
+*/
+
+/*
+  directive lean
+  theorem
+    rev_tr_eq_rev_fl
+      (A : Type) (list : List (A) )
+        : reverse_fl (A) (list) = reverse_tr (A) (list) := by
+    rewrite [reverse_fl, reverse_tr, foldl, rev_fl_accum]
+    rfl
+*/
 
 /*
   directive lean
@@ -192,33 +234,40 @@ trait MyList
       induction list with
       | nil =>
         intro other
-        simp [_tailrec_reverse, length_def]
+        rewrite [_tailrec_reverse, _tailrec_reverse, length_def, Nat.zero_add]
+        rfl
       | cons head tail ih =>
-        simp [_tailrec_reverse, length_def]
         intro other
-        have h1 := by exact ih ((head) :: ([]))
-        have h2 := by exact ih ((head) :: (other))
-        rewrite [h1]
-        rewrite [h2]
+        rewrite [_tailrec_reverse, _tailrec_reverse]
+        rewrite [ih ((head) :: ([]))]
+        rewrite [ih ((head) :: (other))]
         rewrite [length_def, length_def, length_def]
-        simp [Nat.add_assoc, Nat.add_comm]
+        rewrite [Nat.add_assoc, Nat.add_comm 1]
+        rfl
 */
 
 /*
   directive lean
   theorem
-    len_rev (A : Type) (list : List (A) )
-      : length_tr (A) (reverse (A) (list)) = length_tr (A) (list) := by
-    rewrite [len_tr_eq_len_def, reverse]
+    rev_rev (A : Type) (list : List (A) )
+      : reverse_tr (A) (reverse_tr (A) (list) ) = list := by
+    rewrite [reverse_tr, reverse_tr]
     induction list with
     | nil =>
-      constructor
+      rewrite [_tailrec_reverse, _tailrec_reverse]
+      rfl
     | cons head tail ih =>
-      rewrite [_tailrec_reverse, length_def, len_rev_accum]
-      rewrite [ih]
-      rewrite [length_def, length_def]
-      simp
+      rewrite [_tailrec_reverse]
+      induction tail with
+      | nil =>
+        rewrite [_tailrec_reverse, _tailrec_reverse, _tailrec_reverse]
+        rfl
+      | cons hd tl ih2 =>
+        sorry
 */
+
+  def reverse [A ] (list : List [A] ) : List [A] =
+    reverse_fl [A] (list)
 
 /*
  * map
@@ -233,7 +282,7 @@ trait MyList
     }
 
   def map [A , B ] (list : List [A] ) (func : A => B) : List [B] =
-    reverse [B] (_tailrec_map_rev [A, B] (list) (func) (Nil) )
+    reverse_tr [B] (_tailrec_map_rev [A, B] (list) (func) (Nil) )
 
   def map_def [A , B ] (list : List [A] ) (func : A => B ) : List [B] =
     list match  {
@@ -246,7 +295,7 @@ trait MyList
   theorem
     map_eq_map_def (A : Type) (B : Type) (list : List (A)) (func : A -> B)
       : map (A) (B) (list) (func) = map_def (A) (B) (list) (func) := by
-    rewrite [map, reverse]
+    rewrite [map, reverse_tr]
     induction list with
     | nil =>
       rewrite [map_def, _tailrec_map_rev, _tailrec_reverse]
@@ -264,11 +313,12 @@ trait MyList
       rewrite [map_eq_map_def, len_tr_eq_len_def]
       induction list with
       | nil =>
-        constructor
+        rewrite [map_def, length_def, length_def]
+        rfl
       | cons head tail ih =>
         rewrite [map_def, length_def, length_def]
-        simp
-        exact ih
+        rewrite [ih]
+        rfl
 */
 
 /*
