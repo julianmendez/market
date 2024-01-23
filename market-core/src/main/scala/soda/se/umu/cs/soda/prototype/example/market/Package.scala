@@ -205,11 +205,11 @@ trait MyList
       induction list with
       | nil =>
         intro other
-        rewrite [_tailrec_foldl,_tailrec_reverse]
+        rewrite [_tailrec_foldl, _tailrec_reverse]
         rfl
       | cons head tail ih =>
         intro other
-        rewrite [_tailrec_foldl,_tailrec_reverse]
+        rewrite [_tailrec_foldl, _tailrec_reverse]
         rewrite [ih ((head) :: (other))]
         rfl
 */
@@ -361,19 +361,47 @@ trait MyList
         else _tailrec_set [A] (tail) ( (head) :: (accum) ) (monus1 (index) ) (element)
     }
 
-  def set [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
+  def set_tr [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
     _tailrec_set [A] (list) (Nil) (index) (element)
 
-
+  def set_def [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
+    list match  {
+      case Nil => Nil
+      case (head) :: (tail) =>
+        if ( index == 0
+        ) (element) :: (tail)
+        else (element) :: (set_def [A] (tail) (monus1 (index) ) (element) )
+    }
 
 /*
   directive lean
   theorem
-    len_set (A : Type) (list : List (A)) (index : Index) (element : A)
-      : length (A) (set (A) (list) (index) (element) ) = length (A) (list) := by
-        rewrite [set]
-        sorry
+    len_set (A : Type) (list : List (A)) (element : A)
+      : forall (index : Index),
+        length_def (A) (set_def (A) (list) (index) (element) ) = length_def (A) (list) := by
+    induction list with
+    | nil =>
+      intro idx
+      rewrite [set_def, length_def]
+      rfl
+    | cons head tail ih =>
+       intro idx
+       rewrite [set_def, length_def]
+       cases idx with
+       | zero =>
+         rewrite [monus1]
+         rewrite [Nat.zero_eq]
+         rfl
+       | succ k =>
+         rewrite [monus1]
+         simp
+         rewrite [length_def]
+         rewrite [ih]
+         rfl
 */
+
+  def set [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
+    set_tr [A] (list) (index) (element)
 
 }
 
