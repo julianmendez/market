@@ -7,7 +7,23 @@ package soda.se.umu.cs.soda.prototype.example.market
 
 trait Package
 
+/*
+ * Prelude for Soda types in Scala.
+ */
 type Nat = Int
+object Nat {
+  object Succ_ {
+    def unapply (n : Int) : Option [Int] = if (n <= 0) None else Some (n - 1)
+  }
+}
+
+/*
+directive lean
+/-
+ - Prelude for Soda types in Lean.
+ -/
+notation "Nat.Succ_" => Nat.succ
+*/
 
 type Index = Nat
 
@@ -326,9 +342,21 @@ trait MyList
     _tailrec_concat [A] (reverse [A] (first) ) (second)
 
   def monus1 (index : Index) : Index =
-    if ( index <= 0
-    ) 0
-    else index - 1
+    index match  {
+      case 0 => 0
+      case Nat.Succ_ (k) => k
+    }
+
+/*
+  directive lean
+  theorem
+    monus1_succ
+      : forall (index : Index),
+        monus1 (Nat.succ (index)) = index := by
+    intro idx
+    rewrite [monus1]
+    simp
+*/
 
   private def _tailrec_get [A ] (list : List [A] ) (index : Index) : Option [A] =
     list match  {
@@ -391,6 +419,28 @@ trait MyList
          rfl
 */
 
+/*
+  directive lean
+  theorem
+    set_tr_eq_set_def (A : Type) (list : List (A)) (index : Index) (element : A)
+      : set_tr (A) (list) (index) (element) = set_def (A) (list) (index) (element) := by
+    rewrite [set_tr]
+    induction list with
+    | nil =>
+      rewrite [_tailrec_set, reverse, rev_tr_eq_rev_fl, reverse_tr, _tailrec_reverse, set_def]
+      rfl
+    | cons head tail ih =>
+      rewrite [_tailrec_set, reverse, rev_tr_eq_rev_fl, reverse_tr, _tailrec_reverse, set_def]
+      cases index with
+      | zero =>
+        rewrite [concat, reverse, rev_tr_eq_rev_fl, reverse_tr, _tailrec_reverse, _tailrec_concat]
+        rfl
+      | succ idx =>
+        rewrite [concat, reverse, rev_tr_eq_rev_fl, reverse_tr, _tailrec_reverse, _tailrec_concat]
+        rewrite [monus1_succ]
+        sorry
+*/
+
   def set [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
     set_tr [A] (list) (index) (element)
 
@@ -417,6 +467,23 @@ trait MarketMod
 
   def as_market (market : Market) : Market =
     mk_Market (market .accounts) (market .items)
+
+  def get_items (market : Market) : List [Item] =
+    market match  {
+      case Market_ (accounts, items) => items
+    }
+
+/*
+  directive lean
+  theorem
+    proj_items (market : Market) (accounts : List (Money)) (items : List (Item))
+      : (market = Market_ (accounts, items) ) -> get_items (market) = items := by
+    rewrite [get_items]
+    cases market
+    intro h1
+    rewrite [h1]
+    simp
+*/
 
   private def _advertise (items : List [Item] ) (item_id : Index) : List [Item] =
     (_mm .get [Item] (items) (item_id) ) match  {
@@ -480,37 +547,9 @@ trait MarketMod
 /*
   directive lean
   theorem
-    lemma_set_keeps_length_1 (A : Type) (index : Index) (element : A) :
-      (List.nil.set (index) (element) ).length = 0 :=
-      by constructor
-*/
-
-/*
-  directive lean
-  theorem
-    lemma_set_keeps_length_2 (A : Type) (head : A) (tail : List (A) ) (element : A) :
-      ((head :: tail).set (0) (head)).length = ((element :: tail).set (0) (element)).length :=
-      by constructor
-*/
-
-/*
-  directive lean
-  theorem
-    set_keeps_length (A : Type) (list : List (A)) (index : Index) (element : A) :
-      (list.set (index) (element) ).length = list.length :=
-    match list with
-      | List.nil => lemma_set_keeps_length_1 (A) (index) (element)
-      | (head) :: (tail) =>
-        match index with
-          | 0 => lemma_set_keeps_length_2 (A) (head) (tail) (element)
-          | k + 1 => sorry
-*/
-
-/*
-  directive lean
-  theorem
     conservation_of_items_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
-       (sell (market) (item_id) (buyer) ).items.length = market.items.length :=
+      MyList.length_def (Item) (get_items ( (sell (market) (item_id) (buyer) ) ) ) =
+        MyList.length_def (Item) (get_items (market) ) := by
     sorry
 */
 
@@ -519,9 +558,9 @@ trait MarketMod
   theorem
     lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer :
     Index) :
-     _mm.foldl (Money) (Money) ( (sell (Market_ (accounts, items)) (item_id) (buyer) ).accounts)
+     MyList.foldl (Money) (Money) ( (sell (Market_ (accounts, items)) (item_id) (buyer) ).accounts)
      (0) (_sum_pair) =
-       _mm.foldl (Money) (Money) (accounts) (0) (_sum_pair) :=
+       MyList.foldl (Money) (Money) (accounts) (0) (_sum_pair) := by
          sorry
 */
 
