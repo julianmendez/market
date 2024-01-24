@@ -7,15 +7,6 @@ package soda.se.umu.cs.soda.prototype.example.market
 
 trait Package
 
-/*
-directive lean
-/- Prelude for Soda types. -/
-notation "Boolean" => Bool
-notation "None" => none
-notation "Some" => some
-notation "Nil" => []
-*/
-
 type Nat = Int
 
 type Index = Nat
@@ -490,7 +481,7 @@ trait MarketMod
   directive lean
   theorem
     lemma_set_keeps_length_1 (A : Type) (index : Index) (element : A) :
-      ((Nil).set (index) (element) ).length = 0 :=
+      (List.nil.set (index) (element) ).length = 0 :=
       by constructor
 */
 
@@ -508,7 +499,7 @@ trait MarketMod
     set_keeps_length (A : Type) (list : List (A)) (index : Index) (element : A) :
       (list.set (index) (element) ).length = list.length :=
     match list with
-      | Nil => lemma_set_keeps_length_1 (A) (index) (element)
+      | List.nil => lemma_set_keeps_length_1 (A) (index) (element)
       | (head) :: (tail) =>
         match index with
           | 0 => lemma_set_keeps_length_2 (A) (head) (tail) (element)
