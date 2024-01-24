@@ -40,6 +40,8 @@ trait Item
 
 case class Item_ (owner : Index, price : Money, advertised : Boolean) extends Item
 
+object Item { def mk  (owner : Index) (price : Money) (advertised : Boolean) : Item  = Item_  (owner, price, advertised) }
+
 trait Market
 {
 
@@ -49,6 +51,8 @@ trait Market
 }
 
 case class Market_ (accounts : List [Money], items : List [Item]) extends Market
+
+object Market { def mk  (accounts : List [Money]) (items : List [Item]) : Market  = Market_  (accounts, items) }
 
 trait MyList
 {
@@ -448,6 +452,8 @@ trait MyList
 
 case class MyList_ (bit : Boolean) extends MyList
 
+object MyList { def mk  (bit : Boolean) : MyList  = MyList_  (bit) }
+
 trait MarketMod
 {
 
@@ -462,11 +468,8 @@ trait MarketMod
   notation "_mm.foldl" => MyList.foldl
 */
 
-  def mk_Market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
-    Market_ (new_accounts, new_items)
-
   def as_market (market : Market) : Market =
-    mk_Market (market .accounts) (market .items)
+    Market.mk (market .accounts) (market .items)
 
   def get_items (market : Market) : List [Item] =
     market match  {
@@ -493,7 +496,7 @@ trait MarketMod
     }
 
   def advertise (market : Market) (item_id : Index) : Market =
-    mk_Market (market .accounts) (_advertise (market .items) (item_id) )
+    Market.mk (market .accounts) (_advertise (market .items) (item_id) )
 
   private def _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
     (_mm .get [Item] (items) (item_id) ) match  {
@@ -503,7 +506,7 @@ trait MarketMod
     }
 
   def remove_ad (market : Market) (item_id : Index) : Market =
-    mk_Market (market .accounts) (_remove_ad (market .items) (item_id) )
+    Market.mk (market .accounts) (_remove_ad (market .items) (item_id) )
 
   private def _transfer_with_balances (accounts : List [Money] ) (origin : Index) (target : Index)
       (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
@@ -530,7 +533,7 @@ trait MarketMod
   def sell (market : Market) (item_id : Index) (buyer : Index) : Market =
     (_mm .get [Item] (market .items) (item_id) ) match  {
       case Some (item) =>
-        mk_Market (
+        Market.mk (
           _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
           _mm .set [Item] (market .items) (item_id) (Item_ (buyer, item .price, false) )
         )
@@ -575,4 +578,6 @@ trait MarketMod
 }
 
 case class MarketMod_ (bit : Boolean) extends MarketMod
+
+object MarketMod { def mk  (bit : Boolean) : MarketMod  = MarketMod_  (bit) }
 

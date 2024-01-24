@@ -414,11 +414,8 @@ class MarketMod
   notation "_mm.set" => MyList.set
   notation "_mm.foldl" => MyList.foldl
 
-  mk_Market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
-    Market_ (new_accounts) (new_items)
-
   as_market (market : Market) : Market =
-    mk_Market (market .accounts) (market .items)
+    Market.mk (market .accounts) (market .items)
 
   get_items (market : Market) : List [Item] =
     match market
@@ -442,7 +439,7 @@ class MarketMod
       case otherwise ==> items
 
   advertise (market : Market) (item_id : Index) : Market =
-    mk_Market (market .accounts) (_advertise (market .items) (item_id) )
+    Market.mk (market .accounts) (_advertise (market .items) (item_id) )
 
   _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
     match (_mm .get [Item] (items) (item_id) )
@@ -451,7 +448,7 @@ class MarketMod
       case otherwise ==> items
 
   remove_ad (market : Market) (item_id : Index) : Market =
-    mk_Market (market .accounts) (_remove_ad (market .items) (item_id) )
+    Market.mk (market .accounts) (_remove_ad (market .items) (item_id) )
 
   _transfer_with_balances (accounts : List [Money] ) (origin : Index) (target : Index)
       (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
@@ -476,7 +473,7 @@ class MarketMod
   sell (market : Market) (item_id : Index) (buyer : Index) : Market =
     match (_mm .get [Item] (market .items) (item_id) )
       case Some (item) ==>
-        mk_Market (
+        Market.mk (
           _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
           _mm .set [Item] (market .items) (item_id) (Item_ (buyer) (item .price) (false) )
         )

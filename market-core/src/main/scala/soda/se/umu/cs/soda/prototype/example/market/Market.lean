@@ -450,12 +450,8 @@ namespace MarketMod
   notation "_mm.set" => MyList.set
   notation "_mm.foldl" => MyList.foldl
 
- def   mk_Market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
-    Market_ (new_accounts) (new_items)
-
-
  def   as_market (market : Market) : Market :=
-    mk_Market (market.accounts) (market.items)
+    Market.mk (market.accounts) (market.items)
 
 
  def   get_items (market : Market) : List ( Item ) :=
@@ -482,7 +478,7 @@ namespace MarketMod
 
 
  def   advertise (market : Market) (item_id : Index) : Market :=
-    mk_Market (market.accounts) (_advertise (market.items) (item_id) )
+    Market.mk (market.accounts) (_advertise (market.items) (item_id) )
 
 
  private def   _remove_ad (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
@@ -494,7 +490,7 @@ namespace MarketMod
 
 
  def   remove_ad (market : Market) (item_id : Index) : Market :=
-    mk_Market (market.accounts) (_remove_ad (market.items) (item_id) )
+    Market.mk (market.accounts) (_remove_ad (market.items) (item_id) )
 
 
 private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
@@ -525,7 +521,7 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
  def   sell (market : Market) (item_id : Index) (buyer : Index) : Market :=
     match (_mm.get ( Item ) (market.items) (item_id) ) with
       | Option.some (item) =>
-        mk_Market (
+        Market.mk (
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
           _mm.set ( Item ) (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
         )
