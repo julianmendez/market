@@ -11,10 +11,9 @@ trait Package
  * Prelude for Soda types in Scala.
  */
 type Nat = Int
-object Nat {
-  object Succ_ {
-    def unapply (n : Int) : Option [Int] = if (n <= 0) None else Some (n - 1)
-  }
+object Succ_ {
+  def unapply (n : Int) : Option [Int] =
+    if (n <= 0) None else Some (n - 1)
 }
 
 /*
@@ -22,7 +21,7 @@ directive lean
 /-
  - Prelude for Soda types in Lean.
  -/
-notation "Nat.Succ_" => Nat.succ
+notation "Succ_" => Nat.succ
 */
 
 type Index = Nat
@@ -40,7 +39,10 @@ trait Item
 
 case class Item_ (owner : Index, price : Money, advertised : Boolean) extends Item
 
-object Item { def mk  (owner : Index) (price : Money) (advertised : Boolean) : Item  = Item_  (owner, price, advertised) }
+object Item {
+  def mk (owner : Index) (price : Money) (advertised : Boolean) : Item =
+    Item_ (owner, price, advertised)
+}
 
 trait Market
 {
@@ -52,7 +54,10 @@ trait Market
 
 case class Market_ (accounts : List [Money], items : List [Item]) extends Market
 
-object Market { def mk  (accounts : List [Money]) (items : List [Item]) : Market  = Market_  (accounts, items) }
+object Market {
+  def mk (accounts : List [Money]) (items : List [Item]) : Market =
+    Market_ (accounts, items)
+}
 
 trait MyList
 {
@@ -348,7 +353,7 @@ trait MyList
   def monus1 (index : Index) : Index =
     index match  {
       case 0 => 0
-      case Nat.Succ_ (k) => k
+      case Succ_ (k) => k
     }
 
 /*
@@ -452,7 +457,10 @@ trait MyList
 
 case class MyList_ (bit : Boolean) extends MyList
 
-object MyList { def mk  (bit : Boolean) : MyList  = MyList_  (bit) }
+object MyList {
+  def mk (bit : Boolean) : MyList =
+    MyList_ (bit)
+}
 
 trait MarketMod
 {
@@ -579,5 +587,8 @@ trait MarketMod
 
 case class MarketMod_ (bit : Boolean) extends MarketMod
 
-object MarketMod { def mk  (bit : Boolean) : MarketMod  = MarketMod_  (bit) }
+object MarketMod {
+  def mk (bit : Boolean) : MarketMod =
+    MarketMod_ (bit)
+}
 

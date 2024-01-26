@@ -4,17 +4,16 @@ directive scala
  * Prelude for Soda types in Scala.
  */
 type Nat = Int
-object Nat {
-  object Succ_ {
-    def unapply (n : Int) : Option [Int] = if (n <= 0) None else Some (n - 1)
-  }
+object Succ_ {
+  def unapply (n : Int) : Option [Int] =
+    if (n <= 0) None else Some (n - 1)
 }
 -/
 
 /-
  - Prelude for Soda types in Lean.
  -/
-notation "Nat.Succ_" => Nat.succ
+notation "Succ_" => Nat.succ
 
 notation "Index" => Nat
 
@@ -331,7 +330,7 @@ private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (f
  def   monus1 (index : Index) : Index :=
     match index with
       | 0 => 0
-      | Nat.Succ_ (k) => k
+      | Succ_ (k) => k
     
 
 

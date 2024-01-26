@@ -3,17 +3,16 @@ directive scala
  * Prelude for Soda types in Scala.
  */
 type Nat = Int
-object Nat {
-  object Succ_ {
-    def unapply (n : Int) : Option [Int] = if (n <= 0) None else Some (n - 1)
-  }
+object Succ_ {
+  def unapply (n : Int) : Option [Int] =
+    if (n <= 0) None else Some (n - 1)
 }
 
 directive lean
 /-
  - Prelude for Soda types in Lean.
  -/
-notation "Nat.Succ_" => Nat.succ
+notation "Succ_" => Nat.succ
 
 
 class Index = Nat
@@ -308,7 +307,7 @@ class MyList
   monus1 (index : Index) : Index =
     match index
       case 0 ==> 0
-      case Nat.Succ_ (k) ==> k
+      case Succ_ (k) ==> k
 
   directive lean
   theorem

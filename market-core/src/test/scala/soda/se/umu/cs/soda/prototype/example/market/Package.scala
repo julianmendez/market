@@ -25,7 +25,10 @@ trait Market01
 
 case class Market01_ () extends Market01
 
-object Market01 { def mk   : Market01  = Market01_  () }
+object Market01 {
+  def mk : Market01 =
+    Market01_ ()
+}
 
 trait Market02
   extends
@@ -46,7 +49,10 @@ trait Market02
 
 case class Market02_ () extends Market02
 
-object Market02 { def mk   : Market02  = Market02_  () }
+object Market02 {
+  def mk : Market02 =
+    Market02_ ()
+}
 
 trait Market03
   extends
@@ -67,7 +73,10 @@ trait Market03
 
 case class Market03_ () extends Market03
 
-object Market03 { def mk   : Market03  = Market03_  () }
+object Market03 {
+  def mk : Market03 =
+    Market03_ ()
+}
 
 
 case class MarketSpec ()
