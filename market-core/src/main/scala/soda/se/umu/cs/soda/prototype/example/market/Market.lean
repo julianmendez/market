@@ -84,7 +84,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : 
  def   length_fl ( A : Type ) (list : List ( A ) ) : Index :=
     foldl ( A ) ( Index ) (list) (0) (
       fun (accum : Index) =>
-        fun (elem : A) => accum + 1
+        fun (_elem : A) => accum + 1
     )
 
 
@@ -110,7 +110,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : 
  private def   _tailrec_length ( A : Type ) (list : List ( A ) ) (accum : Index) : Index :=
     match list with
       | List.nil => accum
-      | (head) :: (tail) =>
+      | (_head) :: (tail) =>
         _tailrec_length ( A ) (tail) (accum + 1)
     
 
@@ -140,7 +140,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : 
  def   length_def ( A : Type ) (list : List ( A ) ) : Index :=
     match list with
       | List.nil => 0
-      | (head) :: (tail) => length_def ( A ) (tail) + 1
+      | (_head) :: (tail) => length_def ( A ) (tail) + 1
     
 
 
@@ -374,7 +374,7 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
  def   set_def ( A : Type ) (list : List ( A ) ) (index : Index) (element : A) : List ( A ) :=
     match list with
       | List.nil => List.nil
-      | (head) :: (tail) =>
+      | (_head) :: (tail) =>
         if index == 0
         then (element) :: (tail)
         else (element) :: (set_def ( A ) (tail) (monus1 (index) ) (element) )
@@ -455,7 +455,7 @@ namespace MarketMod
 
  def   get_items (market : Market) : List ( Item ) :=
     match market with
-      | Market_ (accounts) (items) => items
+      | Market_ (_accounts) (items) => items
     
 
 
@@ -472,7 +472,7 @@ namespace MarketMod
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
         _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (true) )
-      | otherwise => items
+      | _otherwise => items
     
 
 
@@ -484,7 +484,7 @@ namespace MarketMod
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
         _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (false) )
-      | otherwise => items
+      | _otherwise => items
     
 
 
@@ -504,7 +504,7 @@ private def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (targ
       | Option.some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
-      | otherwise => accounts
+      | _otherwise => accounts
     
 
 
@@ -524,8 +524,7 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
           _mm.set ( Item ) (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
         )
-      | otherwise =>
-        market
+      | _otherwise => market
     
 
 

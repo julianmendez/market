@@ -67,7 +67,7 @@ class MyList
   length_fl [A : Type] (list : List [A] ) : Index =
     foldl [A] [Index] (list) (0) (
       lambda (accum : Index) -->
-        lambda (elem : A) --> accum + 1
+        lambda (_elem : A) --> accum + 1
     )
 
   directive lean
@@ -93,7 +93,7 @@ class MyList
   _tailrec_length [A : Type] (list : List [A] ) (accum : Index) : Index =
     match list
       case Nil ==> accum
-      case (head) :: (tail) ==>
+      case (_head) :: (tail) ==>
         _tailrec_length [A] (tail) (accum + 1)
 
   directive lean
@@ -121,7 +121,7 @@ class MyList
   length_def [A : Type] (list : List [A] ) : Index =
     match list
       case Nil ==> 0
-      case (head) :: (tail) ==> length_def [A] (tail) + 1
+      case (_head) :: (tail) ==> length_def [A] (tail) + 1
 
   directive lean
   theorem
@@ -344,7 +344,7 @@ class MyList
   set_def [A : Type] (list : List [A] ) (index : Index) (element : A) : List [A] =
     match list
       case Nil ==> Nil
-      case (head) :: (tail) ==>
+      case (_head) :: (tail) ==>
         if index == 0
         then (element) :: (tail)
         else (element) :: (set_def [A] (tail) (monus1 (index) ) (element) )
@@ -418,7 +418,7 @@ class MarketMod
 
   get_items (market : Market) : List [Item] =
     match market
-      case Market_ (accounts) (items) ==> items
+      case Market_ (_accounts) (items) ==> items
 
   directive lean
   theorem
@@ -435,7 +435,7 @@ class MarketMod
     match (_mm .get [Item] (items) (item_id) )
       case Some (item) ==>
         _mm .set [Item] (items) (item_id) (Item_ (item .owner) (item .price) (true) )
-      case otherwise ==> items
+      case _otherwise ==> items
 
   advertise (market : Market) (item_id : Index) : Market =
     Market.mk (market .accounts) (_advertise (market .items) (item_id) )
@@ -444,7 +444,7 @@ class MarketMod
     match (_mm .get [Item] (items) (item_id) )
       case Some (item) ==>
         _mm .set [Item] (items) (item_id) (Item_ (item .owner) (item .price) (false) )
-      case otherwise ==> items
+      case _otherwise ==> items
 
   remove_ad (market : Market) (item_id : Index) : Market =
     Market.mk (market .accounts) (_remove_ad (market .items) (item_id) )
@@ -460,7 +460,7 @@ class MarketMod
       case Some (target_balance) ==>
         _transfer_with_balances (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
-      case otherwise ==> accounts
+      case _otherwise ==> accounts
 
   _transfer (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
       : List [Money] =
@@ -476,8 +476,7 @@ class MarketMod
           _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
           _mm .set [Item] (market .items) (item_id) (Item_ (buyer) (item .price) (false) )
         )
-      case otherwise ==>
-        market
+      case _otherwise ==> market
 
   _sum_pair (a : Money) (b : Money) : Money =
     a + b

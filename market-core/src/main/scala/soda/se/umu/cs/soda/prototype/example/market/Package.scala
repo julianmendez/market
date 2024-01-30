@@ -88,7 +88,7 @@ trait MyList
   def length_fl [A ] (list : List [A] ) : Index =
     foldl [A, Index] (list) (0) (
        (accum : Index) =>
-         (elem : A) => accum + 1
+         (_elem : A) => accum + 1
     )
 
 /*
@@ -116,7 +116,7 @@ trait MyList
   private def _tailrec_length [A ] (list : List [A] ) (accum : Index) : Index =
     list match  {
       case Nil => accum
-      case (head) :: (tail) =>
+      case (_head) :: (tail) =>
         _tailrec_length [A] (tail) (accum + 1)
     }
 
@@ -147,7 +147,7 @@ trait MyList
   def length_def [A ] (list : List [A] ) : Index =
     list match  {
       case Nil => 0
-      case (head) :: (tail) => length_def [A] (tail) + 1
+      case (_head) :: (tail) => length_def [A] (tail) + 1
     }
 
 /*
@@ -395,7 +395,7 @@ trait MyList
   def set_def [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
     list match  {
       case Nil => Nil
-      case (head) :: (tail) =>
+      case (_head) :: (tail) =>
         if ( index == 0
         ) (element) :: (tail)
         else (element) :: (set_def [A] (tail) (monus1 (index) ) (element) )
@@ -481,7 +481,7 @@ trait MarketMod
 
   def get_items (market : Market) : List [Item] =
     market match  {
-      case Market_ (accounts, items) => items
+      case Market_ (_accounts, items) => items
     }
 
 /*
@@ -500,7 +500,7 @@ trait MarketMod
     (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
         _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, true) )
-      case otherwise => items
+      case _otherwise => items
     }
 
   def advertise (market : Market) (item_id : Index) : Market =
@@ -510,7 +510,7 @@ trait MarketMod
     (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
         _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, false) )
-      case otherwise => items
+      case _otherwise => items
     }
 
   def remove_ad (market : Market) (item_id : Index) : Market =
@@ -527,7 +527,7 @@ trait MarketMod
       case Some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
-      case otherwise => accounts
+      case _otherwise => accounts
     }
 
   private def _transfer (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
@@ -545,8 +545,7 @@ trait MarketMod
           _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
           _mm .set [Item] (market .items) (item_id) (Item_ (buyer, item .price, false) )
         )
-      case otherwise =>
-        market
+      case _otherwise => market
     }
 
   private def _sum_pair (a : Money) (b : Money) : Money =
