@@ -15,15 +15,13 @@ object Succ_ {
  -/
 notation "Succ_" => Nat.succ
 
-notation "Index" => Nat
-
 notation "Money" => Int
 
 class Item
 
 where
   mk ::
-    owner : Index
+    owner : Nat
     price : Money
     advertised : Bool
   deriving DecidableEq
@@ -81,18 +79,18 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : 
 /- length
 -/
 
- def   length_fl ( A : Type ) (list : List ( A ) ) : Index :=
-    foldl ( A ) ( Index ) (list) (0) (
-      fun (accum : Index) =>
+ def   length_fl ( A : Type ) (list : List ( A ) ) : Nat :=
+    foldl ( A ) ( Nat ) (list) (0) (
+      fun (accum : Nat) =>
         fun (_elem : A) => accum + 1
     )
 
 
   theorem
     len_fl_accum (A : Type) (list : List (A) )
-       : forall (accum : Index) ,
-        _tailrec_foldl (A) (Index) (list) (accum) (fun (accum : Index) => fun (elem : A) => accum + 1) =
-           _tailrec_foldl (A) (Index) (list) (0) (fun (accum : Index) => fun (elem : A) => accum + 1) + accum := by
+       : forall (accum : Nat) ,
+        _tailrec_foldl (A) (Nat) (list) (accum) (fun (accum : Nat) => fun (elem : A) => accum + 1) =
+           _tailrec_foldl (A) (Nat) (list) (0) (fun (accum : Nat) => fun (elem : A) => accum + 1) + accum := by
       induction list with
       | nil =>
         intro n
@@ -107,7 +105,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : 
         rewrite [Nat.add_comm 1]
         rfl
 
- private def   _tailrec_length ( A : Type ) (list : List ( A ) ) (accum : Index) : Index :=
+ private def   _tailrec_length ( A : Type ) (list : List ( A ) ) (accum : Nat) : Nat :=
     match list with
       | List.nil => accum
       | (_head) :: (tail) =>
@@ -117,7 +115,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : 
 
   theorem
     len_tr_accum (A : Type) (list : List (A) )
-      : forall (accum : Index) ,
+      : forall (accum : Nat) ,
         _tailrec_length (A) (list) (accum)  = _tailrec_length (A) (list) (0) + accum := by
       induction list with
       | nil =>
@@ -133,11 +131,11 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : 
         rewrite [Nat.add_comm 1]
         rfl
 
- def   length_tr ( A : Type ) (list : List ( A ) ) : Index :=
+ def   length_tr ( A : Type ) (list : List ( A ) ) : Nat :=
     _tailrec_length ( A ) (list) (0)
 
 
- def   length_def ( A : Type ) (list : List ( A ) ) : Index :=
+ def   length_def ( A : Type ) (list : List ( A ) ) : Nat :=
     match list with
       | List.nil => 0
       | (_head) :: (tail) => length_def ( A ) (tail) + 1
@@ -173,7 +171,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : 
       rewrite [length_def]
       rfl
 
- def   length ( A : Type ) (list : List ( A ) ) : Index :=
+ def   length ( A : Type ) (list : List ( A ) ) : Nat :=
     length_fl ( A ) (list)
 
 
@@ -327,7 +325,7 @@ private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (f
     _tailrec_concat ( A ) (reverse ( A ) (first) ) (second)
 
 
- def   monus1 (index : Index) : Index :=
+ def   monus1 (index : Nat) : Nat :=
     match index with
       | 0 => 0
       | Succ_ (k) => k
@@ -336,13 +334,13 @@ private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (f
 
   theorem
     monus1_succ
-      : forall (index : Index),
+      : forall (index : Nat),
         monus1 (Nat.succ (index)) = index := by
     intro idx
     rewrite [monus1]
     simp
 
- private def   _tailrec_get ( A : Type ) (list : List ( A ) ) (index : Index) : Option ( A ) :=
+ private def   _tailrec_get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
     match list with
       | List.nil => Option.none
       | (head) :: (tail) =>
@@ -352,11 +350,11 @@ private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (f
     
 
 
- def   get ( A : Type ) (list : List ( A ) ) (index : Index) : Option ( A ) :=
+ def   get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
     _tailrec_get ( A ) (list) (index)
 
 
-private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) (index : Index)
+private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) (index : Nat)
        (element : A) : List ( A ) :=
     match list with
       | List.nil => reverse ( A ) (accum)
@@ -367,11 +365,11 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
     
 
 
- def   set_tr ( A : Type ) (list : List ( A ) ) (index : Index) (element : A) : List ( A ) :=
+ def   set_tr ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
     _tailrec_set ( A ) (list) (List.nil) (index) (element)
 
 
- def   set_def ( A : Type ) (list : List ( A ) ) (index : Index) (element : A) : List ( A ) :=
+ def   set_def ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
     match list with
       | List.nil => List.nil
       | (_head) :: (tail) =>
@@ -383,7 +381,7 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
 
   theorem
     len_set (A : Type) (list : List (A)) (element : A)
-      : forall (index : Index),
+      : forall (index : Nat),
         length_def (A) (set_def (A) (list) (index) (element) ) = length_def (A) (list) := by
     induction list with
     | nil =>
@@ -406,7 +404,7 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
          rfl
 
   theorem
-    set_tr_eq_set_def (A : Type) (list : List (A)) (index : Index) (element : A)
+    set_tr_eq_set_def (A : Type) (list : List (A)) (index : Nat) (element : A)
       : set_tr (A) (list) (index) (element) = set_def (A) (list) (index) (element) := by
     rewrite [set_tr]
     induction list with
@@ -424,7 +422,7 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
         rewrite [monus1_succ]
         sorry
 
- def   set ( A : Type ) (list : List ( A ) ) (index : Index) (element : A) : List ( A ) :=
+ def   set ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
     set_tr ( A ) (list) (index) (element)
 
 
@@ -468,7 +466,7 @@ namespace MarketMod
     rewrite [h1]
     simp
 
- private def   _advertise (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
+ private def   _advertise (items : List ( Item ) ) (item_id : Nat) : List ( Item ) :=
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
         _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (true) )
@@ -476,11 +474,11 @@ namespace MarketMod
     
 
 
- def   advertise (market : Market) (item_id : Index) : Market :=
+ def   advertise (market : Market) (item_id : Nat) : Market :=
     Market.mk (market.accounts) (_advertise (market.items) (item_id) )
 
 
- private def   _remove_ad (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
+ private def   _remove_ad (items : List ( Item ) ) (item_id : Nat) : List ( Item ) :=
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
         _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (false) )
@@ -488,17 +486,17 @@ namespace MarketMod
     
 
 
- def   remove_ad (market : Market) (item_id : Index) : Market :=
+ def   remove_ad (market : Market) (item_id : Nat) : Market :=
     Market.mk (market.accounts) (_remove_ad (market.items) (item_id) )
 
 
-private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
+private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Nat) (target : Nat)
        (amount : Money) (origin_balance : Money) (target_balance : Money) : List ( Money ) :=
     _mm.set ( Money ) (_mm.set ( Money ) (accounts)
       (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
 
-private def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
+private def   _transfer_with (accounts : List ( Money ) ) (origin : Nat) (target : Nat) (amount : Money)
        (origin_balance : Money) : List ( Money ) :=
     match (_mm.get ( Money ) (accounts) (target) ) with
       | Option.some (target_balance) =>
@@ -508,7 +506,7 @@ private def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (targ
     
 
 
-private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
+private def   _transfer (accounts : List ( Money ) ) (origin : Nat) (target : Nat) (amount : Money)
        : List ( Money ) :=
     match (_mm.get ( Money ) (accounts) (origin) ) with
       | Option.some (origin_balance) =>
@@ -517,7 +515,7 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
     
 
 
- def   sell (market : Market) (item_id : Index) (buyer : Index) : Market :=
+ def   sell (market : Market) (item_id : Nat) (buyer : Nat) : Market :=
     match (_mm.get ( Item ) (market.items) (item_id) ) with
       | Option.some (item) =>
         Market.mk (
@@ -537,21 +535,21 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
 
 
   theorem
-    conservation_of_items_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
+    conservation_of_items_after_sell_operation (market : Market) (item_id : Nat) (buyer : Nat) :
       MyList.length_def (Item) (get_items ( (sell (market) (item_id) (buyer) ) ) ) =
         MyList.length_def (Item) (get_items (market) ) := by
     sorry
 
   theorem
-    lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer :
-    Index) :
+    lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Nat) (buyer :
+    Nat) :
      MyList.foldl (Money) (Money) ( (sell (Market_ (accounts) (items)) (item_id) (buyer) ).accounts)
      (0) (_sum_pair) =
        MyList.foldl (Money) (Money) (accounts) (0) (_sum_pair) := by
          sorry
 
   theorem
-    conservation_of_money_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
+    conservation_of_money_after_sell_operation (market : Market) (item_id : Nat) (buyer : Nat) :
       assets (sell (market) (item_id) (buyer) ) = assets (market) :=
     lemma_foldl (market.accounts) (market.items) (item_id) (buyer)
 

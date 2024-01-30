@@ -24,23 +24,21 @@ directive lean
 notation "Succ_" => Nat.succ
 */
 
-type Index = Nat
-
 type Money = Int
 
 trait Item
 {
 
-  def   owner : Index
+  def   owner : Nat
   def   price : Money
   def   advertised : Boolean
 
 }
 
-case class Item_ (owner : Index, price : Money, advertised : Boolean) extends Item
+case class Item_ (owner : Nat, price : Money, advertised : Boolean) extends Item
 
 object Item {
-  def mk (owner : Index) (price : Money) (advertised : Boolean) : Item =
+  def mk (owner : Nat) (price : Money) (advertised : Boolean) : Item =
     Item_ (owner, price, advertised)
 }
 
@@ -85,9 +83,9 @@ trait MyList
  * length
  */
 
-  def length_fl [A ] (list : List [A] ) : Index =
-    foldl [A, Index] (list) (0) (
-       (accum : Index) =>
+  def length_fl [A ] (list : List [A] ) : Nat =
+    foldl [A, Nat] (list) (0) (
+       (accum : Nat) =>
          (_elem : A) => accum + 1
     )
 
@@ -95,9 +93,9 @@ trait MyList
   directive lean
   theorem
     len_fl_accum (A : Type) (list : List (A) )
-       : forall (accum : Index) ,
-        _tailrec_foldl (A) (Index) (list) (accum) (fun (accum : Index) => fun (elem : A) => accum + 1) =
-           _tailrec_foldl (A) (Index) (list) (0) (fun (accum : Index) => fun (elem : A) => accum + 1) + accum := by
+       : forall (accum : Nat) ,
+        _tailrec_foldl (A) (Nat) (list) (accum) (fun (accum : Nat) => fun (elem : A) => accum + 1) =
+           _tailrec_foldl (A) (Nat) (list) (0) (fun (accum : Nat) => fun (elem : A) => accum + 1) + accum := by
       induction list with
       | nil =>
         intro n
@@ -113,7 +111,7 @@ trait MyList
         rfl
 */
 
-  private def _tailrec_length [A ] (list : List [A] ) (accum : Index) : Index =
+  private def _tailrec_length [A ] (list : List [A] ) (accum : Nat) : Nat =
     list match  {
       case Nil => accum
       case (_head) :: (tail) =>
@@ -124,7 +122,7 @@ trait MyList
   directive lean
   theorem
     len_tr_accum (A : Type) (list : List (A) )
-      : forall (accum : Index) ,
+      : forall (accum : Nat) ,
         _tailrec_length (A) (list) (accum)  = _tailrec_length (A) (list) (0) + accum := by
       induction list with
       | nil =>
@@ -141,10 +139,10 @@ trait MyList
         rfl
 */
 
-  def length_tr [A ] (list : List [A] ) : Index =
+  def length_tr [A ] (list : List [A] ) : Nat =
     _tailrec_length [A] (list) (0)
 
-  def length_def [A ] (list : List [A] ) : Index =
+  def length_def [A ] (list : List [A] ) : Nat =
     list match  {
       case Nil => 0
       case (_head) :: (tail) => length_def [A] (tail) + 1
@@ -185,7 +183,7 @@ trait MyList
       rfl
 */
 
-  def length [A ] (list : List [A] ) : Index =
+  def length [A ] (list : List [A] ) : Nat =
     length_fl [A] (list)
 
 /*
@@ -350,7 +348,7 @@ trait MyList
   def concat [A ] (first : List [A] ) (second : List [A] ) : List [A] =
     _tailrec_concat [A] (reverse [A] (first) ) (second)
 
-  def monus1 (index : Index) : Index =
+  def monus1 (index : Nat) : Nat =
     index match  {
       case 0 => 0
       case Succ_ (k) => k
@@ -360,14 +358,14 @@ trait MyList
   directive lean
   theorem
     monus1_succ
-      : forall (index : Index),
+      : forall (index : Nat),
         monus1 (Nat.succ (index)) = index := by
     intro idx
     rewrite [monus1]
     simp
 */
 
-  private def _tailrec_get [A ] (list : List [A] ) (index : Index) : Option [A] =
+  private def _tailrec_get [A ] (list : List [A] ) (index : Nat) : Option [A] =
     list match  {
       case Nil => None
       case (head) :: (tail) =>
@@ -376,10 +374,10 @@ trait MyList
         else _tailrec_get [A] (tail) (monus1 (index) )
     }
 
-  def get [A ] (list : List [A] ) (index : Index) : Option [A] =
+  def get [A ] (list : List [A] ) (index : Nat) : Option [A] =
     _tailrec_get [A] (list) (index)
 
-  private def _tailrec_set [A ] (list : List [A] ) (accum : List [A] ) (index : Index)
+  private def _tailrec_set [A ] (list : List [A] ) (accum : List [A] ) (index : Nat)
       (element : A) : List [A] =
     list match  {
       case Nil => reverse [A] (accum)
@@ -389,10 +387,10 @@ trait MyList
         else _tailrec_set [A] (tail) ( (head) :: (accum) ) (monus1 (index) ) (element)
     }
 
-  def set_tr [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
+  def set_tr [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
     _tailrec_set [A] (list) (Nil) (index) (element)
 
-  def set_def [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
+  def set_def [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
     list match  {
       case Nil => Nil
       case (_head) :: (tail) =>
@@ -405,7 +403,7 @@ trait MyList
   directive lean
   theorem
     len_set (A : Type) (list : List (A)) (element : A)
-      : forall (index : Index),
+      : forall (index : Nat),
         length_def (A) (set_def (A) (list) (index) (element) ) = length_def (A) (list) := by
     induction list with
     | nil =>
@@ -431,7 +429,7 @@ trait MyList
 /*
   directive lean
   theorem
-    set_tr_eq_set_def (A : Type) (list : List (A)) (index : Index) (element : A)
+    set_tr_eq_set_def (A : Type) (list : List (A)) (index : Nat) (element : A)
       : set_tr (A) (list) (index) (element) = set_def (A) (list) (index) (element) := by
     rewrite [set_tr]
     induction list with
@@ -450,7 +448,7 @@ trait MyList
         sorry
 */
 
-  def set [A ] (list : List [A] ) (index : Index) (element : A) : List [A] =
+  def set [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
     set_tr [A] (list) (index) (element)
 
 }
@@ -496,32 +494,32 @@ trait MarketMod
     simp
 */
 
-  private def _advertise (items : List [Item] ) (item_id : Index) : List [Item] =
+  private def _advertise (items : List [Item] ) (item_id : Nat) : List [Item] =
     (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
         _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, true) )
       case _otherwise => items
     }
 
-  def advertise (market : Market) (item_id : Index) : Market =
+  def advertise (market : Market) (item_id : Nat) : Market =
     Market.mk (market .accounts) (_advertise (market .items) (item_id) )
 
-  private def _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
+  private def _remove_ad (items : List [Item] ) (item_id : Nat) : List [Item] =
     (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
         _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, false) )
       case _otherwise => items
     }
 
-  def remove_ad (market : Market) (item_id : Index) : Market =
+  def remove_ad (market : Market) (item_id : Nat) : Market =
     Market.mk (market .accounts) (_remove_ad (market .items) (item_id) )
 
-  private def _transfer_with_balances (accounts : List [Money] ) (origin : Index) (target : Index)
+  private def _transfer_with_balances (accounts : List [Money] ) (origin : Nat) (target : Nat)
       (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
     _mm .set [Money] (_mm .set [Money] (accounts)
       (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
-  private def _transfer_with (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
+  private def _transfer_with (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
       (origin_balance : Money) : List [Money] =
     (_mm .get [Money] (accounts) (target) ) match  {
       case Some (target_balance) =>
@@ -530,7 +528,7 @@ trait MarketMod
       case _otherwise => accounts
     }
 
-  private def _transfer (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
+  private def _transfer (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
       : List [Money] =
     (_mm .get [Money] (accounts) (origin) ) match  {
       case Some (origin_balance) =>
@@ -538,7 +536,7 @@ trait MarketMod
       case None => accounts
     }
 
-  def sell (market : Market) (item_id : Index) (buyer : Index) : Market =
+  def sell (market : Market) (item_id : Nat) (buyer : Nat) : Market =
     (_mm .get [Item] (market .items) (item_id) ) match  {
       case Some (item) =>
         Market.mk (
@@ -557,7 +555,7 @@ trait MarketMod
 /*
   directive lean
   theorem
-    conservation_of_items_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
+    conservation_of_items_after_sell_operation (market : Market) (item_id : Nat) (buyer : Nat) :
       MyList.length_def (Item) (get_items ( (sell (market) (item_id) (buyer) ) ) ) =
         MyList.length_def (Item) (get_items (market) ) := by
     sorry
@@ -566,8 +564,8 @@ trait MarketMod
 /*
   directive lean
   theorem
-    lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer :
-    Index) :
+    lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Nat) (buyer :
+    Nat) :
      MyList.foldl (Money) (Money) ( (sell (Market_ (accounts, items)) (item_id) (buyer) ).accounts)
      (0) (_sum_pair) =
        MyList.foldl (Money) (Money) (accounts) (0) (_sum_pair) := by
@@ -577,7 +575,7 @@ trait MarketMod
 /*
   directive lean
   theorem
-    conservation_of_money_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
+    conservation_of_money_after_sell_operation (market : Market) (item_id : Nat) (buyer : Nat) :
       assets (sell (market) (item_id) (buyer) ) = assets (market) :=
     lemma_foldl (market.accounts) (market.items) (item_id) (buyer)
 */
