@@ -7,10 +7,6 @@ package soda.se.umu.cs.soda.prototype.example.market
 
 trait Package
 
-/*
- * Prelude for Soda types in Scala.
- */
-type Nat = Int
 object Succ_ {
   def unapply (n : Int) : Option [Int] =
     if (n <= 0) None else Some (n - 1)
@@ -18,13 +14,21 @@ object Succ_ {
 
 /*
 directive lean
-/-
- - Prelude for Soda types in Lean.
- -/
+notation head "+:" tail => (head) :: (tail)
 notation "Succ_" => Nat.succ
+notation "Int" => Nat
+*/
+
+/*
+directive coq
+Notation "head '+:' tail" := (cons (head) (tail) ) (at level 99) .
+Notation "'Succ_'" := S (at level 99) .
+Notation "'Int'" := nat (at level 99) .
 */
 
 type Money = Int
+
+type Nat = Int
 
 trait Item
 {
@@ -67,17 +71,17 @@ trait MyList
  * (fold left)
  */
 
-  private def _tailrec_foldl [A , B ] (sequence : List [A] ) (current : B)
-      (next_value : B => A => B) : B =
+  private def _tailrec_foldl [A , B ] (sequence : Seq [A] ) (current : B)
+      (next : B => A => B) : B =
     sequence match  {
       case Nil => current
-      case (head) :: (tail) =>
-        _tailrec_foldl [A, B] (tail) (next_value (current) (head) ) (next_value)
+      case (head) +: (tail) =>
+        _tailrec_foldl [A, B] (tail) (next (current) (head) ) (next)
     }
 
-  def foldl [A , B ] (sequence : List [A] ) (initial_value : B)
-      (next_value : B => A => B) : B =
-    _tailrec_foldl [A, B] (sequence) (initial_value) (next_value)
+  def foldl [A , B ] (sequence : Seq [A] ) (initial : B)
+      (next : B => A => B) : B =
+    _tailrec_foldl [A, B] (sequence) (initial) (next)
 
 /*
  * length

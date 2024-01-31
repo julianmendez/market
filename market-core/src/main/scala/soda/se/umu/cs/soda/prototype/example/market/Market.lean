@@ -1,21 +1,25 @@
 /-
 directive scala
-/*
- * Prelude for Soda types in Scala.
- */
-type Nat = Int
 object Succ_ {
   def unapply (n : Int) : Option [Int] =
     if (n <= 0) None else Some (n - 1)
 }
 -/
 
-/-
- - Prelude for Soda types in Lean.
- -/
+notation head "+:" tail => (head) :: (tail)
 notation "Succ_" => Nat.succ
+notation "Int" => Nat
+
+/-
+directive coq
+Notation "head '+:' tail" := (cons (head) (tail) ) (at level 99).
+Notation "'Succ_'" := S (at level 99).
+Notation "'Int'" := nat (at level 99).
+-/
 
 notation "Money" => Int
+
+notation "Nat" => Int
 
 class Item
 
@@ -63,17 +67,17 @@ namespace MyList
 -/
 
 private def   _tailrec_foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
-       (next_value : B -> A -> B) : B :=
+       (next : B -> A -> B) : B :=
     match sequence with
       | List.nil => current
-      | (head) :: (tail) =>
-        _tailrec_foldl ( A ) ( B ) (tail) (next_value (current) (head) ) (next_value)
+      | (head) +: (tail) =>
+        _tailrec_foldl ( A ) ( B ) (tail) (next (current) (head) ) (next)
     
 
 
-def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B)
-       (next_value : B -> A -> B) : B :=
-    _tailrec_foldl ( A ) ( B ) (sequence) (initial_value) (next_value)
+def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
+       (next : B -> A -> B) : B :=
+    _tailrec_foldl ( A ) ( B ) (sequence) (initial) (next)
 
 
 /- length
