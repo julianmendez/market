@@ -5,7 +5,6 @@ object Succ_ {
 }
 
 directive lean
-notation head "+:" tail => (head) :: (tail)
 notation "Succ_" => Nat.succ
 notation "Int" => Nat
 
@@ -44,8 +43,8 @@ class MyList
     bit : Boolean
 
 /*
- * foldl
- * (fold left)
+ * `foldl` is a 'fold left' function for parameterized types.
+ * This definition of fold left is tail recursive.
  */
 
   _tailrec_foldl [A : Type] [B : Type] (sequence : Seq [A] ) (current : B)
@@ -60,7 +59,8 @@ class MyList
     _tailrec_foldl [A] [B] (sequence) (initial) (next)
 
 /*
- * length
+ * `length` defined using fold left.
+ * This uses foldl, which is tail recursive.
  */
 
   length_fl [A : Type] (list : List [A] ) : Nat =

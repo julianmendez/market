@@ -4,8 +4,6 @@ package soda.se.umu.cs.soda.prototype.example.market
  * This package contains tests for classes to test a market.
  */
 
-trait Package
-
 trait Market01
   extends
     Market

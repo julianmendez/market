@@ -5,8 +5,6 @@ package soda.se.umu.cs.soda.prototype.example.market.main
  *
  */
 
-trait Package
-
 /**
  * This is the main entry point.
  */

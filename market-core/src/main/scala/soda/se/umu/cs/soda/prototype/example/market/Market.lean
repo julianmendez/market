@@ -6,7 +6,6 @@ object Succ_ {
 }
 -/
 
-notation head "+:" tail => (head) :: (tail)
 notation "Succ_" => Nat.succ
 notation "Int" => Nat
 
@@ -62,15 +61,15 @@ where
 namespace MyList
 
 
-/-foldl
- (fold left)
+/-`foldl` is a 'fold left' function for parameterized types.
+ This definition of fold left is tail recursive.
 -/
 
 private def   _tailrec_foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
        (next : B -> A -> B) : B :=
     match sequence with
       | List.nil => current
-      | (head) +: (tail) =>
+      | (head) :: (tail) =>
         _tailrec_foldl ( A ) ( B ) (tail) (next (current) (head) ) (next)
     
 
@@ -80,7 +79,8 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
     _tailrec_foldl ( A ) ( B ) (sequence) (initial) (next)
 
 
-/- length
+/-`length` defined using fold left.
+ This uses foldl, which is tail recursive.
 -/
 
  def   length_fl ( A : Type ) (list : List ( A ) ) : Nat :=

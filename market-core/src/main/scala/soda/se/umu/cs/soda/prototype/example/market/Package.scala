@@ -5,8 +5,6 @@ package soda.se.umu.cs.soda.prototype.example.market
  *
  */
 
-trait Package
-
 object Succ_ {
   def unapply (n : Int) : Option [Int] =
     if (n <= 0) None else Some (n - 1)
@@ -14,7 +12,6 @@ object Succ_ {
 
 /*
 directive lean
-notation head "+:" tail => (head) :: (tail)
 notation "Succ_" => Nat.succ
 notation "Int" => Nat
 */
@@ -67,8 +64,8 @@ trait MyList
   def   bit : Boolean
 
 /*
- * foldl
- * (fold left)
+ * `foldl` is a 'fold left' function for parameterized types.
+ * This definition of fold left is tail recursive.
  */
 
   private def _tailrec_foldl [A , B ] (sequence : Seq [A] ) (current : B)
@@ -84,7 +81,8 @@ trait MyList
     _tailrec_foldl [A, B] (sequence) (initial) (next)
 
 /*
- * length
+ * `length` defined using fold left.
+ * This uses foldl, which is tail recursive.
  */
 
   def length_fl [A ] (list : List [A] ) : Nat =
