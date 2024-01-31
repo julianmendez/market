@@ -264,26 +264,6 @@ trait MyList
         rfl
 */
 
-/*
-  directive lean
-  theorem
-    rev_rev (A : Type) (list : List (A) )
-      : reverse_tr (A) (reverse_tr (A) (list) ) = list := by
-    rewrite [reverse_tr, reverse_tr]
-    induction list with
-    | nil =>
-      rewrite [_tailrec_reverse, _tailrec_reverse]
-      rfl
-    | cons head tail ih =>
-      rewrite [_tailrec_reverse]
-      induction tail with
-      | nil =>
-        rewrite [_tailrec_reverse, _tailrec_reverse, _tailrec_reverse]
-        rfl
-      | cons hd tl ih2 =>
-        sorry
-*/
-
   def reverse [A ] (list : List [A] ) : List [A] =
     reverse_fl [A] (list)
 
@@ -307,37 +287,6 @@ trait MyList
       case Nil => Nil
       case (head) :: (tail) => (func (head) ) :: (map_def [A, B] (tail) (func) )
     }
-
-/*
-  directive lean
-  theorem
-    map_eq_map_def (A : Type) (B : Type) (list : List (A)) (func : A -> B)
-      : map (A) (B) (list) (func) = map_def (A) (B) (list) (func) := by
-    rewrite [map, reverse_tr]
-    induction list with
-    | nil =>
-      rewrite [map_def, _tailrec_map_rev, _tailrec_reverse]
-      rfl
-    | cons head tail ih =>
-      rewrite [map_def, _tailrec_map_rev]
-      sorry
-*/
-
-/*
-  directive lean
-  theorem
-    len_map (A : Type) (B : Type) (list : List (A) ) (func : A -> B)
-      : length_tr (B) (map (A) (B) (list) (func) ) = length_tr (A) (list) := by
-      rewrite [map_eq_map_def, len_tr_eq_len_def]
-      induction list with
-      | nil =>
-        rewrite [map_def, length_def, length_def]
-        rfl
-      | cons head tail ih =>
-        rewrite [map_def, length_def, length_def]
-        rewrite [ih]
-        rfl
-*/
 
 /*
  * concat
@@ -428,28 +377,6 @@ trait MyList
          rewrite [length_def]
          rewrite [ih]
          rfl
-*/
-
-/*
-  directive lean
-  theorem
-    set_tr_eq_set_def (A : Type) (list : List (A)) (index : Nat) (element : A)
-      : set_tr (A) (list) (index) (element) = set_def (A) (list) (index) (element) := by
-    rewrite [set_tr]
-    induction list with
-    | nil =>
-      rewrite [_tailrec_set, reverse, rev_tr_eq_rev_fl, reverse_tr, _tailrec_reverse, set_def]
-      rfl
-    | cons head tail ih =>
-      rewrite [_tailrec_set, reverse, rev_tr_eq_rev_fl, reverse_tr, _tailrec_reverse, set_def]
-      cases index with
-      | zero =>
-        rewrite [concat, reverse, rev_tr_eq_rev_fl, reverse_tr, _tailrec_reverse, _tailrec_concat]
-        rfl
-      | succ idx =>
-        rewrite [concat, reverse, rev_tr_eq_rev_fl, reverse_tr, _tailrec_reverse, _tailrec_concat]
-        rewrite [monus1_succ]
-        sorry
 */
 
   def set [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
@@ -555,34 +482,6 @@ trait MarketMod
 
   def assets (market : Market) : Money =
     _mm .foldl [Money, Money] (market .accounts) (0) (_sum_pair)
-
-/*
-  directive lean
-  theorem
-    conservation_of_items_after_sell_operation (market : Market) (item_id : Nat) (buyer : Nat) :
-      MyList.length_def (Item) (get_items ( (sell (market) (item_id) (buyer) ) ) ) =
-        MyList.length_def (Item) (get_items (market) ) := by
-    sorry
-*/
-
-/*
-  directive lean
-  theorem
-    lemma_foldl (accounts : List (Money) ) (items : List (Item) ) (item_id : Nat) (buyer :
-    Nat) :
-     MyList.foldl (Money) (Money) ( (sell (Market_ (accounts, items)) (item_id) (buyer) ).accounts)
-     (0) (_sum_pair) =
-       MyList.foldl (Money) (Money) (accounts) (0) (_sum_pair) := by
-         sorry
-*/
-
-/*
-  directive lean
-  theorem
-    conservation_of_money_after_sell_operation (market : Market) (item_id : Nat) (buyer : Nat) :
-      assets (sell (market) (item_id) (buyer) ) = assets (market) :=
-    lemma_foldl (market.accounts) (market.items) (item_id) (buyer)
-*/
 
 }
 
