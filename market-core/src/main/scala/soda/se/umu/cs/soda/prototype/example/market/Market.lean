@@ -413,7 +413,7 @@ namespace MarketMod
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
         _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (true) )
-      | _otherwise => items
+      | Option.none => items
     
 
 
@@ -425,7 +425,7 @@ namespace MarketMod
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
         _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (false) )
-      | _otherwise => items
+      | Option.none => items
     
 
 
@@ -445,7 +445,7 @@ private def   _transfer_with (accounts : List ( Money ) ) (origin : Nat) (target
       | Option.some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
-      | _otherwise => accounts
+      | Option.none => accounts
     
 
 
@@ -465,7 +465,7 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Nat) (target : Na
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
           _mm.set ( Item ) (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
         )
-      | _otherwise => market
+      | Option.none => market
     
 
 

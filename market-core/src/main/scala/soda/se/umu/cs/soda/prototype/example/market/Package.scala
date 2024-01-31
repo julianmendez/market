@@ -429,7 +429,7 @@ trait MarketMod
     (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
         _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, true) )
-      case _otherwise => items
+      case None => items
     }
 
   def advertise (market : Market) (item_id : Nat) : Market =
@@ -439,7 +439,7 @@ trait MarketMod
     (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
         _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, false) )
-      case _otherwise => items
+      case None => items
     }
 
   def remove_ad (market : Market) (item_id : Nat) : Market =
@@ -456,7 +456,7 @@ trait MarketMod
       case Some (target_balance) =>
         _transfer_with_balances (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
-      case _otherwise => accounts
+      case None => accounts
     }
 
   private def _transfer (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
@@ -474,7 +474,7 @@ trait MarketMod
           _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
           _mm .set [Item] (market .items) (item_id) (Item_ (buyer, item .price, false) )
         )
-      case _otherwise => market
+      case None => market
     }
 
   private def _sum_pair (a : Money) (b : Money) : Money =
