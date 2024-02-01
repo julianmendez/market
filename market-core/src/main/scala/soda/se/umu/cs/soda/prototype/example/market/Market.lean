@@ -273,17 +273,14 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
 /- map
 -/
 
-private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B) (accum : List ( B ) )
-       : List ( B ) :=
-    match list with
-      | List.nil => accum
-      | (head) :: (tail) =>
-          _tailrec_map_rev ( A ) ( B ) (tail) (func) ( (func (head) ) :: (accum) )
-    
-
-
- def   map ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B) : List ( B ) :=
-    reverse_tr ( B ) (_tailrec_map_rev ( A ) ( B ) (list) (func) (List.nil) )
+ def   map_fl ( A : Type ) ( B : Type ) (list : List ( A ) ) (f : A -> B) : List ( B ) :=
+    reverse_fl ( B ) (
+      foldl ( A ) ( List ( B )  ) (list) (List.nil) (
+        fun (accum : List ( B ) ) =>
+          fun (elem : A) =>
+            (f (elem) ) :: (accum)
+      )
+    )
 
 
  def   map_def ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B ) : List ( B ) :=
@@ -293,18 +290,19 @@ private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (f
     
 
 
+ def   map ( A : Type ) ( B : Type ) (list : List ( A ) ) (f : A -> B) : List ( B ) :=
+    map_fl ( A ) ( B ) (list) (f)
+
+
 /- concat
 -/
 
- private def   _tailrec_concat ( A : Type ) (rev_first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
-    match rev_first with
-      | List.nil => second
-      | (head) :: (tail) => _tailrec_concat ( A ) (tail) ( (head) :: (second) )
-    
-
-
  def   concat ( A : Type ) (first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
-    _tailrec_concat ( A ) (reverse ( A ) (first) ) (second)
+    _tailrec_foldl ( A ) ( List ( A )  ) (reverse_fl ( A ) (first) ) (second) (
+      fun (accum : List ( A ) ) =>
+        fun (elem : A) =>
+          (elem) :: (accum)
+    )
 
 
  def   monus1 (index : Nat) : Nat :=

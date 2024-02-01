@@ -244,32 +244,33 @@ class MyList
  * map
  */
 
-  _tailrec_map_rev [A : Type] [B : Type] (list : List [A] ) (func : A -> B) (accum : List [B] )
-      : List [B] =
-    match list
-      case Nil ==> accum
-      case (head) :: (tail) ==>
-          _tailrec_map_rev [A] [B] (tail) (func) ( (func (head) ) :: (accum) )
-
-  map [A : Type] [B : Type] (list : List [A] ) (func : A -> B) : List [B] =
-    reverse_tr [B] (_tailrec_map_rev [A] [B] (list) (func) (Nil) )
+  map_fl [A : Type] [B : Type] (list : List [A] ) (f : A -> B) : List [B] =
+    reverse_fl [B] (
+      foldl [A] [List [B] ] (list) (Nil) (
+        lambda (accum : List [B] ) -->
+          lambda (elem : A) -->
+            (f (elem) ) :: (accum)
+      )
+    )
 
   map_def [A : Type] [B : Type] (list : List [A] ) (func : A -> B ) : List [B] =
     match list
       case Nil ==> Nil
       case (head) :: (tail) ==> (func (head) ) :: (map_def [A] [B] (tail) (func) )
 
+  map [A : Type] [B : Type] (list : List [A] ) (f : A -> B) : List [B] =
+    map_fl [A] [B] (list) (f)
+
 /*
  * concat
  */
 
-  _tailrec_concat [A : Type] (rev_first : List [A] ) (second : List [A] ) : List [A] =
-    match rev_first
-      case Nil ==> second
-      case (head) :: (tail) ==> _tailrec_concat [A] (tail) ( (head) :: (second) )
-
   concat [A : Type] (first : List [A] ) (second : List [A] ) : List [A] =
-    _tailrec_concat [A] (reverse [A] (first) ) (second)
+    _tailrec_foldl [A] [List [A] ] (reverse_fl [A] (first) ) (second) (
+      lambda (accum : List [A] ) -->
+        lambda (elem : A) -->
+          (elem) :: (accum)
+    )
 
   monus1 (index : Nat) : Nat =
     match index

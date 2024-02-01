@@ -290,16 +290,14 @@ trait MyList
  * map
  */
 
-  private def _tailrec_map_rev [A , B ] (list : List [A] ) (func : A => B) (accum : List [B] )
-      : List [B] =
-    list match  {
-      case Nil => accum
-      case (head) :: (tail) =>
-          _tailrec_map_rev [A, B] (tail) (func) ( (func (head) ) :: (accum) )
-    }
-
-  def map [A , B ] (list : List [A] ) (func : A => B) : List [B] =
-    reverse_tr [B] (_tailrec_map_rev [A, B] (list) (func) (Nil) )
+  def map_fl [A , B ] (list : List [A] ) (f : A => B) : List [B] =
+    reverse_fl [B] (
+      foldl [A, List [B] ] (list) (Nil) (
+         (accum : List [B] ) =>
+           (elem : A) =>
+            (f (elem) ) :: (accum)
+      )
+    )
 
   def map_def [A , B ] (list : List [A] ) (func : A => B ) : List [B] =
     list match  {
@@ -307,18 +305,19 @@ trait MyList
       case (head) :: (tail) => (func (head) ) :: (map_def [A, B] (tail) (func) )
     }
 
+  def map [A , B ] (list : List [A] ) (f : A => B) : List [B] =
+    map_fl [A, B] (list) (f)
+
 /*
  * concat
  */
 
-  private def _tailrec_concat [A ] (rev_first : List [A] ) (second : List [A] ) : List [A] =
-    rev_first match  {
-      case Nil => second
-      case (head) :: (tail) => _tailrec_concat [A] (tail) ( (head) :: (second) )
-    }
-
   def concat [A ] (first : List [A] ) (second : List [A] ) : List [A] =
-    _tailrec_concat [A] (reverse [A] (first) ) (second)
+    _tailrec_foldl [A, List [A] ] (reverse_fl [A] (first) ) (second) (
+       (accum : List [A] ) =>
+         (elem : A) =>
+          (elem) :: (accum)
+    )
 
   def monus1 (index : Nat) : Nat =
     index match  {
