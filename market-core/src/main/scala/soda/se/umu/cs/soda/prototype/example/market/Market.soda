@@ -36,6 +36,15 @@ class Market
 
 end
 
+class ChangeWindow [A : Type]
+
+  abstract
+    current_index : Nat
+    target_index : Nat
+    new_value : A
+    rev_accum : List [A]
+
+end
 
 class MyList
 
@@ -264,8 +273,8 @@ class MyList
 
   monus1 (index : Nat) : Nat =
     match index
-      case 0 ==> 0
       case Succ_ (k) ==> k
+      case _otherwise  ==> 0
 
   directive lean
   theorem
@@ -287,17 +296,27 @@ class MyList
   get [A : Type] (list : List [A] ) (index : Nat) : Option [A] =
     _tailrec_get [A] (list) (index)
 
-  _tailrec_set [A : Type] (list : List [A] ) (accum : List [A] ) (index : Nat)
-      (element : A) : List [A] =
-    match list
-      case Nil ==> reverse [A] (accum)
-      case (head) :: (tail) ==>
-        if index == 0
-        then concat [A] (reverse [A] (accum) ) ( (element) :: (tail) )
-        else _tailrec_set [A] (tail) ( (head) :: (accum) ) (monus1 (index) ) (element)
+  _replace_if_in_place [A : Type] (current_index : Nat) (target_index : Nat) (old_value : A) (
+      new_value : A) : A =
+    if (current_index == target_index)
+    then new_value
+    else old_value
 
-  set_tr [A : Type] (list : List [A] ) (index : Nat) (element : A) : List [A] =
-    _tailrec_set [A] (list) (Nil) (index) (element)
+  _apply_replacement [A : Type] (p : ChangeWindow [A] ) (element : A) : ChangeWindow [A] =
+    ChangeWindow .mk (p .current_index + 1) (p .target_index) (p .new_value) (
+      (_replace_if_in_place [A] (p .current_index) (p .target_index) (element) (p .new_value)
+      ) :: p .rev_accum
+    )
+
+  _initial_window [A : Type] (index : Nat) (new_value : A) : ChangeWindow [A] =
+    ChangeWindow .mk (0) (index) (new_value) (Nil)
+
+
+  set_fl [A : Type] (list : List [A] ) (index : Nat) (new_value : A) : List [A] =
+    reverse_fl [A] (
+      (foldl [A] [ChangeWindow [A] ] (list) (_initial_window [A] (index) (new_value) ) (
+        _apply_replacement [A] ) ) .rev_accum
+    )
 
   set_def [A : Type] (list : List [A] ) (index : Nat) (element : A) : List [A] =
     match list
@@ -332,9 +351,8 @@ class MyList
          rewrite [ih]
          rfl
 
-
   set [A : Type] (list : List [A] ) (index : Nat) (element : A) : List [A] =
-    set_tr [A] (list) (index) (element)
+    set_fl [A] (list) (index) (element)
 
 end
 

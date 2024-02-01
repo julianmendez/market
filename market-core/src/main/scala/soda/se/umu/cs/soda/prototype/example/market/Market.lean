@@ -51,6 +51,23 @@ end Market
 
 notation "Market_" => Market.mk
 
+class ChangeWindow ( A : Type )
+
+where
+  mk ::
+    current_index : Nat
+    target_index : Nat
+    new_value : A
+    rev_accum : List ( A )
+  deriving DecidableEq
+
+namespace ChangeWindow
+
+
+end ChangeWindow
+
+notation "ChangeWindow_" => ChangeWindow.mk
+
 class MyList
 
 where
@@ -292,8 +309,8 @@ private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (f
 
  def   monus1 (index : Nat) : Nat :=
     match index with
-      | 0 => 0
       | Succ_ (k) => k
+      | _otherwise  => 0
     
 
 
@@ -319,19 +336,29 @@ private def   _tailrec_map_rev ( A : Type ) ( B : Type ) (list : List ( A ) ) (f
     _tailrec_get ( A ) (list) (index)
 
 
-private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) (index : Nat)
-       (element : A) : List ( A ) :=
-    match list with
-      | List.nil => reverse ( A ) (accum)
-      | (head) :: (tail) =>
-        if index == 0
-        then concat ( A ) (reverse ( A ) (accum) ) ( (element) :: (tail) )
-        else _tailrec_set ( A ) (tail) ( (head) :: (accum) ) (monus1 (index) ) (element)
-    
+private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_index : Nat) (old_value : A) (
+       new_value : A) : A :=
+    if (current_index == target_index)
+    then new_value
+    else old_value
 
 
- def   set_tr ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
-    _tailrec_set ( A ) (list) (List.nil) (index) (element)
+ private def   _apply_replacement ( A : Type ) (p : ChangeWindow ( A ) ) (element : A) : ChangeWindow ( A ) :=
+    ChangeWindow.mk (p.current_index + 1) (p.target_index) (p.new_value) (
+      (_replace_if_in_place ( A ) (p.current_index) (p.target_index) (element) (p.new_value)
+      ) :: p.rev_accum
+    )
+
+
+ private def   _initial_window ( A : Type ) (index : Nat) (new_value : A) : ChangeWindow ( A ) :=
+    ChangeWindow.mk (0) (index) (new_value) (List.nil)
+
+
+ def   set_fl ( A : Type ) (list : List ( A ) ) (index : Nat) (new_value : A) : List ( A ) :=
+    reverse_fl ( A ) (
+      (foldl ( A ) ( ChangeWindow ( A )  ) (list) (_initial_window ( A ) (index) (new_value) ) (
+        _apply_replacement ( A ) ) ).rev_accum
+    )
 
 
  def   set_def ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
@@ -369,7 +396,7 @@ private def   _tailrec_set ( A : Type ) (list : List ( A ) ) (accum : List ( A )
          rfl
 
  def   set ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
-    set_tr ( A ) (list) (index) (element)
+    set_fl ( A ) (list) (index) (element)
 
 
 end MyList

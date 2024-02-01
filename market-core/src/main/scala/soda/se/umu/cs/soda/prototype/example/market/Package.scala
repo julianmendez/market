@@ -58,6 +58,23 @@ object Market {
     Market_ (accounts, items)
 }
 
+trait ChangeWindow [A ]
+{
+
+  def   current_index : Nat
+  def   target_index : Nat
+  def   new_value : A
+  def   rev_accum : List [A]
+
+}
+
+case class ChangeWindow_ [A] (current_index : Nat, target_index : Nat, new_value : A, rev_accum : List [A]) extends ChangeWindow [A]
+
+object ChangeWindow {
+  def mk [A] (current_index : Nat) (target_index : Nat) (new_value : A) (rev_accum : List [A]) : ChangeWindow [A] =
+    ChangeWindow_ [A] (current_index, target_index, new_value, rev_accum)
+}
+
 trait MyList
 {
 
@@ -305,8 +322,8 @@ trait MyList
 
   def monus1 (index : Nat) : Nat =
     index match  {
-      case 0 => 0
       case Succ_ (k) => k
+      case _otherwise  => 0
     }
 
 /*
@@ -332,18 +349,26 @@ trait MyList
   def get [A ] (list : List [A] ) (index : Nat) : Option [A] =
     _tailrec_get [A] (list) (index)
 
-  private def _tailrec_set [A ] (list : List [A] ) (accum : List [A] ) (index : Nat)
-      (element : A) : List [A] =
-    list match  {
-      case Nil => reverse [A] (accum)
-      case (head) :: (tail) =>
-        if ( index == 0
-        ) concat [A] (reverse [A] (accum) ) ( (element) :: (tail) )
-        else _tailrec_set [A] (tail) ( (head) :: (accum) ) (monus1 (index) ) (element)
-    }
+  private def _replace_if_in_place [A ] (current_index : Nat) (target_index : Nat) (old_value : A) (
+      new_value : A) : A =
+    if ( (current_index == target_index)
+    ) new_value
+    else old_value
 
-  def set_tr [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
-    _tailrec_set [A] (list) (Nil) (index) (element)
+  private def _apply_replacement [A ] (p : ChangeWindow [A] ) (element : A) : ChangeWindow [A] =
+    ChangeWindow .mk (p .current_index + 1) (p .target_index) (p .new_value) (
+      (_replace_if_in_place [A] (p .current_index) (p .target_index) (element) (p .new_value)
+      ) :: p .rev_accum
+    )
+
+  private def _initial_window [A ] (index : Nat) (new_value : A) : ChangeWindow [A] =
+    ChangeWindow .mk (0) (index) (new_value) (Nil)
+
+  def set_fl [A ] (list : List [A] ) (index : Nat) (new_value : A) : List [A] =
+    reverse_fl [A] (
+      (foldl [A, ChangeWindow [A] ] (list) (_initial_window [A] (index) (new_value) ) (
+        _apply_replacement [A] ) ) .rev_accum
+    )
 
   def set_def [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
     list match  {
@@ -382,7 +407,7 @@ trait MyList
 */
 
   def set [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
-    set_tr [A] (list) (index) (element)
+    set_fl [A] (list) (index) (element)
 
 }
 
