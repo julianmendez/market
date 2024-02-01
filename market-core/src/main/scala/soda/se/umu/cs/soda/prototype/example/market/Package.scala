@@ -100,11 +100,11 @@ trait MyList
  * This definition of fold left is tail recursive.
  */
 
-  private def _tailrec_foldl [A , B ] (sequence : Seq [A] ) (current : B)
+  private def _tailrec_foldl [A , B ] (list : List [A] ) (current : B)
       (next : B => A => B) : B =
-    sequence match  {
+    list match  {
       case Nil => current
-      case (head) +: (tail) =>
+      case (head) :: (tail) =>
         _tailrec_foldl [A, B] (tail) (next (current) (head) ) (next)
     }
 
@@ -112,9 +112,9 @@ trait MyList
  * `foldl` is a 'fold left' function for parameterized types that uses `_tailrec_foldl`.
   */
 
-  def foldl [A , B ] (sequence : Seq [A] ) (initial : B)
+  def foldl [A , B ] (list : List [A] ) (initial : B)
       (next : B => A => B) : B =
-    _tailrec_foldl [A, B] (sequence) (initial) (next)
+    _tailrec_foldl [A, B] (list) (initial) (next)
 
 /*
  * `length` defined using fold left.

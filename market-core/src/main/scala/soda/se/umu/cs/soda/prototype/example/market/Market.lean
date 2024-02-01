@@ -97,9 +97,9 @@ namespace MyList
  This definition of fold left is tail recursive.
 -/
 
-private def   _tailrec_foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
+private def   _tailrec_foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (current : B)
        (next : B -> A -> B) : B :=
-    match sequence with
+    match list with
       | List.nil => current
       | (head) :: (tail) =>
         _tailrec_foldl ( A ) ( B ) (tail) (next (current) (head) ) (next)
@@ -109,9 +109,9 @@ private def   _tailrec_foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) 
 /-  `foldl` is a 'fold left' function for parameterized types that uses `_tailrec_foldl`.
 -/
 
-def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
+def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
        (next : B -> A -> B) : B :=
-    _tailrec_foldl ( A ) ( B ) (sequence) (initial) (next)
+    _tailrec_foldl ( A ) ( B ) (list) (initial) (next)
 
 
 /-`length` defined using fold left.
