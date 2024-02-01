@@ -111,3 +111,135 @@ case class MarketSpec ()
 
 }
 
+
+case class MyListSpec ()
+  extends
+    org.scalatest.funsuite.AnyFunSuite
+{
+
+  def check [A ] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
+    assert (obtained == expected)
+
+  lazy val example_list_0 : List [Int] =
+     List (0 , 1 , 1 , 2 , 3 , 5 , 8)
+
+  lazy val example_list_1 : List [Int] =
+     List (13 , 21 , 34 , 55 , 89 , 144)
+
+  lazy val instance : MyList =
+    MyList .mk (true)
+
+  test ("reverse") (
+    check (
+      obtained = instance .reverse [Int] (example_list_0)
+    ) (
+      expected = List (8 , 5 , 3 , 2 , 1 , 1 , 0)
+    )
+  )
+
+  test ("length") (
+    check (
+      obtained = instance .length [Int] (example_list_0)
+    ) (
+      expected = 7
+    )
+  )
+
+  test ("concat") (
+    check (
+      obtained = instance .concat [Int] (example_list_0) (example_list_1)
+    ) (
+      expected = List (0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144)
+    )
+  )
+
+  test ("map") (
+    check (
+      obtained = instance .map [Int, Int] (example_list_0) ( (x : Int) => x + 1)
+    ) (
+      expected = List (1, 2, 2, 3, 4, 6, 9)
+    )
+  )
+
+  test ("get 1") (
+    check (
+      obtained = instance .get [Int] (example_list_0) (0)
+    ) (
+      expected = Some (0)
+    )
+  )
+
+  test ("get 2") (
+    check (
+      obtained = instance .get [Int] (example_list_0) (3)
+    ) (
+      expected = Some (2)
+    )
+  )
+
+  test ("get 3") (
+    check (
+      obtained = instance .get [Int] (example_list_0) (6)
+    ) (
+      expected = Some (8)
+    )
+  )
+
+  test ("get 4") (
+    check (
+      obtained = instance .get [Int] (example_list_0) (7)
+    ) (
+      expected = None
+    )
+  )
+
+  test ("get 5") (
+    check (
+      obtained = instance .get [Int] (example_list_0) (-1)
+    ) (
+      expected = None
+    )
+  )
+
+  test ("set 1") (
+    check (
+      obtained = instance .set [Int] (example_list_0) (0) (144)
+    ) (
+      expected = List (144, 1, 1, 2, 3, 5, 8)
+    )
+  )
+
+  test ("set 2") (
+    check (
+      obtained = instance .set [Int] (example_list_0) (3) (144)
+    ) (
+      expected = List (0, 1, 1, 144, 3, 5, 8)
+    )
+  )
+
+  test ("set 3") (
+    check (
+      obtained = instance .set [Int] (example_list_0) (6) (144)
+    ) (
+      expected = List (0, 1, 1, 2, 3, 5, 144)
+    )
+  )
+
+  test ("set 4") (
+    check (
+      obtained = instance .set [Int] (example_list_0) (7) (144)
+    ) (
+      expected = List (0, 1, 1, 2, 3, 5, 8)
+    )
+  )
+
+  test ("set 5") (
+    check (
+      obtained = instance .set [Int] (example_list_0) (-1) (144)
+    ) (
+      expected = List (0, 1, 1, 2, 3, 5, 8)
+    )
+  )
+
+}
+
