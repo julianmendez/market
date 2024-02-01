@@ -58,6 +58,21 @@ object Market {
     Market_ (accounts, items)
 }
 
+trait IndexOption [A ]
+{
+
+  def   current_index : Nat
+  def   maybe_elem : Option [A]
+
+}
+
+case class IndexOption_ [A] (current_index : Nat, maybe_elem : Option [A]) extends IndexOption [A]
+
+object IndexOption {
+  def mk [A] (current_index : Nat) (maybe_elem : Option [A]) : IndexOption [A] =
+    IndexOption_ [A] (current_index, maybe_elem)
+}
+
 trait ChangeWindow [A ]
 {
 
@@ -336,17 +351,16 @@ trait MyList
     simp
 */
 
-  private def _tailrec_get [A ] (list : List [A] ) (index : Nat) : Option [A] =
-    list match  {
-      case Nil => None
-      case (head) :: (tail) =>
-        if ( index == 0
-        ) Some (head)
-        else _tailrec_get [A] (tail) (monus1 (index) )
-    }
-
   def get [A ] (list : List [A] ) (index : Nat) : Option [A] =
-    _tailrec_get [A] (list) (index)
+    (foldl [A, IndexOption [A] ] (list) (
+      IndexOption .mk (0) (None) ) (
+         (accum : IndexOption [A] ) =>
+           (elem : A) =>
+            if ( (accum .current_index == index)
+            ) IndexOption .mk (accum .current_index + 1) (Some (elem) )
+            else IndexOption .mk (accum .current_index + 1) (accum .maybe_elem)
+      )
+    ) .maybe_elem
 
   private def _replace_if_in_place [A ] (current_index : Nat) (target_index : Nat) (old_value : A) (
       new_value : A) : A =
@@ -380,8 +394,7 @@ trait MyList
 
 /*
   directive lean
-  theorem
-    len_set (A : Type) (list : List (A)) (element : A)
+  theorem    len_set (A : Type) (list : List (A)) (element : A)
       : forall (index : Nat),
         length_def (A) (set_def (A) (list) (index) (element) ) = length_def (A) (list) := by
     induction list with

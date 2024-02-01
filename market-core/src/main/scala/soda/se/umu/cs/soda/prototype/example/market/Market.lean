@@ -51,6 +51,21 @@ end Market
 
 notation "Market_" => Market.mk
 
+class IndexOption ( A : Type )
+
+where
+  mk ::
+    current_index : Nat
+    maybe_elem : Option ( A )
+  deriving DecidableEq
+
+namespace IndexOption
+
+
+end IndexOption
+
+notation "IndexOption_" => IndexOption.mk
+
 class ChangeWindow ( A : Type )
 
 where
@@ -320,18 +335,16 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
     rewrite [monus1]
     simp
 
- private def   _tailrec_get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
-    match list with
-      | List.nil => Option.none
-      | (head) :: (tail) =>
-        if index == 0
-        then Option.some (head)
-        else _tailrec_get ( A ) (tail) (monus1 (index) )
-    
-
-
  def   get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
-    _tailrec_get ( A ) (list) (index)
+    (foldl ( A ) ( IndexOption ( A )  ) (list) (
+      IndexOption.mk (0) (Option.none) ) (
+        fun (accum : IndexOption ( A ) ) =>
+          fun (elem : A) =>
+            if (accum.current_index == index)
+            then IndexOption.mk (accum.current_index + 1) (Option.some (elem) )
+            else IndexOption.mk (accum.current_index + 1) (accum.maybe_elem)
+      )
+    ).maybe_elem
 
 
 private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_index : Nat) (old_value : A) (
@@ -369,8 +382,7 @@ private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_in
     
 
 
-  theorem
-    len_set (A : Type) (list : List (A)) (element : A)
+  theorem    len_set (A : Type) (list : List (A)) (element : A)
       : forall (index : Nat),
         length_def (A) (set_def (A) (list) (index) (element) ) = length_def (A) (list) := by
     induction list with
