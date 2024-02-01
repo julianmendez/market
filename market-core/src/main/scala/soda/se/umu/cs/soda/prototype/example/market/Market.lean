@@ -61,7 +61,7 @@ where
 namespace MyList
 
 
-/-`foldl` is a 'fold left' function for parameterized types.
+/-`_tailrec_foldl` is a 'fold left' function for parameterized types.
  This definition of fold left is tail recursive.
 -/
 
@@ -74,6 +74,9 @@ private def   _tailrec_foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) 
     
 
 
+/-  `foldl` is a 'fold left' function for parameterized types that uses `_tailrec_foldl`.
+-/
+
 def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
        (next : B -> A -> B) : B :=
     _tailrec_foldl ( A ) ( B ) (sequence) (initial) (next)
@@ -84,7 +87,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
 -/
 
  def   length_fl ( A : Type ) (list : List ( A ) ) : Nat :=
-    foldl ( A ) ( Nat ) (list) (0) (
+    _tailrec_foldl ( A ) ( Nat ) (list) (0) (
       fun (accum : Nat) =>
         fun (_elem : A) => accum + 1
     )
@@ -149,7 +152,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
   theorem
   len_fl_eq_len_def (A : Type) (list : List (A))
       : length_fl (A) (list) = length_def (A) (list) := by
-    rewrite [length_fl, foldl]
+    rewrite [length_fl]
     induction list with
     | nil =>
       rewrite [_tailrec_foldl, length_def]
@@ -194,7 +197,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
 
 
  def   reverse_fl ( A : Type ) (list : List ( A ) ) : List ( A ) :=
-    foldl ( A ) ( List ( A )  ) (list) (List.nil) (
+    _tailrec_foldl ( A ) ( List ( A )  ) (list) (List.nil) (
       fun (accum : List ( A ) ) =>
         fun (elem : A) =>
           (elem) :: (accum)
@@ -224,7 +227,7 @@ def   foldl ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial : B)
     rev_tr_eq_rev_fl
       (A : Type) (list : List (A) )
         : reverse_fl (A) (list) = reverse_tr (A) (list) := by
-    rewrite [reverse_fl, reverse_tr, foldl, rev_fl_accum]
+    rewrite [reverse_fl, reverse_tr, rev_fl_accum]
     rfl
 
   theorem

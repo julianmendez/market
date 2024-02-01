@@ -64,7 +64,7 @@ trait MyList
   def   bit : Boolean
 
 /*
- * `foldl` is a 'fold left' function for parameterized types.
+ * `_tailrec_foldl` is a 'fold left' function for parameterized types.
  * This definition of fold left is tail recursive.
  */
 
@@ -76,6 +76,10 @@ trait MyList
         _tailrec_foldl [A, B] (tail) (next (current) (head) ) (next)
     }
 
+/*
+ * `foldl` is a 'fold left' function for parameterized types that uses `_tailrec_foldl`.
+  */
+
   def foldl [A , B ] (sequence : Seq [A] ) (initial : B)
       (next : B => A => B) : B =
     _tailrec_foldl [A, B] (sequence) (initial) (next)
@@ -86,7 +90,7 @@ trait MyList
  */
 
   def length_fl [A ] (list : List [A] ) : Nat =
-    foldl [A, Nat] (list) (0) (
+    _tailrec_foldl [A, Nat] (list) (0) (
        (accum : Nat) =>
          (_elem : A) => accum + 1
     )
@@ -155,7 +159,7 @@ trait MyList
   theorem
   len_fl_eq_len_def (A : Type) (list : List (A))
       : length_fl (A) (list) = length_def (A) (list) := by
-    rewrite [length_fl, foldl]
+    rewrite [length_fl]
     induction list with
     | nil =>
       rewrite [_tailrec_foldl, length_def]
@@ -202,7 +206,7 @@ trait MyList
     _tailrec_reverse [A] (list) (Nil)
 
   def reverse_fl [A ] (list : List [A] ) : List [A] =
-    foldl [A, List [A] ] (list) (Nil) (
+    _tailrec_foldl [A, List [A] ] (list) (Nil) (
        (accum : List [A] ) =>
          (elem : A) =>
           (elem) :: (accum)
@@ -236,7 +240,7 @@ trait MyList
     rev_tr_eq_rev_fl
       (A : Type) (list : List (A) )
         : reverse_fl (A) (list) = reverse_tr (A) (list) := by
-    rewrite [reverse_fl, reverse_tr, foldl, rev_fl_accum]
+    rewrite [reverse_fl, reverse_tr, rev_fl_accum]
     rfl
 */
 
