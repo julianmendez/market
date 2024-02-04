@@ -1,5 +1,5 @@
 # Market
 
-This is a prototype to show a market modeled in Soda.
+This is a multi-agent prototype to show a market modeled in Soda.
 
 

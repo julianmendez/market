@@ -1,25 +1,32 @@
-/- Prelude for Soda types. -/
-notation:max "Boolean" => Bool
-notation:max "None" => none
-notation:max "Some" => some
-notation:max "Nil" => []
-
 /-
 directive scala
-type Nat = Int
+object Succ_ {
+  def unapply (n : Int) : Option [Int] =
+    if (n <= 0) None else Some (n - 1)
+}
 -/
 
-notation:max "Index" => Nat
+notation "Succ_" => Nat.succ
+notation "Int" => Nat
 
-notation:max "Money" => Int
+/-
+directive coq
+Notation "head '+:' tail" := (cons (head) (tail) ) (at level 99).
+Notation "'Succ_'" := S (at level 99).
+Notation "'Int'" := nat (at level 99).
+-/
 
-namespace Item
+notation "Money" => Int
 
-class Item where
-  Item_ ::
-    owner : Index
+notation "Nat" => Int
+
+class Item
+
+where
+  mk ::
+    owner : Nat
     price : Money
-    advertised : Boolean
+    advertised : Bool
   deriving DecidableEq
 
 namespace Item
@@ -27,12 +34,12 @@ namespace Item
 
 end Item
 
-open Item
+notation "Item_" => Item.mk
 
-namespace Market
+class Market
 
-class Market where
-  Market_ ::
+where
+  mk ::
     accounts : List ( Money )
     items : List ( Item )
   deriving DecidableEq
@@ -42,134 +49,463 @@ namespace Market
 
 end Market
 
-open Market
+notation "Market_" => Market.mk
+
+class IndexOption ( A : Type )
+
+where
+  mk ::
+    current_index : Nat
+    maybe_elem : Option ( A )
+  deriving DecidableEq
+
+namespace IndexOption
+
+
+end IndexOption
+
+notation "IndexOption_" => IndexOption.mk
+
+class ChangeWindow ( A : Type )
+
+where
+  mk ::
+    current_index : Nat
+    target_index : Nat
+    new_value : A
+    rev_accum : List ( A )
+  deriving DecidableEq
+
+namespace ChangeWindow
+
+
+end ChangeWindow
+
+notation "ChangeWindow_" => ChangeWindow.mk
+
+class MyList
+
+where
+  mk ::
+    bit : Bool
+  deriving DecidableEq
+
+namespace MyList
+
+
+/-`_tailrec_foldl` is a 'fold left' function for parameterized types.
+ This definition of fold left is tail recursive.
+-/
+
+private def   _tailrec_foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (current : B)
+       (next : B -> A -> B) : B :=
+    match list with
+      | List.nil => current
+      | (head) :: (tail) =>
+        _tailrec_foldl ( A ) ( B ) (tail) (next (current) (head) ) (next)
+    
+
+
+/-  `foldl` is a 'fold left' function for parameterized types that uses `_tailrec_foldl`.
+-/
+
+def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
+       (next : B -> A -> B) : B :=
+    _tailrec_foldl ( A ) ( B ) (list) (initial) (next)
+
+
+/-`length` defined using fold left.
+ This uses foldl, which is tail recursive.
+-/
+
+ def   length_fl ( A : Type ) (list : List ( A ) ) : Nat :=
+    _tailrec_foldl ( A ) ( Nat ) (list) (0) (
+      fun (accum : Nat) =>
+        fun (_elem : A) => accum + 1
+    )
+
+
+  theorem
+    len_fl_accum (A : Type) (list : List (A) )
+       : forall (accum : Nat) ,
+        _tailrec_foldl (A) (Nat) (list) (accum) (fun (accum : Nat) => fun (elem : A) => accum + 1) =
+           _tailrec_foldl (A) (Nat) (list) (0) (fun (accum : Nat) => fun (elem : A) => accum + 1) + accum := by
+      induction list with
+      | nil =>
+        intro n
+        rewrite [_tailrec_foldl, _tailrec_foldl, Nat.zero_add]
+        rfl
+      | cons head tail ih =>
+        intro n
+        rewrite [_tailrec_foldl, _tailrec_foldl]
+        rewrite [ih (1)]
+        rewrite [ih (n + 1)]
+        rewrite [Nat.add_assoc]
+        rewrite [Nat.add_comm 1]
+        rfl
+
+ private def   _tailrec_length ( A : Type ) (list : List ( A ) ) (accum : Nat) : Nat :=
+    match list with
+      | List.nil => accum
+      | (_head) :: (tail) =>
+        _tailrec_length ( A ) (tail) (accum + 1)
+    
+
+
+  theorem
+    len_tr_accum (A : Type) (list : List (A) )
+      : forall (accum : Nat) ,
+        _tailrec_length (A) (list) (accum)  = _tailrec_length (A) (list) (0) + accum := by
+      induction list with
+      | nil =>
+        intro n
+        rewrite [_tailrec_length, _tailrec_length, Nat.zero_add]
+        rfl
+      | cons head tail ih =>
+        intro n
+        rewrite [_tailrec_length, _tailrec_length]
+        rewrite [ih (1)]
+        rewrite [ih (n + 1)]
+        rewrite [Nat.add_assoc]
+        rewrite [Nat.add_comm 1]
+        rfl
+
+ def   length_tr ( A : Type ) (list : List ( A ) ) : Nat :=
+    _tailrec_length ( A ) (list) (0)
+
+
+ def   length_def ( A : Type ) (list : List ( A ) ) : Nat :=
+    match list with
+      | List.nil => 0
+      | (_head) :: (tail) => length_def ( A ) (tail) + 1
+    
+
+
+  theorem
+  len_fl_eq_len_def (A : Type) (list : List (A))
+      : length_fl (A) (list) = length_def (A) (list) := by
+    rewrite [length_fl]
+    induction list with
+    | nil =>
+      rewrite [_tailrec_foldl, length_def]
+      rfl
+    | cons head tail ih =>
+      rewrite [_tailrec_foldl, len_fl_accum]
+      rewrite [ih]
+      rewrite [length_def]
+      rfl
+
+  theorem
+    len_tr_eq_len_def
+      : length_tr = length_def := by
+    funext A list
+    rewrite [length_tr]
+    induction list with
+    | nil =>
+      rewrite [_tailrec_length, length_def]
+      rfl
+    | cons head tail ih =>
+      rewrite [_tailrec_length, len_tr_accum]
+      rewrite [ih]
+      rewrite [length_def]
+      rfl
+
+ def   length ( A : Type ) (list : List ( A ) ) : Nat :=
+    length_fl ( A ) (list)
+
+
+/- reverse
+-/
+
+ private def   _tailrec_reverse ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) : List ( A ) :=
+    match list with
+      | List.nil => accum
+      | (head) :: (tail) => _tailrec_reverse ( A ) (tail) ( (head) :: (accum) )
+    
+
+
+ def   reverse_tr ( A : Type ) (list : List ( A ) ) : List ( A ) :=
+    _tailrec_reverse ( A ) (list) (List.nil)
+
+
+ def   reverse_fl ( A : Type ) (list : List ( A ) ) : List ( A ) :=
+    _tailrec_foldl ( A ) ( List ( A )  ) (list) (List.nil) (
+      fun (accum : List ( A ) ) =>
+        fun (elem : A) =>
+          (elem) :: (accum)
+    )
+
+
+  theorem
+    rev_fl_accum (A : Type) (list : List (A))
+      : forall (current: List (A) ),
+        _tailrec_foldl (A) (List (A) ) (list) (current)
+          (fun (accum : List (A) ) =>
+            fun (elem : A) =>
+               (elem) :: (accum)
+          ) = _tailrec_reverse (A) (list) (current) := by
+      induction list with
+      | nil =>
+        intro other
+        rewrite [_tailrec_foldl, _tailrec_reverse]
+        rfl
+      | cons head tail ih =>
+        intro other
+        rewrite [_tailrec_foldl, _tailrec_reverse]
+        rewrite [ih ((head) :: (other))]
+        rfl
+
+  theorem
+    rev_tr_eq_rev_fl
+      (A : Type) (list : List (A) )
+        : reverse_fl (A) (list) = reverse_tr (A) (list) := by
+    rewrite [reverse_fl, reverse_tr, rev_fl_accum]
+    rfl
+
+  theorem
+    len_rev_accum (A : Type) (list : List (A))
+      : forall (accum : List (A) ),
+        length_def (A) (_tailrec_reverse (A) (list) (accum)) =
+            length_def (A) (_tailrec_reverse (A) (list) ([])) + length_def (A) (accum) := by
+      induction list with
+      | nil =>
+        intro other
+        rewrite [_tailrec_reverse, _tailrec_reverse, length_def, Nat.zero_add]
+        rfl
+      | cons head tail ih =>
+        intro other
+        rewrite [_tailrec_reverse, _tailrec_reverse]
+        rewrite [ih ((head) :: ([]))]
+        rewrite [ih ((head) :: (other))]
+        rewrite [length_def, length_def, length_def]
+        rewrite [Nat.add_assoc, Nat.add_comm 1]
+        rfl
+
+ def   reverse ( A : Type ) (list : List ( A ) ) : List ( A ) :=
+    reverse_fl ( A ) (list)
+
+
+/- map
+-/
+
+ def   map_fl ( A : Type ) ( B : Type ) (list : List ( A ) ) (f : A -> B) : List ( B ) :=
+    reverse_fl ( B ) (
+      foldl ( A ) ( List ( B )  ) (list) (List.nil) (
+        fun (accum : List ( B ) ) =>
+          fun (elem : A) =>
+            (f (elem) ) :: (accum)
+      )
+    )
+
+
+ def   map_def ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B ) : List ( B ) :=
+    match list with
+      | List.nil => List.nil
+      | (head) :: (tail) => (func (head) ) :: (map_def ( A ) ( B ) (tail) (func) )
+    
+
+
+ def   map ( A : Type ) ( B : Type ) (list : List ( A ) ) (f : A -> B) : List ( B ) :=
+    map_fl ( A ) ( B ) (list) (f)
+
+
+/- concat
+-/
+
+ def   concat ( A : Type ) (first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
+    _tailrec_foldl ( A ) ( List ( A )  ) (reverse_fl ( A ) (first) ) (second) (
+      fun (accum : List ( A ) ) =>
+        fun (elem : A) =>
+          (elem) :: (accum)
+    )
+
+
+ def   monus1 (index : Nat) : Nat :=
+    match index with
+      | Succ_ (k) => k
+      | _otherwise  => 0
+    
+
+
+  theorem
+    monus1_succ
+      : forall (index : Nat),
+        monus1 (Nat.succ (index)) = index := by
+    intro idx
+    rewrite [monus1]
+    simp
+
+ def   get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
+    (foldl ( A ) ( IndexOption ( A )  ) (list) (
+      IndexOption.mk (0) (Option.none) ) (
+        fun (accum : IndexOption ( A ) ) =>
+          fun (elem : A) =>
+            if (accum.current_index == index)
+            then IndexOption.mk (accum.current_index + 1) (Option.some (elem) )
+            else IndexOption.mk (accum.current_index + 1) (accum.maybe_elem)
+      )
+    ).maybe_elem
+
+
+private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_index : Nat) (old_value : A) (
+       new_value : A) : A :=
+    if (current_index == target_index)
+    then new_value
+    else old_value
+
+
+ private def   _apply_replacement ( A : Type ) (p : ChangeWindow ( A ) ) (element : A) : ChangeWindow ( A ) :=
+    ChangeWindow.mk (p.current_index + 1) (p.target_index) (p.new_value) (
+      (_replace_if_in_place ( A ) (p.current_index) (p.target_index) (element) (p.new_value)
+      ) :: p.rev_accum
+    )
+
+
+ private def   _initial_window ( A : Type ) (index : Nat) (new_value : A) : ChangeWindow ( A ) :=
+    ChangeWindow.mk (0) (index) (new_value) (List.nil)
+
+
+ def   set_fl ( A : Type ) (list : List ( A ) ) (index : Nat) (new_value : A) : List ( A ) :=
+    reverse_fl ( A ) (
+      (foldl ( A ) ( ChangeWindow ( A )  ) (list) (_initial_window ( A ) (index) (new_value) ) (
+        _apply_replacement ( A ) ) ).rev_accum
+    )
+
+
+ def   set_def ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
+    match list with
+      | List.nil => List.nil
+      | (_head) :: (tail) =>
+        if index == 0
+        then (element) :: (tail)
+        else (element) :: (set_def ( A ) (tail) (monus1 (index) ) (element) )
+    
+
+
+  theorem    len_set (A : Type) (list : List (A)) (element : A)
+      : forall (index : Nat),
+        length_def (A) (set_def (A) (list) (index) (element) ) = length_def (A) (list) := by
+    induction list with
+    | nil =>
+      intro idx
+      rewrite [set_def, length_def]
+      rfl
+    | cons head tail ih =>
+       intro idx
+       rewrite [set_def, length_def]
+       cases idx with
+       | zero =>
+         rewrite [monus1]
+         rewrite [Nat.zero_eq]
+         rfl
+       | succ k =>
+         rewrite [monus1]
+         simp
+         rewrite [length_def]
+         rewrite [ih]
+         rfl
+
+ def   set ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
+    set_fl ( A ) (list) (index) (element)
+
+
+end MyList
+
+notation "MyList_" => MyList.mk
+
+class MarketMod
+
+where
+  mk ::
+    bit : Bool
+  deriving DecidableEq
 
 namespace MarketMod
 
-/-
-  directive scala
-  def get [A] (list : List [A]) (index : Index) : Option [A] =
-    list.lift (index)
--/
 
-  def get {A : Type} (list : List (A)) (index : Index) : Option (A) :=
-    list.get? (index)
-
-/-
-  directive scala
-  def set [A] (list : List [A]) (index : Index) (element : A) : List [A] =
-    if (index < list.length)
-    then list.updated (index , element)
-    else list
--/
-
-  def set {A : Type} (list : List (A)) (index : Index) (element : A) : List (A) :=
-    if (index < list.length)
-    then list.set (index) (element)
-    else list
-
-private def   _tailrec_fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (current : B)
-       (next_value : B -> A -> B) : B :=
-    match sequence with
-      | [] => current
-      | (head) :: (tail) =>
-        _tailrec_fold ( A ) ( B ) (tail) (next_value (current) (head) ) (next_value)
-    
+ private def   _mm : MyList := MyList_ (true)
 
 
-def   fold ( A : Type ) ( B : Type ) (sequence : List ( A ) ) (initial_value : B)
-       (next_value : B -> A -> B) : B :=
-    _tailrec_fold ( A ) ( B ) (sequence) (initial_value) (next_value)
-
-
- def   mk_Market (new_accounts : List ( Money ) ) (new_items : List ( Item ) ) : Market :=
-    Market_ (new_accounts) (new_items)
-
+  notation "_mm.get" => MyList.get
+  notation "_mm.set" => MyList.set
+  notation "_mm.foldl" => MyList.foldl
 
  def   as_market (market : Market) : Market :=
-    mk_Market (market.accounts) (market.items)
+    Market.mk (market.accounts) (market.items)
 
 
- private def   _change_owner (items : List ( Item ) ) (item_id : Index) (new_owner : Index) : List ( Item ) :=
-    match (get (items) (item_id) ) with
-      | some (item) =>
-        set (items) (item_id) (Item_ (new_owner) (item.price) (item.advertised) )
-      | otherwise => items
+ def   get_items (market : Market) : List ( Item ) :=
+    match market with
+      | Market_ (_accounts) (items) => items
     
 
 
- def   change_owner (market : Market) (item_id : Index) (new_owner : Index) : Market :=
-    mk_Market (market.accounts) (_change_owner (market.items) (item_id) (new_owner) )
+  theorem
+    proj_items (market : Market) (accounts : List (Money)) (items : List (Item))
+      : (market = Market_ (accounts) (items) ) -> get_items (market) = items := by
+    rewrite [get_items]
+    cases market
+    intro h1
+    rewrite [h1]
+    simp
 
-
- private def   _change_price (items : List ( Item ) ) (item_id : Index) (new_price : Money) : List ( Item ) :=
-    match (get (items) (item_id) ) with
-      | some (item) =>
-        set (items) (item_id) (Item_ (item.owner) (new_price) (item.advertised) )
-      | otherwise => items
+ private def   _advertise (items : List ( Item ) ) (item_id : Nat) : List ( Item ) :=
+    match (_mm.get ( Item ) (items) (item_id) ) with
+      | Option.some (item) =>
+        _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (true) )
+      | Option.none => items
     
 
 
- def   change_price (market : Market) (item_id : Index) (new_price : Money) : Market :=
-    mk_Market (market.accounts) (_change_price (market.items) (item_id) (new_price) )
+ def   advertise (market : Market) (item_id : Nat) : Market :=
+    Market.mk (market.accounts) (_advertise (market.items) (item_id) )
 
 
- private def   _advertise (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
-    match (get (items) (item_id) ) with
-      | some (item) =>
-        set (items) (item_id) (Item_ (item.owner) (item.price) (true) )
-      | otherwise => items
+ private def   _remove_ad (items : List ( Item ) ) (item_id : Nat) : List ( Item ) :=
+    match (_mm.get ( Item ) (items) (item_id) ) with
+      | Option.some (item) =>
+        _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (false) )
+      | Option.none => items
     
 
 
- def   advertise (market : Market) (item_id : Index) : Market :=
-    mk_Market (market.accounts) (_advertise (market.items) (item_id) )
+ def   remove_ad (market : Market) (item_id : Nat) : Market :=
+    Market.mk (market.accounts) (_remove_ad (market.items) (item_id) )
 
 
- private def   _remove_ad (items : List ( Item ) ) (item_id : Index) : List ( Item ) :=
-    match (get (items) (item_id) ) with
-      | some (item) =>
-        set (items) (item_id) (Item_ (item.owner) (item.price) (false) )
-      | otherwise => items
-    
-
-
- def   remove_ad (market : Market) (item_id : Index) : Market :=
-    mk_Market (market.accounts) (_remove_ad (market.items) (item_id) )
-
-
-private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Index) (target : Index)
+private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Nat) (target : Nat)
        (amount : Money) (origin_balance : Money) (target_balance : Money) : List ( Money ) :=
-    set (set (accounts) (origin) (origin_balance - amount) ) (target) (target_balance + amount)
+    _mm.set ( Money ) (_mm.set ( Money ) (accounts)
+      (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
 
-private def   _transfer_with (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
+private def   _transfer_with (accounts : List ( Money ) ) (origin : Nat) (target : Nat) (amount : Money)
        (origin_balance : Money) : List ( Money ) :=
-    match (get (accounts) (target) ) with
-      | some (target_balance) =>
-        _transfer_with_balances (accounts) (origin) (target) (amount) (origin_balance) (target_balance)
-      | otherwise => accounts
+    match (_mm.get ( Money ) (accounts) (target) ) with
+      | Option.some (target_balance) =>
+        _transfer_with_balances (accounts) (origin) (target)
+          (amount) (origin_balance) (target_balance)
+      | Option.none => accounts
     
 
 
-private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : Index) (amount : Money)
+private def   _transfer (accounts : List ( Money ) ) (origin : Nat) (target : Nat) (amount : Money)
        : List ( Money ) :=
-    match (get (accounts) (origin) ) with
-      | some (origin_balance) =>
+    match (_mm.get ( Money ) (accounts) (origin) ) with
+      | Option.some (origin_balance) =>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
-      | none => accounts
+      | Option.none => accounts
     
 
 
- def   sell (market : Market) (item_id : Index) (buyer : Index) : Market :=
-    match (get (market.items) (item_id) ) with
-      | some (item) =>
-        mk_Market (
+ def   sell (market : Market) (item_id : Nat) (buyer : Nat) : Market :=
+    match (_mm.get ( Item ) (market.items) (item_id) ) with
+      | Option.some (item) =>
+        Market.mk (
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
-          set (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
+          _mm.set ( Item ) (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
         )
-      | otherwise =>
-        market
+      | Option.none => market
     
 
 
@@ -178,45 +514,9 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Index) (target : 
 
 
  def   assets (market : Market) : Money :=
-    fold ( Money ) ( Money ) (market.accounts) (0) (_sum_pair)
+    _mm.foldl ( Money ) ( Money ) (market.accounts) (0) (_sum_pair)
 
-
-  theorem
-    lemma_set_keeps_length_1 (A : Type) (index : Index) (element : A) :
-      ((Nil).set (index) (element) ).length = 0 :=
-      by constructor
-
-  theorem
-    lemma_set_keeps_length_2 (A : Type) (head : A) (tail : List (A) ) (element : A) :
-      ((head :: tail).set (0) (head)).length = ((element :: tail).set (0) (element)).length :=
-      by constructor
-
-  theorem
-    set_keeps_length (A : Type) (list : List (A)) (index : Index) (element : A) :
-      (list.set (index) (element) ).length = list.length :=
-    match list with
-      | Nil => lemma_set_keeps_length_1 (A) (index) (element)
-      | (head) :: (tail) =>
-        match index with
-          | 0 => lemma_set_keeps_length_2 (A) (head) (tail) (element)
-          | k + 1 => sorry
-
-  theorem
-    conservation_of_items_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
-       (sell (market) (item_id) (buyer) ).items.length = market.items.length :=
-    sorry
-
-  theorem
-    lemma_fold (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer : Index) :
-     fold (Money) (Money) ( (sell (Market_ (accounts) (items)) (item_id) (buyer) ).accounts) (0) (_sum_pair) =
-       fold (Money) (Money) (accounts) (0) (_sum_pair) :=
-         sorry
-
-  theorem
-    conservation_of_money_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
-      assets (sell (market) (item_id) (buyer) ) = assets (market) :=
-    lemma_fold (market.accounts) (market.items) (item_id) (buyer)
 
 end MarketMod
 
-open MarketMod
+notation "MarketMod_" => MarketMod.mk

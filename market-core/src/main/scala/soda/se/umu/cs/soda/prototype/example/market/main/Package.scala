@@ -5,8 +5,6 @@ package soda.se.umu.cs.soda.prototype.example.market.main
  *
  */
 
-trait Package
-
 /**
  * This is the main entry point.
  */
@@ -28,4 +26,9 @@ object EntryPoint {
 
 
 case class Main_ () extends Main
+
+object Main {
+  def mk : Main =
+    Main_ ()
+}
 

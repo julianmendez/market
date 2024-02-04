@@ -1,23 +1,29 @@
+directive scala
+object Succ_ {
+  def unapply (n : Int) : Option [Int] =
+    if (n <= 0) None else Some (n - 1)
+}
 
 directive lean
-/- Prelude for Soda types. -/
-notation:max "Boolean" => Bool
-notation:max "None" => none
-notation:max "Some" => some
-notation:max "Nil" => []
+notation "Succ_" => Nat.succ
+notation "Int" => Nat
 
-directive scala
-type Nat = Int
+directive coq
+Notation "head '+:' tail" := (cons (head) (tail) ) (at level 99) .
+Notation "'Succ_'" := S (at level 99) .
+Notation "'Int'" := nat (at level 99) .
 
-class Index = Nat
 
 class Money = Int
+
+
+class Nat = Int
 
 
 class Item
 
   abstract
-    owner : Index
+    owner : Nat
     price : Money
     advertised : Boolean
 
@@ -33,156 +39,418 @@ class Market
 end
 
 
-class MarketMod
+class IndexOption [A : Type]
 
-  directive scala
-  def get [A] (list : List [A]) (index : Index) : Option [A] =
-    list.lift (index)
+  abstract
+    current_index : Nat
+    maybe_elem : Option [A]
 
-  directive lean
-  def get {A : Type} (list : List (A)) (index : Index) : Option (A) :=
-    list.get? (index)
+end
 
-  directive scala
-  def set [A] (list : List [A]) (index : Index) (element : A) : List [A] =
-    if (index < list.length)
-    then list.updated (index , element)
-    else list
 
-  directive lean
-  def set {A : Type} (list : List (A)) (index : Index) (element : A) : List (A) :=
-    if (index < list.length)
-    then list.set (index) (element)
-    else list
+class ChangeWindow [A : Type]
 
-  _tailrec_fold [A : Type] [B : Type] (sequence : List [A] ) (current : B)
-      (next_value : B -> A -> B) : B =
-    match sequence
+  abstract
+    current_index : Nat
+    target_index : Nat
+    new_value : A
+    rev_accum : List [A]
+
+end
+
+
+class MyList
+
+  abstract
+    bit : Boolean
+
+/*
+ * `_tailrec_foldl` is a 'fold left' function for parameterized types.
+ * This definition of fold left is tail recursive.
+ */
+
+  _tailrec_foldl [A : Type] [B : Type] (list : List [A] ) (current : B)
+      (next : B -> A -> B) : B =
+    match list
       case Nil ==> current
       case (head) :: (tail) ==>
-        _tailrec_fold [A] [B] (tail) (next_value (current) (head) ) (next_value)
+        _tailrec_foldl [A] [B] (tail) (next (current) (head) ) (next)
 
-  fold [A : Type] [B : Type] (sequence : List [A] ) (initial_value : B)
-      (next_value : B -> A -> B) : B =
-    _tailrec_fold [A] [B] (sequence) (initial_value) (next_value)
+/*
+ * `foldl` is a 'fold left' function for parameterized types that uses `_tailrec_foldl`.
+  */
 
-  mk_Market (new_accounts : List [Money] ) (new_items : List [Item] ) : Market =
-    Market_ (new_accounts) (new_items)
+  foldl [A : Type] [B : Type] (list : List [A] ) (initial : B)
+      (next : B -> A -> B) : B =
+    _tailrec_foldl [A] [B] (list) (initial) (next)
+
+/*
+ * `length` defined using fold left.
+ * This uses foldl, which is tail recursive.
+ */
+
+  length_fl [A : Type] (list : List [A] ) : Nat =
+    _tailrec_foldl [A] [Nat] (list) (0) (
+      lambda (accum : Nat) -->
+        lambda (_elem : A) --> accum + 1
+    )
+
+  directive lean
+  theorem
+    len_fl_accum (A : Type) (list : List (A) )
+       : forall (accum : Nat) ,
+        _tailrec_foldl (A) (Nat) (list) (accum) (fun (accum : Nat) => fun (elem : A) => accum + 1) =
+           _tailrec_foldl (A) (Nat) (list) (0) (fun (accum : Nat) => fun (elem : A) => accum + 1) + accum := by
+      induction list with
+      | nil =>
+        intro n
+        rewrite [_tailrec_foldl, _tailrec_foldl, Nat.zero_add]
+        rfl
+      | cons head tail ih =>
+        intro n
+        rewrite [_tailrec_foldl, _tailrec_foldl]
+        rewrite [ih (1)]
+        rewrite [ih (n + 1)]
+        rewrite [Nat.add_assoc]
+        rewrite [Nat.add_comm 1]
+        rfl
+
+  _tailrec_length [A : Type] (list : List [A] ) (accum : Nat) : Nat =
+    match list
+      case Nil ==> accum
+      case (_head) :: (tail) ==>
+        _tailrec_length [A] (tail) (accum + 1)
+
+  directive lean
+  theorem
+    len_tr_accum (A : Type) (list : List (A) )
+      : forall (accum : Nat) ,
+        _tailrec_length (A) (list) (accum)  = _tailrec_length (A) (list) (0) + accum := by
+      induction list with
+      | nil =>
+        intro n
+        rewrite [_tailrec_length, _tailrec_length, Nat.zero_add]
+        rfl
+      | cons head tail ih =>
+        intro n
+        rewrite [_tailrec_length, _tailrec_length]
+        rewrite [ih (1)]
+        rewrite [ih (n + 1)]
+        rewrite [Nat.add_assoc]
+        rewrite [Nat.add_comm 1]
+        rfl
+
+  length_tr [A : Type] (list : List [A] ) : Nat =
+    _tailrec_length [A] (list) (0)
+
+  length_def [A : Type] (list : List [A] ) : Nat =
+    match list
+      case Nil ==> 0
+      case (_head) :: (tail) ==> length_def [A] (tail) + 1
+
+  directive lean
+  theorem
+  len_fl_eq_len_def (A : Type) (list : List (A))
+      : length_fl (A) (list) = length_def (A) (list) := by
+    rewrite [length_fl]
+    induction list with
+    | nil =>
+      rewrite [_tailrec_foldl, length_def]
+      rfl
+    | cons head tail ih =>
+      rewrite [_tailrec_foldl, len_fl_accum]
+      rewrite [ih]
+      rewrite [length_def]
+      rfl
+
+  directive lean
+  theorem
+    len_tr_eq_len_def
+      : length_tr = length_def := by
+    funext A list
+    rewrite [length_tr]
+    induction list with
+    | nil =>
+      rewrite [_tailrec_length, length_def]
+      rfl
+    | cons head tail ih =>
+      rewrite [_tailrec_length, len_tr_accum]
+      rewrite [ih]
+      rewrite [length_def]
+      rfl
+
+  length [A : Type] (list : List [A] ) : Nat =
+    length_fl [A] (list)
+
+/*
+ * reverse
+ */
+
+  _tailrec_reverse [A : Type] (list : List [A] ) (accum : List [A] ) : List [A] =
+    match list
+      case Nil ==> accum
+      case (head) :: (tail) ==> _tailrec_reverse [A] (tail) ( (head) :: (accum) )
+
+  reverse_tr [A : Type] (list : List [A] ) : List [A] =
+    _tailrec_reverse [A] (list) (Nil)
+
+
+  reverse_fl [A : Type] (list : List [A] ) : List [A] =
+    _tailrec_foldl [A] [List [A] ] (list) (Nil) (
+      lambda (accum : List [A] ) -->
+        lambda (elem : A) -->
+          (elem) :: (accum)
+    )
+
+  directive lean
+  theorem
+    rev_fl_accum (A : Type) (list : List (A))
+      : forall (current: List (A) ),
+        _tailrec_foldl (A) (List (A) ) (list) (current)
+          (fun (accum : List (A) ) =>
+            fun (elem : A) =>
+               (elem) :: (accum)
+          ) = _tailrec_reverse (A) (list) (current) := by
+      induction list with
+      | nil =>
+        intro other
+        rewrite [_tailrec_foldl, _tailrec_reverse]
+        rfl
+      | cons head tail ih =>
+        intro other
+        rewrite [_tailrec_foldl, _tailrec_reverse]
+        rewrite [ih ((head) :: (other))]
+        rfl
+
+  directive lean
+  theorem
+    rev_tr_eq_rev_fl
+      (A : Type) (list : List (A) )
+        : reverse_fl (A) (list) = reverse_tr (A) (list) := by
+    rewrite [reverse_fl, reverse_tr, rev_fl_accum]
+    rfl
+
+  directive lean
+  theorem
+    len_rev_accum (A : Type) (list : List (A))
+      : forall (accum : List (A) ),
+        length_def (A) (_tailrec_reverse (A) (list) (accum)) =
+            length_def (A) (_tailrec_reverse (A) (list) ([])) + length_def (A) (accum) := by
+      induction list with
+      | nil =>
+        intro other
+        rewrite [_tailrec_reverse, _tailrec_reverse, length_def, Nat.zero_add]
+        rfl
+      | cons head tail ih =>
+        intro other
+        rewrite [_tailrec_reverse, _tailrec_reverse]
+        rewrite [ih ((head) :: ([]))]
+        rewrite [ih ((head) :: (other))]
+        rewrite [length_def, length_def, length_def]
+        rewrite [Nat.add_assoc, Nat.add_comm 1]
+        rfl
+
+  reverse [A : Type] (list : List [A] ) : List [A] =
+    reverse_fl [A] (list)
+
+/*
+ * map
+ */
+
+  map_fl [A : Type] [B : Type] (list : List [A] ) (f : A -> B) : List [B] =
+    reverse_fl [B] (
+      foldl [A] [List [B] ] (list) (Nil) (
+        lambda (accum : List [B] ) -->
+          lambda (elem : A) -->
+            (f (elem) ) :: (accum)
+      )
+    )
+
+  map_def [A : Type] [B : Type] (list : List [A] ) (func : A -> B ) : List [B] =
+    match list
+      case Nil ==> Nil
+      case (head) :: (tail) ==> (func (head) ) :: (map_def [A] [B] (tail) (func) )
+
+  map [A : Type] [B : Type] (list : List [A] ) (f : A -> B) : List [B] =
+    map_fl [A] [B] (list) (f)
+
+/*
+ * concat
+ */
+
+  concat [A : Type] (first : List [A] ) (second : List [A] ) : List [A] =
+    _tailrec_foldl [A] [List [A] ] (reverse_fl [A] (first) ) (second) (
+      lambda (accum : List [A] ) -->
+        lambda (elem : A) -->
+          (elem) :: (accum)
+    )
+
+  monus1 (index : Nat) : Nat =
+    match index
+      case Succ_ (k) ==> k
+      case _otherwise  ==> 0
+
+  directive lean
+  theorem
+    monus1_succ
+      : forall (index : Nat),
+        monus1 (Nat.succ (index)) = index := by
+    intro idx
+    rewrite [monus1]
+    simp
+
+  get [A : Type] (list : List [A] ) (index : Nat) : Option [A] =
+    (foldl [A] [IndexOption [A] ] (list) (
+      IndexOption .mk (0) (None) ) (
+        lambda (accum : IndexOption [A] ) -->
+          lambda (elem : A) -->
+            if (accum .current_index == index)
+            then IndexOption .mk (accum .current_index + 1) (Some (elem) )
+            else IndexOption .mk (accum .current_index + 1) (accum .maybe_elem)
+      )
+    ) .maybe_elem
+
+  _replace_if_in_place [A : Type] (current_index : Nat) (target_index : Nat) (old_value : A) (
+      new_value : A) : A =
+    if (current_index == target_index)
+    then new_value
+    else old_value
+
+  _apply_replacement [A : Type] (p : ChangeWindow [A] ) (element : A) : ChangeWindow [A] =
+    ChangeWindow .mk (p .current_index + 1) (p .target_index) (p .new_value) (
+      (_replace_if_in_place [A] (p .current_index) (p .target_index) (element) (p .new_value)
+      ) :: p .rev_accum
+    )
+
+  _initial_window [A : Type] (index : Nat) (new_value : A) : ChangeWindow [A] =
+    ChangeWindow .mk (0) (index) (new_value) (Nil)
+
+
+  set_fl [A : Type] (list : List [A] ) (index : Nat) (new_value : A) : List [A] =
+    reverse_fl [A] (
+      (foldl [A] [ChangeWindow [A] ] (list) (_initial_window [A] (index) (new_value) ) (
+        _apply_replacement [A] ) ) .rev_accum
+    )
+
+  set_def [A : Type] (list : List [A] ) (index : Nat) (element : A) : List [A] =
+    match list
+      case Nil ==> Nil
+      case (_head) :: (tail) ==>
+        if index == 0
+        then (element) :: (tail)
+        else (element) :: (set_def [A] (tail) (monus1 (index) ) (element) )
+
+  directive lean
+  theorem    len_set (A : Type) (list : List (A)) (element : A)
+      : forall (index : Nat),
+        length_def (A) (set_def (A) (list) (index) (element) ) = length_def (A) (list) := by
+    induction list with
+    | nil =>
+      intro idx
+      rewrite [set_def, length_def]
+      rfl
+    | cons head tail ih =>
+       intro idx
+       rewrite [set_def, length_def]
+       cases idx with
+       | zero =>
+         rewrite [monus1]
+         rewrite [Nat.zero_eq]
+         rfl
+       | succ k =>
+         rewrite [monus1]
+         simp
+         rewrite [length_def]
+         rewrite [ih]
+         rfl
+
+  set [A : Type] (list : List [A] ) (index : Nat) (element : A) : List [A] =
+    set_fl [A] (list) (index) (element)
+
+end
+
+
+class MarketMod
+
+  abstract
+    bit : Boolean
+
+  _mm : MyList = MyList_ (true)
+
+  directive lean
+  notation "_mm.get" => MyList.get
+  notation "_mm.set" => MyList.set
+  notation "_mm.foldl" => MyList.foldl
 
   as_market (market : Market) : Market =
-    mk_Market (market .accounts) (market .items)
+    Market.mk (market .accounts) (market .items)
 
-  _change_owner (items : List [Item] ) (item_id : Index) (new_owner : Index) : List [Item] =
-    match (get (items) (item_id) )
+  get_items (market : Market) : List [Item] =
+    match market
+      case Market_ (_accounts) (items) ==> items
+
+  directive lean
+  theorem
+    proj_items (market : Market) (accounts : List (Money)) (items : List (Item))
+      : (market = Market_ (accounts) (items) ) -> get_items (market) = items := by
+    rewrite [get_items]
+    cases market
+    intro h1
+    rewrite [h1]
+    simp
+
+  _advertise (items : List [Item] ) (item_id : Nat) : List [Item] =
+    match (_mm .get [Item] (items) (item_id) )
       case Some (item) ==>
-        set (items) (item_id) (Item_ (new_owner) (item .price) (item .advertised) )
-      case otherwise ==> items
+        _mm .set [Item] (items) (item_id) (Item_ (item .owner) (item .price) (true) )
+      case None ==> items
 
-  change_owner (market : Market) (item_id : Index) (new_owner : Index) : Market =
-    mk_Market (market .accounts) (_change_owner (market .items) (item_id) (new_owner) )
+  advertise (market : Market) (item_id : Nat) : Market =
+    Market.mk (market .accounts) (_advertise (market .items) (item_id) )
 
-  _change_price (items : List [Item] ) (item_id : Index) (new_price : Money) : List [Item] =
-    match (get (items) (item_id) )
+  _remove_ad (items : List [Item] ) (item_id : Nat) : List [Item] =
+    match (_mm .get [Item] (items) (item_id) )
       case Some (item) ==>
-        set (items) (item_id) (Item_ (item .owner) (new_price) (item .advertised) )
-      case otherwise ==> items
+        _mm .set [Item] (items) (item_id) (Item_ (item .owner) (item .price) (false) )
+      case None ==> items
 
-  change_price (market : Market) (item_id : Index) (new_price : Money) : Market =
-    mk_Market (market .accounts) (_change_price (market .items) (item_id) (new_price) )
+  remove_ad (market : Market) (item_id : Nat) : Market =
+    Market.mk (market .accounts) (_remove_ad (market .items) (item_id) )
 
-  _advertise (items : List [Item] ) (item_id : Index) : List [Item] =
-    match (get (items) (item_id) )
-      case Some (item) ==>
-        set (items) (item_id) (Item_ (item .owner) (item .price) (true) )
-      case otherwise ==> items
-
-  advertise (market : Market) (item_id : Index) : Market =
-    mk_Market (market .accounts) (_advertise (market .items) (item_id) )
-
-  _remove_ad (items : List [Item] ) (item_id : Index) : List [Item] =
-    match (get (items) (item_id) )
-      case Some (item) ==>
-        set (items) (item_id) (Item_ (item .owner) (item .price) (false) )
-      case otherwise ==> items
-
-  remove_ad (market : Market) (item_id : Index) : Market =
-    mk_Market (market .accounts) (_remove_ad (market .items) (item_id) )
-
-  _transfer_with_balances (accounts : List [Money] ) (origin : Index) (target : Index)
+  _transfer_with_balances (accounts : List [Money] ) (origin : Nat) (target : Nat)
       (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
-    set (set (accounts) (origin) (origin_balance - amount) ) (target) (target_balance + amount)
+    _mm .set [Money] (_mm .set [Money] (accounts)
+      (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
-  _transfer_with (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
+  _transfer_with (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
       (origin_balance : Money) : List [Money] =
-    match (get (accounts) (target) )
+    match (_mm .get [Money] (accounts) (target) )
       case Some (target_balance) ==>
-        _transfer_with_balances (accounts) (origin) (target) (amount) (origin_balance) (target_balance)
-      case otherwise ==> accounts
+        _transfer_with_balances (accounts) (origin) (target)
+          (amount) (origin_balance) (target_balance)
+      case None ==> accounts
 
-  _transfer (accounts : List [Money] ) (origin : Index) (target : Index) (amount : Money)
+  _transfer (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
       : List [Money] =
-    match (get (accounts) (origin) )
+    match (_mm .get [Money] (accounts) (origin) )
       case Some (origin_balance) ==>
         _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
       case None ==> accounts
 
-  sell (market : Market) (item_id : Index) (buyer : Index) : Market =
-    match (get (market .items) (item_id) )
+  sell (market : Market) (item_id : Nat) (buyer : Nat) : Market =
+    match (_mm .get [Item] (market .items) (item_id) )
       case Some (item) ==>
-        mk_Market (
+        Market.mk (
           _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
-          set (market .items) (item_id) (Item_ (buyer) (item .price) (false) )
+          _mm .set [Item] (market .items) (item_id) (Item_ (buyer) (item .price) (false) )
         )
-      case otherwise ==>
-        market
+      case None ==> market
 
   _sum_pair (a : Money) (b : Money) : Money =
     a + b
 
   assets (market : Market) : Money =
-    fold [Money] [Money] (market .accounts) (0) (_sum_pair)
-
-  directive lean
-  theorem
-    lemma_set_keeps_length_1 (A : Type) (index : Index) (element : A) :
-      ((Nil).set (index) (element) ).length = 0 :=
-      by constructor
-
-  directive lean
-  theorem
-    lemma_set_keeps_length_2 (A : Type) (head : A) (tail : List (A) ) (element : A) :
-      ((head :: tail).set (0) (head)).length = ((element :: tail).set (0) (element)).length :=
-      by constructor
-
-  directive lean
-  theorem
-    set_keeps_length (A : Type) (list : List (A)) (index : Index) (element : A) :
-      (list.set (index) (element) ).length = list.length :=
-    match list with
-      | Nil => lemma_set_keeps_length_1 (A) (index) (element)
-      | (head) :: (tail) =>
-        match index with
-          | 0 => lemma_set_keeps_length_2 (A) (head) (tail) (element)
-          | k + 1 => sorry
-
-  directive lean
-  theorem
-    conservation_of_items_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
-       (sell (market) (item_id) (buyer) ).items.length = market.items.length :=
-    sorry
-
-  directive lean
-  theorem
-    lemma_fold (accounts : List (Money) ) (items : List (Item) ) (item_id : Index) (buyer : Index) :
-     fold (Money) (Money) ( (sell (Market_ (accounts) (items)) (item_id) (buyer) ).accounts) (0) (_sum_pair) =
-       fold (Money) (Money) (accounts) (0) (_sum_pair) :=
-         sorry
-
-  directive lean
-  theorem
-    conservation_of_money_after_sell_operation (market : Market) (item_id : Index) (buyer : Index) :
-      assets (sell (market) (item_id) (buyer) ) = assets (market) :=
-    lemma_fold (market.accounts) (market.items) (item_id) (buyer)
+    _mm .foldl [Money] [Money] (market .accounts) (0) (_sum_pair)
 
 end
 
