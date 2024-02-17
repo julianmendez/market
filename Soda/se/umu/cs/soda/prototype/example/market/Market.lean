@@ -1,7 +1,6 @@
 
 
-import soda.se.umu.cs.soda.prototype.example.market.Basic
-import soda.se.umu.cs.soda.prototype.example.market.MyList
+import Soda.se.umu.cs.soda.prototype.example.market.MyList
 
 notation "Money" => Int
 

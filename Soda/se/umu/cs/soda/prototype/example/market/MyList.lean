@@ -1,6 +1,6 @@
 
 
-import soda.se.umu.cs.soda.prototype.example.market.Basic
+import Soda.se.umu.cs.soda.prototype.example.market.Basic
 
 class IndexOption ( A : Type )
 

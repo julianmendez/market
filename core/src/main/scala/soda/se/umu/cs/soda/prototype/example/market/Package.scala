@@ -30,8 +30,7 @@ type Nat = Int
 
 /*
 directive lean
-import soda.se.umu.cs.soda.prototype.example.market.Basic
-import soda.se.umu.cs.soda.prototype.example.market.MyList
+import Soda.se.umu.cs.soda.prototype.example.market.MyList
 */
 
 type Money = Int
@@ -173,7 +172,7 @@ object MarketMod {
 
 /*
 directive lean
-import soda.se.umu.cs.soda.prototype.example.market.Basic
+import Soda.se.umu.cs.soda.prototype.example.market.Basic
 */
 
 trait IndexOption [A ]

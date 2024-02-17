@@ -5,9 +5,8 @@
 # 2024-02-17
 
 
-pathToMain="core/src/main"
-pathToSodaFiles="${pathToMain}/scala/soda/se/umu/cs/soda/prototype/example/market"
-pathToLeanDir="${pathToMain}/lean/soda/se/umu/cs/soda/prototype/example/market"
+pathToSodaDir="core/src/main/scala/soda/se/umu/cs/soda/prototype/example/market"
+pathToLeanDir="Soda/se/umu/cs/soda/prototype/example/market"
 
 
 # This translates all Soda files into Scala
@@ -22,12 +21,11 @@ files=" \
 "
 
 for file in ${files}; do
-  soda lean ${pathToSodaFiles}/${file}.soda ${pathToLeanDir}/${file}.lean
+  soda lean ${pathToSodaDir}/${file}.soda ${pathToLeanDir}/${file}.lean
 done
 
 
 # This compiles a binary in Lean
-cd "${pathToMain}/lean"
 lake clean
 lake build
 
