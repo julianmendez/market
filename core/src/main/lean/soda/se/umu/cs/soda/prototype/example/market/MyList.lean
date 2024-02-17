@@ -1,5 +1,7 @@
 
 
+import soda.se.umu.cs.soda.prototype.example.market.Basic
+
 class IndexOption ( A : Type )
 
 where

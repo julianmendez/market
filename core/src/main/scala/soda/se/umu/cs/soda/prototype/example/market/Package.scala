@@ -26,6 +26,14 @@ Notation "'Int'" := nat (at level 99) .
 type Nat = Int
 
 
+
+
+/*
+directive lean
+import soda.se.umu.cs.soda.prototype.example.market.Basic
+import soda.se.umu.cs.soda.prototype.example.market.MyList
+*/
+
 type Money = Int
 
 trait Item
@@ -162,6 +170,11 @@ object MarketMod {
 
 
 
+
+/*
+directive lean
+import soda.se.umu.cs.soda.prototype.example.market.Basic
+*/
 
 trait IndexOption [A ]
 {

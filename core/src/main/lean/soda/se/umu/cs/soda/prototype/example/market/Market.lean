@@ -1,3 +1,8 @@
+
+
+import soda.se.umu.cs.soda.prototype.example.market.Basic
+import soda.se.umu.cs.soda.prototype.example.market.MyList
+
 notation "Money" => Int
 
 class Item

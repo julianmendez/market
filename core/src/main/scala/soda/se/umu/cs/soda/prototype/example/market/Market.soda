@@ -1,4 +1,10 @@
 
+
+directive lean
+import soda.se.umu.cs.soda.prototype.example.market.Basic
+import soda.se.umu.cs.soda.prototype.example.market.MyList
+
+
 class Money = Int
 
 
