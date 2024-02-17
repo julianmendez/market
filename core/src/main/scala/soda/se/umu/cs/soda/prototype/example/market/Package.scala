@@ -509,7 +509,7 @@ trait MarketMod
   def sell (market : Market) (item_id : Nat) (buyer : Nat) : Market =
     (_mm .get [Item] (market .items) (item_id) ) match  {
       case Some (item) =>
-        Market.mk (
+        Market .mk (
           _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
           _mm .set [Item] (market .items) (item_id) (Item_ (buyer, item .price, false) )
         )
