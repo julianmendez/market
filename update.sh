@@ -6,5 +6,15 @@ pathToSodaFiles="${pathToMain}/scala/soda/se/umu/cs/soda/prototype/example/marke
 pathToLeanDir="${pathToMain}/lean/soda/se/umu/cs/soda/prototype/example/market"
 
 soda .
-soda lean ${pathToSodaFiles}/Market.soda ${pathToLeanDir}/Market.lean
+
+files=" \
+  Basic \
+  MyList \
+  Market \
+"
+
+for file in ${files}; do
+  soda lean ${pathToSodaFiles}/${file}.soda ${pathToLeanDir}/${file}.lean
+done
+
 

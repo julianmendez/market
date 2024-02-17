@@ -23,9 +23,10 @@ Notation "'Succ_'" := S (at level 99) .
 Notation "'Int'" := nat (at level 99) .
 */
 
-type Money = Int
-
 type Nat = Int
+
+
+type Money = Int
 
 trait Item
 {
@@ -57,6 +58,110 @@ object Market {
   def mk (accounts : List [Money]) (items : List [Item]) : Market =
     Market_ (accounts, items)
 }
+
+trait MarketMod
+{
+
+  def   bit : Boolean
+
+  private lazy val _mm : MyList = MyList_ (true)
+
+/*
+  directive lean
+  notation "_mm.get" => MyList.get
+  notation "_mm.set" => MyList.set
+  notation "_mm.foldl" => MyList.foldl
+*/
+
+  def as_market (market : Market) : Market =
+    Market.mk (market .accounts) (market .items)
+
+  def get_items (market : Market) : List [Item] =
+    market match  {
+      case Market_ (_accounts, items) => items
+    }
+
+/*
+  directive lean
+  theorem
+    proj_items (market : Market) (accounts : List (Money)) (items : List (Item))
+      : (market = Market_ (accounts, items) ) -> get_items (market) = items := by
+    rewrite [get_items]
+    cases market
+    intro h1
+    rewrite [h1]
+    simp
+*/
+
+  private def _advertise (items : List [Item] ) (item_id : Nat) : List [Item] =
+    (_mm .get [Item] (items) (item_id) ) match  {
+      case Some (item) =>
+        _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, true) )
+      case None => items
+    }
+
+  def advertise (market : Market) (item_id : Nat) : Market =
+    Market.mk (market .accounts) (_advertise (market .items) (item_id) )
+
+  private def _remove_ad (items : List [Item] ) (item_id : Nat) : List [Item] =
+    (_mm .get [Item] (items) (item_id) ) match  {
+      case Some (item) =>
+        _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, false) )
+      case None => items
+    }
+
+  def remove_ad (market : Market) (item_id : Nat) : Market =
+    Market.mk (market .accounts) (_remove_ad (market .items) (item_id) )
+
+  private def _transfer_with_balances (accounts : List [Money] ) (origin : Nat) (target : Nat)
+      (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
+    _mm .set [Money] (_mm .set [Money] (accounts)
+      (origin) (origin_balance - amount) ) (target) (target_balance + amount)
+
+  private def _transfer_with (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
+      (origin_balance : Money) : List [Money] =
+    (_mm .get [Money] (accounts) (target) ) match  {
+      case Some (target_balance) =>
+        _transfer_with_balances (accounts) (origin) (target)
+          (amount) (origin_balance) (target_balance)
+      case None => accounts
+    }
+
+  private def _transfer (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
+      : List [Money] =
+    (_mm .get [Money] (accounts) (origin) ) match  {
+      case Some (origin_balance) =>
+        _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
+      case None => accounts
+    }
+
+  def sell (market : Market) (item_id : Nat) (buyer : Nat) : Market =
+    (_mm .get [Item] (market .items) (item_id) ) match  {
+      case Some (item) =>
+        Market .mk (
+          _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
+          _mm .set [Item] (market .items) (item_id) (Item_ (buyer, item .price, false) )
+        )
+      case None => market
+    }
+
+  private def _sum_pair (a : Money) (b : Money) : Money =
+    a + b
+
+  def assets (market : Market) : Money =
+    _mm .foldl [Money, Money] (market .accounts) (0) (_sum_pair)
+
+}
+
+case class MarketMod_ (bit : Boolean) extends MarketMod
+
+object MarketMod {
+  def mk (bit : Boolean) : MarketMod =
+    MarketMod_ (bit)
+}
+
+
+
 
 trait IndexOption [A ]
 {
@@ -428,106 +533,5 @@ case class MyList_ (bit : Boolean) extends MyList
 object MyList {
   def mk (bit : Boolean) : MyList =
     MyList_ (bit)
-}
-
-trait MarketMod
-{
-
-  def   bit : Boolean
-
-  private lazy val _mm : MyList = MyList_ (true)
-
-/*
-  directive lean
-  notation "_mm.get" => MyList.get
-  notation "_mm.set" => MyList.set
-  notation "_mm.foldl" => MyList.foldl
-*/
-
-  def as_market (market : Market) : Market =
-    Market.mk (market .accounts) (market .items)
-
-  def get_items (market : Market) : List [Item] =
-    market match  {
-      case Market_ (_accounts, items) => items
-    }
-
-/*
-  directive lean
-  theorem
-    proj_items (market : Market) (accounts : List (Money)) (items : List (Item))
-      : (market = Market_ (accounts, items) ) -> get_items (market) = items := by
-    rewrite [get_items]
-    cases market
-    intro h1
-    rewrite [h1]
-    simp
-*/
-
-  private def _advertise (items : List [Item] ) (item_id : Nat) : List [Item] =
-    (_mm .get [Item] (items) (item_id) ) match  {
-      case Some (item) =>
-        _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, true) )
-      case None => items
-    }
-
-  def advertise (market : Market) (item_id : Nat) : Market =
-    Market.mk (market .accounts) (_advertise (market .items) (item_id) )
-
-  private def _remove_ad (items : List [Item] ) (item_id : Nat) : List [Item] =
-    (_mm .get [Item] (items) (item_id) ) match  {
-      case Some (item) =>
-        _mm .set [Item] (items) (item_id) (Item_ (item .owner, item .price, false) )
-      case None => items
-    }
-
-  def remove_ad (market : Market) (item_id : Nat) : Market =
-    Market.mk (market .accounts) (_remove_ad (market .items) (item_id) )
-
-  private def _transfer_with_balances (accounts : List [Money] ) (origin : Nat) (target : Nat)
-      (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
-    _mm .set [Money] (_mm .set [Money] (accounts)
-      (origin) (origin_balance - amount) ) (target) (target_balance + amount)
-
-  private def _transfer_with (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
-      (origin_balance : Money) : List [Money] =
-    (_mm .get [Money] (accounts) (target) ) match  {
-      case Some (target_balance) =>
-        _transfer_with_balances (accounts) (origin) (target)
-          (amount) (origin_balance) (target_balance)
-      case None => accounts
-    }
-
-  private def _transfer (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
-      : List [Money] =
-    (_mm .get [Money] (accounts) (origin) ) match  {
-      case Some (origin_balance) =>
-        _transfer_with (accounts) (origin) (target) (amount) (origin_balance)
-      case None => accounts
-    }
-
-  def sell (market : Market) (item_id : Nat) (buyer : Nat) : Market =
-    (_mm .get [Item] (market .items) (item_id) ) match  {
-      case Some (item) =>
-        Market .mk (
-          _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
-          _mm .set [Item] (market .items) (item_id) (Item_ (buyer, item .price, false) )
-        )
-      case None => market
-    }
-
-  private def _sum_pair (a : Money) (b : Money) : Money =
-    a + b
-
-  def assets (market : Market) : Money =
-    _mm .foldl [Money, Money] (market .accounts) (0) (_sum_pair)
-
-}
-
-case class MarketMod_ (bit : Boolean) extends MarketMod
-
-object MarketMod {
-  def mk (bit : Boolean) : MarketMod =
-    MarketMod_ (bit)
 }
 
