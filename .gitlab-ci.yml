@@ -4,7 +4,7 @@
 
 # https://github.com/sbt/docker-sbt
 # https://hub.docker.com/r/sbtscala/scala-sbt/tags
-image: sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.1_12_1.9.8_3.3.1
+image: sbtscala/scala-sbt:eclipse-temurin-jammy-21.0.2_13_1.9.8_3.3.1
 
 stages:
 - build
@@ -12,6 +12,6 @@ stages:
 build:
   stage: build
   script:
-  - sbt '++ 3.3.1' scalaVersion sbtVersion version clean compile test package assembly
+  - sbt '++ 3.4.0' scalaVersion sbtVersion version clean compile test package assembly
 
 
