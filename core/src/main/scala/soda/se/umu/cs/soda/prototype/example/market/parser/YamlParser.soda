@@ -1,0 +1,61 @@
+
+/**
+ * Parser for YAML format.
+ */
+
+class YamlParser
+
+  import
+    java.io.BufferedReader
+    java.io.Reader
+
+  parse_string (part : Any) : Option [String] =
+    match part
+      case p : String ==> Some (p)
+      case otherwise ==> None
+
+  parse_key_value (part : Any) : Option [Tuple2 [String] [String] ] =
+    match part
+      case p : Tuple2 [Any] [Any] ==>
+        parse_string (p ._1)
+          .flatMap (lambda a -->
+            parse_string (p ._2)
+              .map (lambda b -->
+                Tuple2 (a , b)
+              )
+          )
+      case otherwise ==> None
+
+  parse_seq_of_pairs (part : Any) : Option [Seq [Tuple2 [String] [String] ] ] =
+    match part
+      case p : Seq [Any] ==>
+        Some (p .flatMap (lambda e --> parse_key_value (e)) )
+      case otherwise ==> None
+
+  parse_record (part : Any) : Option [Tuple2 [String] [Seq [Tuple2 [String] [String] ] ] ] =
+    match part
+      case p : Tuple2 [Any] [Any] ==>
+        parse_string (p ._1)
+          .flatMap (lambda a -->
+            parse_seq_of_pairs (p ._2)
+              .map (lambda b -->
+                Tuple2 (a , b)
+              )
+          )
+      case otherwise ==> None
+
+  get_as_seq (elem : Any) : Seq [Tuple2 [String] [Seq [Tuple2 [String] [String] ] ] ] =
+    match elem
+      case e : Seq [Any] ==> e .flatMap (lambda x --> parse_record (x) )
+      case otherwise ==> Seq ()
+
+  parse_record_list (parts : Seq [Any] )
+      : Seq [Seq [Tuple2 [String] [Seq [Tuple2 [String] [String] ] ] ] ] =
+    parts .map (lambda elem --> get_as_seq (elem) )
+
+  parse (reader : Reader)
+      : Seq [Seq [Tuple2 [String] [Seq [Tuple2 [String] [String] ] ] ] ] =
+    parse_record_list (GenericYamlParser .mk .parse (reader) )
+
+end
+
