@@ -1,4 +1,4 @@
-package soda.se.umu.cs.soda.prototype.example.market
+package soda.se.umu.cs.soda.prototype.example.market.core
 
 /*
  * This package contains classes to model a market
@@ -30,7 +30,7 @@ type Nat = Int
 
 /*
 directive lean
-import Soda.se.umu.cs.soda.prototype.example.market.MyList
+import Soda.se.umu.cs.soda.prototype.example.market.core.MyList
 */
 
 type Money = Int
@@ -172,7 +172,7 @@ object MarketMod {
 
 /*
 directive lean
-import Soda.se.umu.cs.soda.prototype.example.market.Basic
+import Soda.se.umu.cs.soda.prototype.example.market.core.Basic
 */
 
 trait IndexOption [A ]

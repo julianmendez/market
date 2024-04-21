@@ -1,4 +1,4 @@
-package soda.se.umu.cs.soda.prototype.example.market
+package soda.se.umu.cs.soda.prototype.example.market.core
 
 /*
  * This package contains tests for classes to test a market.
