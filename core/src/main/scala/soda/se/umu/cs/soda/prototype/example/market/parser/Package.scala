@@ -89,27 +89,14 @@ trait YamlParser
       case otherwise => None
     }
 
-  def parse_key_value (part : Any) : Option [Tuple2 [String, String] ] =
-    part match  {
-      case p : Tuple2 [Any, Any] =>
-        parse_string (p ._1)
-          .flatMap ( a =>
-            parse_string (p ._2)
-              .map ( b =>
-                Tuple2 (a , b)
-              )
-          )
-      case otherwise => None
-    }
-
-  def parse_seq_of_pairs (part : Any) : Option [Seq [Tuple2 [String, String] ] ] =
+  def parse_seq_of_pairs (part : Any) : Option [Seq [String] ] =
     part match  {
       case p : Seq [Any] =>
-        Some (p .flatMap ( e => parse_key_value (e)) )
+        Some (p .flatMap ( e => parse_string (e)) )
       case otherwise => None
     }
 
-  def parse_record (part : Any) : Option [Tuple2 [String, Seq [Tuple2 [String, String] ] ] ] =
+  def parse_record (part : Any) : Option [Tuple2 [String, Seq [String] ] ] =
     part match  {
       case p : Tuple2 [Any, Any] =>
         parse_string (p ._1)
@@ -122,18 +109,18 @@ trait YamlParser
       case otherwise => None
     }
 
-  def get_as_seq (elem : Any) : Seq [Tuple2 [String, Seq [Tuple2 [String, String] ] ] ] =
+  def get_as_seq (elem : Any) : Seq [Tuple2 [String, Seq [String] ] ] =
     elem match  {
       case e : Seq [Any] => e .flatMap ( x => parse_record (x) )
       case otherwise => Seq ()
     }
 
   def parse_record_list (parts : Seq [Any] )
-      : Seq [Seq [Tuple2 [String, Seq [Tuple2 [String, String] ] ] ] ] =
+      : Seq [Seq [Tuple2 [String, Seq [String] ] ] ] =
     parts .map ( elem => get_as_seq (elem) )
 
   def parse (reader : Reader)
-      : Seq [Seq [Tuple2 [String, Seq [Tuple2 [String, String] ] ] ] ] =
+      : Seq [Seq [Tuple2 [String, Seq [String] ] ] ] =
     parse_record_list (GenericYamlParser .mk .parse (reader) )
 
 }
