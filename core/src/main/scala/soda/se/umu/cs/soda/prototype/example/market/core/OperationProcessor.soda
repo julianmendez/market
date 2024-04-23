@@ -1,0 +1,14 @@
+class OperationProcessor
+
+  abstract
+
+  _mm : MyList = MyList .mk (true)
+
+  compute_next (maybe_market : Option [Market] ) (op : Operation) : Option [Market] =
+    op .process (maybe_market)
+
+  process (maybe_market : Option [Market] ) (operations : List [Operation] ) : Option [Market] =
+    _mm .foldl [Operation] [Option [Market] ] (operations) (maybe_market) (compute_next)
+
+end
+
