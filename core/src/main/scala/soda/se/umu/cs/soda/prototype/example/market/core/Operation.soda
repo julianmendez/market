@@ -1,0 +1,99 @@
+
+class OperationType
+
+  abstract
+    ordinal : Int
+    name : String
+
+end
+
+
+class OperationEnum
+
+  abstract
+
+  undefined = OperationType .mk (0) ("undefined")
+
+  deposit = OperationType .mk (1) ("deposit")
+
+  assign = OperationType .mk (2) ("assign")
+
+  price = OperationType .mk (3) ("price")
+
+  sell = OperationType .mk (4) ("sell")
+
+  values = Seq (undefined , deposit , assign , price , sell)
+
+end
+
+
+class Operation
+
+  abstract
+    op_type : OperationType
+
+end
+
+
+class OpUndefined
+  extends
+    Operation
+
+  abstract
+
+  op_type = OperationEnum .mk .undefined
+
+end
+
+
+class OpDeposit
+  extends
+    Operation
+
+  abstract
+    user_id : Int
+    amount : Int
+
+  op_type =  OperationEnum .mk .deposit
+
+end
+
+
+class OpAssign
+  extends
+    Operation
+
+  abstract
+    item_id : Int
+    user_id : Int
+
+  op_type =  OperationEnum .mk .assign
+
+end
+
+
+class OpPrice
+  extends
+    Operation
+
+  abstract
+    item_id : Int
+    price : Int
+
+  op_type =  OperationEnum .mk .price
+
+end
+
+
+class OpSell
+  extends
+    Operation
+
+  abstract
+    item_id : Int
+    user_id : Int
+
+  op_type =  OperationEnum .mk .sell
+
+end
+

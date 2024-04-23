@@ -93,7 +93,7 @@ class Example0Instance
           "price 27 40" ,
           "price 28 80" ,
           "price 29 100" ,
-          "transfer 10 25"
+          "sell 10 25"
         )
       )
     )

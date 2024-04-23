@@ -547,3 +547,153 @@ object MyList {
     MyList_ (bit)
 }
 
+
+trait OperationType
+{
+
+  def   ordinal : Int
+  def   name : String
+
+}
+
+case class OperationType_ (ordinal : Int, name : String) extends OperationType
+
+object OperationType {
+  def mk (ordinal : Int) (name : String) : OperationType =
+    OperationType_ (ordinal, name)
+}
+
+trait OperationEnum
+{
+
+
+
+  lazy val undefined = OperationType .mk (0) ("undefined")
+
+  lazy val deposit = OperationType .mk (1) ("deposit")
+
+  lazy val assign = OperationType .mk (2) ("assign")
+
+  lazy val price = OperationType .mk (3) ("price")
+
+  lazy val sell = OperationType .mk (4) ("sell")
+
+  lazy val values = Seq (undefined , deposit , assign , price , sell)
+
+}
+
+case class OperationEnum_ () extends OperationEnum
+
+object OperationEnum {
+  def mk : OperationEnum =
+    OperationEnum_ ()
+}
+
+trait Operation
+{
+
+  def   op_type : OperationType
+
+}
+
+case class Operation_ (op_type : OperationType) extends Operation
+
+object Operation {
+  def mk (op_type : OperationType) : Operation =
+    Operation_ (op_type)
+}
+
+trait OpUndefined
+  extends
+    Operation
+{
+
+
+
+  lazy val op_type = OperationEnum .mk .undefined
+
+}
+
+case class OpUndefined_ () extends OpUndefined
+
+object OpUndefined {
+  def mk : OpUndefined =
+    OpUndefined_ ()
+}
+
+trait OpDeposit
+  extends
+    Operation
+{
+
+  def   user_id : Int
+  def   amount : Int
+
+  lazy val op_type =  OperationEnum .mk .deposit
+
+}
+
+case class OpDeposit_ (user_id : Int, amount : Int) extends OpDeposit
+
+object OpDeposit {
+  def mk (user_id : Int) (amount : Int) : OpDeposit =
+    OpDeposit_ (user_id, amount)
+}
+
+trait OpAssign
+  extends
+    Operation
+{
+
+  def   item_id : Int
+  def   user_id : Int
+
+  lazy val op_type =  OperationEnum .mk .assign
+
+}
+
+case class OpAssign_ (item_id : Int, user_id : Int) extends OpAssign
+
+object OpAssign {
+  def mk (item_id : Int) (user_id : Int) : OpAssign =
+    OpAssign_ (item_id, user_id)
+}
+
+trait OpPrice
+  extends
+    Operation
+{
+
+  def   item_id : Int
+  def   price : Int
+
+  lazy val op_type =  OperationEnum .mk .price
+
+}
+
+case class OpPrice_ (item_id : Int, price : Int) extends OpPrice
+
+object OpPrice {
+  def mk (item_id : Int) (price : Int) : OpPrice =
+    OpPrice_ (item_id, price)
+}
+
+trait OpSell
+  extends
+    Operation
+{
+
+  def   item_id : Int
+  def   user_id : Int
+
+  lazy val op_type =  OperationEnum .mk .sell
+
+}
+
+case class OpSell_ (item_id : Int, user_id : Int) extends OpSell
+
+object OpSell {
+  def mk (item_id : Int) (user_id : Int) : OpSell =
+    OpSell_ (item_id, user_id)
+}
+

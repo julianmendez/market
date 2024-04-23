@@ -1,1 +1,11 @@
 package soda.se.umu.cs.soda.prototype.example.market.parser
+
+import
+  soda.se.umu.cs.soda.prototype.example.market.core.Operation
+  soda.se.umu.cs.soda.prototype.example.market.core.OperationEnum
+  soda.se.umu.cs.soda.prototype.example.market.core.OpAssign
+  soda.se.umu.cs.soda.prototype.example.market.core.OpDeposit
+  soda.se.umu.cs.soda.prototype.example.market.core.OpPrice
+  soda.se.umu.cs.soda.prototype.example.market.core.OpSell
+  soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
+

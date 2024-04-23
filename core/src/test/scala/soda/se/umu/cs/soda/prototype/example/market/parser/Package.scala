@@ -5,6 +5,12 @@ import   org.scalatest.Assertion
 import   java.nio.file.Files
 import   java.nio.file.Paths
 import   java.io.StringReader
+import   soda.se.umu.cs.soda.prototype.example.market.core.Operation
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpAssign
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpDeposit
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpPrice
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpSell
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
 
 
 
@@ -105,7 +111,7 @@ trait Example0Instance
           "price 27 40" ,
           "price 28 80" ,
           "price 29 100" ,
-          "transfer 10 25"
+          "sell 10 25"
         )
       )
     )
@@ -118,6 +124,151 @@ case class Example0Instance_ () extends Example0Instance
 object Example0Instance {
   def mk : Example0Instance =
     Example0Instance_ ()
+}
+
+
+trait Example0OperationList
+{
+
+
+
+  lazy val instance : Seq [Operation] =
+    Seq (
+      OpDeposit .mk (0) (4500) ,
+      OpDeposit .mk (1) (75) ,
+      OpDeposit .mk (2) (1800) ,
+      OpDeposit .mk (3) (2000) ,
+      OpDeposit .mk (4) (5700) ,
+      OpDeposit .mk (5) (2500) ,
+      OpDeposit .mk (6) (1900) ,
+      OpDeposit .mk (7) (2200) ,
+      OpDeposit .mk (8) (6600) ,
+      OpDeposit .mk (9) (2400) ,
+      OpDeposit .mk (10) (1750) ,
+      OpDeposit .mk (11) (2150) ,
+      OpDeposit .mk (12) (1850) ,
+      OpDeposit .mk (13) (2350) ,
+      OpDeposit .mk (14) (1950) ,
+      OpDeposit .mk (15) (2100) ,
+      OpDeposit .mk (16) (1650) ,
+      OpDeposit .mk (17) (2450) ,
+      OpDeposit .mk (18) (7950) ,
+      OpDeposit .mk (19) (2250) ,
+      OpDeposit .mk (20) (1700) ,
+      OpDeposit .mk (21) (2300) ,
+      OpDeposit .mk (22) (1800) ,
+      OpDeposit .mk (23) (2400) ,
+      OpDeposit .mk (24) (1750) ,
+      OpDeposit .mk (25) (2350) ,
+      OpAssign .mk (0) (12) ,
+      OpAssign .mk (1) (7) ,
+      OpAssign .mk (2) (20) ,
+      OpAssign .mk (3) (15) ,
+      OpAssign .mk (4) (8) ,
+      OpAssign .mk (5) (23) ,
+      OpAssign .mk (6) (14) ,
+      OpAssign .mk (7) (2) ,
+      OpAssign .mk (8) (19) ,
+      OpAssign .mk (9) (5) ,
+      OpAssign .mk (10) (22) ,
+      OpAssign .mk (11) (13) ,
+      OpAssign .mk (12) (4) ,
+      OpAssign .mk (13) (18) ,
+      OpAssign .mk (14) (9) ,
+      OpAssign .mk (15) (24) ,
+      OpAssign .mk (16) (11) ,
+      OpAssign .mk (17) (3) ,
+      OpAssign .mk (18) (17) ,
+      OpAssign .mk (19) (10) ,
+      OpAssign .mk (20) (21) ,
+      OpAssign .mk (21) (16) ,
+      OpAssign .mk (22) (1) ,
+      OpAssign .mk (23) (25) ,
+      OpAssign .mk (24) (6) ,
+      OpAssign .mk (25) (0) ,
+      OpAssign .mk (26) (15) ,
+      OpAssign .mk (27) (10) ,
+      OpAssign .mk (28) (20) ,
+      OpAssign .mk (29) (5) ,
+      OpPrice .mk (0) (40) ,
+      OpPrice .mk (1) (50) ,
+      OpPrice .mk (2) (25) ,
+      OpPrice .mk (3) (70) ,
+      OpPrice .mk (4) (100) ,
+      OpPrice .mk (5) (60) ,
+      OpPrice .mk (6) (30) ,
+      OpPrice .mk (7) (40) ,
+      OpPrice .mk (8) (25) ,
+      OpPrice .mk (9) (20) ,
+      OpPrice .mk (10) (90) ,
+      OpPrice .mk (11) (50) ,
+      OpPrice .mk (12) (100) ,
+      OpPrice .mk (13) (150) ,
+      OpPrice .mk (14) (30) ,
+      OpPrice .mk (15) (30) ,
+      OpPrice .mk (16) (25) ,
+      OpPrice .mk (17) (200) ,
+      OpPrice .mk (18) (20) ,
+      OpPrice .mk (19) (30) ,
+      OpPrice .mk (20) (20) ,
+      OpPrice .mk (21) (100) ,
+      OpPrice .mk (22) (100) ,
+      OpPrice .mk (23) (20) ,
+      OpPrice .mk (24) (30) ,
+      OpPrice .mk (25) (20) ,
+      OpPrice .mk (26) (25) ,
+      OpPrice .mk (27) (40) ,
+      OpPrice .mk (28) (80) ,
+      OpPrice .mk (29) (100) ,
+      OpSell .mk (10) (25)
+    )
+
+}
+
+case class Example0OperationList_ () extends Example0OperationList
+
+object Example0OperationList {
+  def mk : Example0OperationList =
+    Example0OperationList_ ()
+}
+
+
+case class OperationParserSpec ()
+  extends
+    AnyFunSuite
+{
+
+  def check [A ] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
+    assert (obtained == expected)
+
+  def read_file (file_name : String) : String =
+    new String (
+      Files .readAllBytes (
+        Paths .get (getClass .getResource (file_name) .toURI)
+      )
+    )
+
+  lazy val yaml_parser = YamlParser .mk
+
+  lazy val operation_parser = OperationParser .mk
+
+  lazy val example0_name = "/example/example0.yaml"
+
+  lazy val example0_contents = read_file (example0_name)
+
+  lazy val example0_instance = Example0OperationList .mk .instance
+
+  test ("read example 0 as operations") (
+    check (
+      obtained =
+        operation_parser .parse (
+          yaml_parser .parse ( new StringReader (example0_contents) )
+        )
+    ) (
+      expected = example0_instance
+    )
+  )
+
 }
 
 

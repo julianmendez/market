@@ -1,5 +1,17 @@
 package soda.se.umu.cs.soda.prototype.example.market.parser
 
+import   soda.se.umu.cs.soda.prototype.example.market.core.Operation
+import   soda.se.umu.cs.soda.prototype.example.market.core.OperationEnum
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpAssign
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpDeposit
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpPrice
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpSell
+import   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
+
+
+
+
+
 /**
  * This is a generic YAML parser.
  * This parser converts all the Integer objects into String objects.
@@ -70,6 +82,68 @@ case class GenericYamlParser_ () extends GenericYamlParser
 object GenericYamlParser {
   def mk : GenericYamlParser =
     GenericYamlParser_ ()
+}
+
+
+trait OperationParser
+{
+
+
+
+  lazy val space = " "
+
+  lazy val op_enum = OperationEnum .mk
+
+  def parse_pieces_0 (op : String) (p0 : Int) (p1 : Int) : Operation =
+    if ( (p0 >= 0) && (p1 >= 0)
+    )
+      if ( (op == op_enum .deposit .name) ) OpDeposit .mk (p0) (p1)
+      else if ( op == op_enum .assign .name ) OpAssign .mk (p0) (p1)
+      else if ( op == op_enum .price .name ) OpPrice .mk (p0) (p1)
+      else if ( op == op_enum .sell .name ) OpSell .mk (p0) (p1)
+      else OpUndefined .mk
+    else OpUndefined .mk
+
+  def parse_pieces_1 (op : String) (maybe_p0 : Option [Int] ) (p1 : Int) : Operation =
+    maybe_p0 match  {
+      case Some (p0) => parse_pieces_0 (op) (p0) (p1)
+      case None => OpUndefined .mk
+    }
+
+  def parse_pieces_2 (op : String) (maybe_p0 : Option [Int] ) (maybe_p1 : Option [Int] )
+      : Operation =
+    maybe_p1 match  {
+      case Some (p1) => parse_pieces_1 (op) (maybe_p0) (p1)
+      case None => OpUndefined .mk
+    }
+
+  def parse_array (a : Array [String] ) : Operation  =
+    if ( (a .length < 3)
+    ) OpUndefined .mk
+    else parse_pieces_2 (a .apply (0) ) (a .apply (1) .toIntOption) (a .apply (2) .toIntOption)
+
+  def parse_operation_text (text : String) : Operation =
+    parse_array (text .split (space) )
+
+  def parse (seq : Seq [Seq [Tuple2 [String, Seq [String] ] ] ] ) :
+      Seq [Operation] =
+    seq
+      .flatMap ( seq1 => seq1
+        .flatMap ( tuple => tuple
+           ._2
+           .map ( operation_text =>
+             parse_operation_text (operation_text)
+           )
+        )
+      )
+
+}
+
+case class OperationParser_ () extends OperationParser
+
+object OperationParser {
+  def mk : OperationParser =
+    OperationParser_ ()
 }
 
 

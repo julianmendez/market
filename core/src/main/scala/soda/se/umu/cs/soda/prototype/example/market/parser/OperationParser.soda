@@ -1,0 +1,51 @@
+class OperationParser
+
+  abstract
+
+  space = " "
+
+  op_enum = OperationEnum .mk
+
+  parse_pieces_0 (op : String) (p0 : Int) (p1 : Int) : Operation =
+    if (p0 >= 0) and (p1 >= 0)
+    then
+      if (op == op_enum .deposit .name) then OpDeposit .mk (p0) (p1)
+      else if op == op_enum .assign .name then OpAssign .mk (p0) (p1)
+      else if op == op_enum .price .name then OpPrice .mk (p0) (p1)
+      else if op == op_enum .sell .name then OpSell .mk (p0) (p1)
+      else OpUndefined .mk
+    else OpUndefined .mk
+
+  parse_pieces_1 (op : String) (maybe_p0 : Option [Int] ) (p1 : Int) : Operation =
+    match maybe_p0
+      case Some (p0) ==> parse_pieces_0 (op) (p0) (p1)
+      case None ==> OpUndefined .mk
+
+  parse_pieces_2 (op : String) (maybe_p0 : Option [Int] ) (maybe_p1 : Option [Int] )
+      : Operation =
+    match maybe_p1
+      case Some (p1) ==> parse_pieces_1 (op) (maybe_p0) (p1)
+      case None ==> OpUndefined .mk
+
+  parse_array (a : Array [String] ) : Operation  =
+    if (a .length < 3)
+    then OpUndefined .mk
+    else parse_pieces_2 (a .apply (0) ) (a .apply (1) .toIntOption) (a .apply (2) .toIntOption)
+
+  parse_operation_text (text : String) : Operation =
+    parse_array (text .split (space) )
+
+  parse (seq : Seq [Seq [Tuple2 [String] [Seq [String] ] ] ] ) :
+      Seq [Operation] =
+    seq
+      .flatMap (lambda seq1 --> seq1
+        .flatMap (lambda tuple --> tuple
+           ._2
+           .map (lambda operation_text -->
+             parse_operation_text (operation_text)
+           )
+        )
+      )
+
+end
+
