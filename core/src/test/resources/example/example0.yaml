@@ -4,168 +4,93 @@
 # This is a YAML file, and requires special attention regarding indentation and use of
 # colon (':').
 
-# Agents.
-agents:
-  0: Alice
-  1: Benjamin
-  2: Charlotte
-  3: Daniel
-  4: Emily
-  5: Fiona
-  6: George
-  7: Hannah
-  8: Isaac
-  9: James
-  10: Kevin
-  11: Lily
-  12: Matthew
-  13: Natalie
-  14: Olivia
-  15: Quinn
-  16: Peter
-  17: Rachel
-  18: Sarah
-  19: Timothy
-  20: Ursula
-  21: Victoria
-  22: William
-  23: Xavier
-  24: Yasmine
-  25: Zachary
-
-# Balances.
-balances:
-  0: 4500
-  1: 75
-  2: 1800
-  3: 2000
-  4: 5700
-  5: 2500
-  6: 1900
-  7: 2200
-  8: 6600
-  9: 2400
-  10: 1750
-  11: 2150
-  12: 1850
-  13: 2350
-  14: 1950
-  15: 2100
-  16: 1650
-  17: 2450
-  18: 7950
-  19: 2250
-  20: 1700
-  21: 2300
-  22: 1800
-  23: 2400
-  24: 1750
-  25: 2350
-
-# Resources.
-resources:
-  0: Aromatherapy Essential Oil Diffuser
-  1: Bluetooth Speaker
-  2: Cookbook from a Famous Chef
-  3: Digital Photo Frame
-  4: Electric Toothbrush
-  5: Fitness Tracker
-  6: Gourmet Spice Set
-  7: Handheld Massager
-  8: Insulated Stainless Steel Water Bottle
-  9: Jigsaw Puzzle (1000 pieces)
-  10: Kindle E-reader
-  11: Leather Wallet
-  12: Mini Projector
-  13: Noise Cancelling Earbuds
-  14: Outdoor Solar Lights (set of 4)
-  15: Portable Charger
-  16: Quality Wine Aerator
-  17: Robot Vacuum Cleaner
-  18: Silk Sleep Mask
-  19: Tea Sampler Set
-  20: Umbrella with Wind Vents
-  21: Virtual Reality Headset
-  22: Wireless Headphones
-  23: X-shaped Wine Rack
-  24: Yoga Mat
-  25: Zinc Alloy Corkscrew Wine Opener
-  26: 6-Port USB Charging Station
-  27: 7-Piece Cocktail Shaker Set
-  28: 8-Bit Retro Gaming Console
-  29: 9-Piece Stainless Steel Knife Set
-
-# Prices.
-prices:
-  0: 40
-  1: 50
-  2: 25
-  3: 70
-  4: 100
-  5: 60
-  6: 30
-  7: 40
-  8: 25
-  9: 20
-  10: 90
-  11: 50
-  12: 100
-  13: 150
-  14: 30
-  15: 30
-  16: 25
-  17: 200
-  18: 20
-  19: 30
-  20: 20
-  21: 100
-  22: 100
-  23: 20
-  24: 30
-  25: 20
-  26: 25
-  27: 40
-  28: 80
-  29: 100
-
-# Possessions. These are listed on the left, the item, and on the right, the owner.
-possessions:
-  0: 12
-  1: 7
-  2: 20
-  3: 15
-  4: 8
-  5: 23
-  6: 14
-  7: 2
-  8: 19
-  9: 5
-  10: 22
-  11: 13
-  12: 4
-  13: 18
-  14: 9
-  15: 24
-  16: 11
-  17: 3
-  18: 17
-  19: 10
-  20: 21
-  21: 16
-  22: 1
-  23: 25
-  24: 6
-  25: 0
-  26: 15
-  27: 10
-  28: 20
-  29: 5
-
 # Operations.
 operations:
-  0: price 10 100
-  1: advertise 10
-  2: transfer 10 25
-  3: advertise 11
-  4: hide 11
+  0: deposit 0 4500
+  1: deposit 1 75
+  2: deposit 2 1800
+  3: deposit 3 2000
+  4: deposit 4 5700
+  5: deposit 5 2500
+  6: deposit 6 1900
+  7: deposit 7 2200
+  8: deposit 8 6600
+  9: deposit 9 2400
+  10: deposit 10 1750
+  11: deposit 11 2150
+  12: deposit 12 1850
+  13: deposit 13 2350
+  14: deposit 14 1950
+  15: deposit 15 2100
+  16: deposit 16 1650
+  17: deposit 17 2450
+  18: deposit 18 7950
+  19: deposit 19 2250
+  20: deposit 20 1700
+  21: deposit 21 2300
+  22: deposit 22 1800
+  23: deposit 23 2400
+  24: deposit 24 1750
+  25: deposit 25 2350
+  26: assign 0 12
+  27: assign 1 7
+  28: assign 2 20
+  29: assign 3 15
+  30: assign 4 8
+  31: assign 5 23
+  32: assign 6 14
+  33: assign 7 2
+  34: assign 8 19
+  35: assign 9 5
+  36: assign 10 22
+  37: assign 11 13
+  38: assign 12 4
+  39: assign 13 18
+  40: assign 14 9
+  41: assign 15 24
+  42: assign 16 11
+  43: assign 17 3
+  44: assign 18 17
+  45: assign 19 10
+  46: assign 20 21
+  47: assign 21 16
+  48: assign 22 1
+  49: assign 23 25
+  50: assign 24 6
+  51: assign 25 0
+  52: assign 26 15
+  53: assign 27 10
+  54: assign 28 20
+  55: assign 29 5
+  56: price 0 40
+  57: price 1 50
+  58: price 2 25
+  59: price 3 70
+  60: price 4 100
+  61: price 5 60
+  62: price 6 30
+  63: price 7 40
+  64: price 8 25
+  65: price 9 20
+  66: price 10 90
+  67: price 11 50
+  68: price 12 100
+  69: price 13 150
+  70: price 14 30
+  71: price 15 30
+  72: price 16 25
+  73: price 17 200
+  74: price 18 20
+  75: price 19 30
+  76: price 20 20
+  77: price 21 100
+  78: price 22 100
+  79: price 23 20
+  80: price 24 30
+  81: price 25 20
+  82: price 26 25
+  83: price 27 40
+  84: price 28 80
+  85: price 29 100
+  86: transfer 10 25
 
