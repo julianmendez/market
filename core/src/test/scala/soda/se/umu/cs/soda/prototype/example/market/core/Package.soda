@@ -3,3 +3,12 @@ package soda.se.umu.cs.soda.prototype.example.market.core
 /*
  * This package contains tests for classes to test a market.
  */
+
+import
+  org.scalatest.funsuite.AnyFunSuite
+  org.scalatest.Assertion
+  java.nio.file.Files
+  java.nio.file.Paths
+  java.io.StringReader
+  soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
+  soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser

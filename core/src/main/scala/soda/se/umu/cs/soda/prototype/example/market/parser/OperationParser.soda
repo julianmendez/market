@@ -35,10 +35,10 @@ class OperationParser
   parse_operation_text (text : String) : Operation =
     parse_array (text .split (space) )
 
-  parse (seq : Seq [Seq [Tuple2 [String] [Seq [String] ] ] ] ) :
-      Seq [Operation] =
-    seq
-      .flatMap (lambda seq1 --> seq1
+  parse (list : List [List [Tuple2 [String] [List [String] ] ] ] ) :
+      List [Operation] =
+    list
+      .flatMap (lambda list1 --> list1
         .flatMap (lambda tuple --> tuple
            ._2
            .map (lambda operation_text -->

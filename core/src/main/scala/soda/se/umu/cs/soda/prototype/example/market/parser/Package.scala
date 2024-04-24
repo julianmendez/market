@@ -125,10 +125,10 @@ trait OperationParser
   def parse_operation_text (text : String) : Operation =
     parse_array (text .split (space) )
 
-  def parse (seq : Seq [Seq [Tuple2 [String, Seq [String] ] ] ] ) :
-      Seq [Operation] =
-    seq
-      .flatMap ( seq1 => seq1
+  def parse (list : List [List [Tuple2 [String, List [String] ] ] ] ) :
+      List [Operation] =
+    list
+      .flatMap ( list1 => list1
         .flatMap ( tuple => tuple
            ._2
            .map ( operation_text =>
@@ -163,14 +163,14 @@ trait YamlParser
       case otherwise => None
     }
 
-  def parse_seq_of_pairs (part : Any) : Option [Seq [String] ] =
+  def parse_seq_of_pairs (part : Any) : Option [List [String] ] =
     part match  {
       case p : Seq [Any] =>
-        Some (p .flatMap ( e => parse_string (e)) )
+        Some (p .flatMap ( e => parse_string (e) ) .toList )
       case otherwise => None
     }
 
-  def parse_record (part : Any) : Option [Tuple2 [String, Seq [String] ] ] =
+  def parse_record (part : Any) : Option [Tuple2 [String, List [String] ] ] =
     part match  {
       case p : Tuple2 [Any, Any] =>
         parse_string (p ._1)
@@ -183,19 +183,19 @@ trait YamlParser
       case otherwise => None
     }
 
-  def get_as_seq (elem : Any) : Seq [Tuple2 [String, Seq [String] ] ] =
+  def get_as_seq (elem : Any) : List [Tuple2 [String, List [String] ] ] =
     elem match  {
-      case e : Seq [Any] => e .flatMap ( x => parse_record (x) )
-      case otherwise => Seq ()
+      case e : Seq [Any] => e .flatMap ( x => parse_record (x) ) .toList
+      case otherwise => List ()
     }
 
-  def parse_record_list (parts : Seq [Any] )
-      : Seq [Seq [Tuple2 [String, Seq [String] ] ] ] =
+  def parse_record_list (parts : List [Any] )
+      : List [List [Tuple2 [String, List [String] ] ] ] =
     parts .map ( elem => get_as_seq (elem) )
 
   def parse (reader : Reader)
-      : Seq [Seq [Tuple2 [String, Seq [String] ] ] ] =
-    parse_record_list (GenericYamlParser .mk .parse (reader) )
+      : List [List [Tuple2 [String, List [String] ] ] ] =
+    parse_record_list (GenericYamlParser .mk .parse (reader) .toList)
 
 }
 

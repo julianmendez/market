@@ -1,0 +1,61 @@
+
+class OperationParserSpec ()
+  extends
+    AnyFunSuite
+
+  check [A : Type] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
+    assert (obtained == expected)
+
+
+  read_file (file_name : String) : String =
+    @new String (
+      Files .readAllBytes (
+        Paths .get (getClass .getResource (file_name) .toURI)
+      )
+    )
+
+  empty_market = Market .mk (List [Money] () ) (List [Item] () )
+
+  yaml_parser = YamlParser .mk
+
+  operation_parser = OperationParser .mk
+
+  operation_processor = OperationProcessor .mk
+
+  example0_name = "/example/example0.yaml"
+
+  example0_contents = read_file (example0_name)
+
+  processed_instance =
+    operation_processor
+      .process (Some (empty_market) ) (
+         operation_parser .parse (
+           yaml_parser .parse ( @new StringReader (example0_contents) )
+         )
+      )
+
+  test ("apply operations and check accounts") (
+    check (
+      obtained := processed_instance .get .accounts .length
+    ) (
+      expected := 26
+    )
+  )
+
+  test ("apply operations and check items") (
+    check (
+      obtained := processed_instance .get .items .length
+    ) (
+      expected := 30
+    )
+  )
+
+  test ("apply operations and check ownership of 1 item") (
+    check (
+      obtained := processed_instance .get .items .apply (10) .owner
+    ) (
+      expected := 25
+    )
+  )
+
+end

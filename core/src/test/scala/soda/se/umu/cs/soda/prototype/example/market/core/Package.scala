@@ -4,6 +4,14 @@ package soda.se.umu.cs.soda.prototype.example.market.core
  * This package contains tests for classes to test a market.
  */
 
+import   org.scalatest.funsuite.AnyFunSuite
+import   org.scalatest.Assertion
+import   java.nio.file.Files
+import   java.nio.file.Paths
+import   java.io.StringReader
+import   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
+import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
+
 trait Market01
   extends
     Market
@@ -238,6 +246,68 @@ case class MyListSpec ()
       obtained = instance .set [Int] (example_list_0) (-1) (144)
     ) (
       expected = List (0, 1, 1, 2, 3, 5, 8)
+    )
+  )
+
+}
+
+
+case class OperationParserSpec ()
+  extends
+    AnyFunSuite
+{
+
+  def check [A ] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
+    assert (obtained == expected)
+
+  def read_file (file_name : String) : String =
+    new String (
+      Files .readAllBytes (
+        Paths .get (getClass .getResource (file_name) .toURI)
+      )
+    )
+
+  lazy val empty_market = Market .mk (List [Money] () ) (List [Item] () )
+
+  lazy val yaml_parser = YamlParser .mk
+
+  lazy val operation_parser = OperationParser .mk
+
+  lazy val operation_processor = OperationProcessor .mk
+
+  lazy val example0_name = "/example/example0.yaml"
+
+  lazy val example0_contents = read_file (example0_name)
+
+  lazy val processed_instance =
+    operation_processor
+      .process (Some (empty_market) ) (
+         operation_parser .parse (
+           yaml_parser .parse ( new StringReader (example0_contents) )
+         )
+      )
+
+  test ("apply operations and check accounts") (
+    check (
+      obtained = processed_instance .get .accounts .length
+    ) (
+      expected = 26
+    )
+  )
+
+  test ("apply operations and check items") (
+    check (
+      obtained = processed_instance .get .items .length
+    ) (
+      expected = 30
+    )
+  )
+
+  test ("apply operations and check ownership of 1 item") (
+    check (
+      obtained = processed_instance .get .items .apply (10) .owner
+    ) (
+      expected = 25
     )
   )
 
