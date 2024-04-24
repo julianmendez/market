@@ -18,7 +18,7 @@ class Main
 
   operation_processor = OperationProcessor .mk
 
-  process_file (file_name : String) =
+  process_file (file_name : String) : Option [Market] =
     operation_processor
       .process (Some (empty_market) ) (
          operation_parser .parse (
@@ -26,9 +26,22 @@ class Main
          )
       )
 
+  _serialize_market (m : Market) : String =
+    "Account balances:\n" +
+      (m .accounts .map (lambda account --> account .toString) .mkString (", ") ) + "\n\n" +
+    "Items:\n" +
+      (m .items .map (lambda item -->
+        "(" + item .owner .toString + ", " + item .price .toString + ")" ) .mkString (" , ") ) +
+    "\n\n"
+
+  serialize_market (maybe_market : Option [Market] ) : String =
+    match maybe_market
+      case Some (market) ==> _serialize_market (market)
+      case None ==> "Undefined market"
+
   execute (arguments : List [String] ) : Unit =
     if arguments .length > 0
-    then process_file (arguments .apply (0) )
+    then println (serialize_market (process_file (arguments .apply (0) ) ) )
     else println (help)
 
   main (arguments : Array [String] ) : Unit =

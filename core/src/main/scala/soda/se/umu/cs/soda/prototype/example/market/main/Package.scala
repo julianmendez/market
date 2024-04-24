@@ -35,7 +35,7 @@ trait Main
 
   lazy val operation_processor = OperationProcessor .mk
 
-  def process_file (file_name : String) =
+  def process_file (file_name : String) : Option [Market] =
     operation_processor
       .process (Some (empty_market) ) (
          operation_parser .parse (
@@ -43,9 +43,23 @@ trait Main
          )
       )
 
+  private def _serialize_market (m : Market) : String =
+    "Account balances:\n" +
+      (m .accounts .map ( account => account .toString) .mkString (", ") ) + "\n\n" +
+    "Items:\n" +
+      (m .items .map ( item =>
+        "(" + item .owner .toString + ", " + item .price .toString + ")" ) .mkString (" , ") ) +
+    "\n\n"
+
+  def serialize_market (maybe_market : Option [Market] ) : String =
+    maybe_market match  {
+      case Some (market) => _serialize_market (market)
+      case None => "Undefined market"
+    }
+
   def execute (arguments : List [String] ) : Unit =
     if ( arguments .length > 0
-    ) process_file (arguments .apply (0) )
+    ) println (serialize_market (process_file (arguments .apply (0) ) ) )
     else println (help)
 
   def main (arguments : Array [String] ) : Unit =
