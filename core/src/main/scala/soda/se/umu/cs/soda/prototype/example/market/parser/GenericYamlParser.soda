@@ -1,0 +1,65 @@
+
+/**
+ * This is a generic YAML parser.
+ * This parser converts all the Integer objects into String objects.
+ */
+
+class GenericYamlParser
+
+  import
+    org.snakeyaml.engine.v2.api.Load
+    org.snakeyaml.engine.v2.api.LoadSettings
+    java.io.Reader
+    scala.jdk.CollectionConverters.CollectionHasAsScala
+    scala.jdk.CollectionConverters.IteratorHasAsScala
+    scala.jdk.CollectionConverters.MapHasAsScala
+
+  /**
+   * Converts Java data structures into immutable Scala data structures .
+   * Integer objects are converted into String objects .
+   *
+   * @param obj object
+   * @return the object with immutable Scala data structures
+   */
+
+  _rec_as_scala (obj : Any) : Option [Any] =
+    match obj
+      case x : String ==> Some (x)
+      case x : Integer ==> Some (x .toString)
+      case x : Tuple2 [Any] [Any] ==>
+        _rec_as_scala (x ._1)
+          .flatMap (lambda a -->
+            _rec_as_scala (x ._2)
+              .map (lambda b -->
+                Tuple2 (a , b)
+              )
+          )
+      case x : java.util.Map [Any] [Any] ==>
+        Some (x .asScala
+          .flatMap (lambda elem --> _rec_as_scala (elem) )
+          .toSeq
+        )
+      case x : java.util.Collection [Any] ==>
+        Some (x .asScala
+          .flatMap (lambda elem --> _rec_as_scala (elem) )
+          .toSeq
+        )
+      case otherwise ==> None
+
+  /**
+   * Parses a YAML document.
+   *
+   * @param reader reader
+   * @return a structure with the YAML document.
+   */
+
+  parse (reader : Reader) : Seq [Any] =
+    ( @new Load (LoadSettings .builder () .build () ) )
+      .loadAllFromReader (reader)
+      .iterator ()
+      .asScala
+      .toSeq
+      .flatMap (lambda x --> _rec_as_scala (x) )
+
+end
+

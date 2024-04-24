@@ -1,4 +1,4 @@
-package soda.se.umu.cs.soda.prototype.example.market
+package soda.se.umu.cs.soda.prototype.example.market.core
 
 /*
  * This package contains classes to model a market
@@ -30,7 +30,7 @@ type Nat = Int
 
 /*
 directive lean
-import Soda.se.umu.cs.soda.prototype.example.market.MyList
+import Soda.se.umu.cs.soda.prototype.example.market.core.MyList
 */
 
 type Money = Int
@@ -100,6 +100,56 @@ trait MarketMod
     simp
 */
 
+  private def _deposit_into_known_account (accounts : List [Money] ) (user_id : Nat) (amount : Money)
+      : List [Money] =
+    (_mm .get [Money] (accounts) (user_id) ) match  {
+      case Some (previous_balance) =>
+        _mm .set [Money] (accounts) (user_id) (previous_balance + amount)
+      case None => accounts
+    }
+
+  private def _deposit_into_accounts (accounts : List [Money] ) (user_id : Nat) (amount : Money)
+      : List [Money] =
+    if ( user_id == accounts .length
+    ) amount :: accounts
+    else _deposit_into_known_account (accounts) (user_id) (amount)
+
+  def deposit (m : Market) (user_id : Nat) (amount : Money) : Market =
+    if ( amount >= 0
+    ) Market .mk (_deposit_into_accounts (m .accounts) (user_id) (amount) ) (m .items)
+    else m
+
+  private def _reassign_item (items : List [Item] ) (item_id : Nat) (user_id: Nat)
+      : List [Item] =
+    (_mm .get [Item] (items) (item_id) ) match  {
+      case Some (item) =>
+        _mm .set [Item] (items) (item_id) (Item .mk (user_id) (item .price) (item .advertised) )
+      case None => items
+    }
+
+  private def _assign_to_user (items : List [Item] ) (item_id : Nat) (user_id: Nat)
+      : List [Item] =
+    if ( item_id == items .length
+    ) Item .mk (user_id) (0) (false) :: items
+    else _reassign_item (items) (item_id) (user_id)
+
+  def assign (m : Market) (item_id : Nat) (user_id : Nat) : Market =
+    Market .mk (m .accounts) (_assign_to_user (m .items) (item_id) (user_id) )
+
+  def auto_advertise (p : Money) : Boolean =
+    p > 0
+
+  private def _price_item (items : List [Item] ) (item_id : Nat) (p : Money)
+      : List [Item] =
+    (_mm .get [Item] (items) (item_id) ) match  {
+      case Some (item) =>
+        _mm .set [Item] (items) (item_id) (Item .mk (item .owner) (p) (auto_advertise (p) ) )
+      case None => items
+    }
+
+  def price_item (m : Market) (item_id : Nat) (p : Money) : Market =
+    Market .mk (m .accounts) (_price_item (m .items) (item_id) (p) )
+
   private def _advertise (items : List [Item] ) (item_id : Nat) : List [Item] =
     (_mm .get [Item] (items) (item_id) ) match  {
       case Some (item) =>
@@ -118,7 +168,7 @@ trait MarketMod
     }
 
   def remove_ad (market : Market) (item_id : Nat) : Market =
-    Market.mk (market .accounts) (_remove_ad (market .items) (item_id) )
+    Market .mk (market .accounts) (_remove_ad (market .items) (item_id) )
 
   private def _transfer_with_balances (accounts : List [Money] ) (origin : Nat) (target : Nat)
       (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
@@ -172,7 +222,7 @@ object MarketMod {
 
 /*
 directive lean
-import Soda.se.umu.cs.soda.prototype.example.market.Basic
+import Soda.se.umu.cs.soda.prototype.example.market.core.Basic
 */
 
 trait IndexOption [A ]
@@ -545,5 +595,242 @@ case class MyList_ (bit : Boolean) extends MyList
 object MyList {
   def mk (bit : Boolean) : MyList =
     MyList_ (bit)
+}
+
+
+trait OperationType
+{
+
+  def   ordinal : Int
+  def   name : String
+
+}
+
+case class OperationType_ (ordinal : Int, name : String) extends OperationType
+
+object OperationType {
+  def mk (ordinal : Int) (name : String) : OperationType =
+    OperationType_ (ordinal, name)
+}
+
+trait OperationEnum
+{
+
+
+
+  lazy val undefined = OperationType .mk (0) ("undefined")
+
+  lazy val deposit = OperationType .mk (1) ("deposit")
+
+  lazy val assign = OperationType .mk (2) ("assign")
+
+  lazy val price = OperationType .mk (3) ("price")
+
+  lazy val sell = OperationType .mk (4) ("sell")
+
+  lazy val values = List (undefined , deposit , assign , price , sell)
+
+}
+
+case class OperationEnum_ () extends OperationEnum
+
+object OperationEnum {
+  def mk : OperationEnum =
+    OperationEnum_ ()
+}
+
+trait Operation
+{
+
+  def   op_type : OperationType
+  def   process : Option [Market] => Option [Market]
+
+}
+
+case class Operation_ (op_type : OperationType, process : Option [Market] => Option [Market]) extends Operation
+
+object Operation {
+  def mk (op_type : OperationType) (process : Option [Market] => Option [Market]) : Operation =
+    Operation_ (op_type, process)
+}
+
+trait OpUndefined
+  extends
+    Operation
+{
+
+
+
+  lazy val op_type = OperationEnum .mk .undefined
+
+  lazy val process : Option [Market] => Option [Market] =
+     maybe_market => None
+
+}
+
+case class OpUndefined_ () extends OpUndefined
+
+object OpUndefined {
+  def mk : OpUndefined =
+    OpUndefined_ ()
+}
+
+trait OpDeposit
+  extends
+    Operation
+{
+
+  def   user_id : Nat
+  def   amount : Money
+
+  lazy val op_type = OperationEnum .mk .deposit
+
+  def process_market (m : Market) : Option [Market] =
+    if ( (user_id <= m .accounts .length) && (amount >= 0)
+    ) Some (MarketMod .mk (true) .deposit (m) (user_id) (amount) )
+    else None
+
+  def process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
+    maybe_market match  {
+      case Some (market) => process_market (market)
+      case None => None
+    }
+
+  lazy val process : Option [Market] => Option [Market] =
+     maybe_market =>
+      process_maybe_market (maybe_market)
+
+}
+
+case class OpDeposit_ (user_id : Nat, amount : Money) extends OpDeposit
+
+object OpDeposit {
+  def mk (user_id : Nat) (amount : Money) : OpDeposit =
+    OpDeposit_ (user_id, amount)
+}
+
+trait OpAssign
+  extends
+    Operation
+{
+
+  def   item_id : Nat
+  def   user_id : Nat
+
+  lazy val op_type = OperationEnum .mk .assign
+
+  def process_market (m : Market) : Option [Market] =
+    if ( (item_id <= m .items. length) && (user_id < m .accounts .length)
+    ) Some (MarketMod .mk (true) .assign (m) (item_id) (user_id) )
+    else None
+
+  def process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
+    maybe_market match  {
+      case Some (market) => process_market (market)
+      case None => None
+    }
+
+  lazy val process : Option [Market] => Option [Market] =
+     maybe_market =>
+      process_maybe_market (maybe_market)
+
+}
+
+case class OpAssign_ (item_id : Nat, user_id : Nat) extends OpAssign
+
+object OpAssign {
+  def mk (item_id : Nat) (user_id : Nat) : OpAssign =
+    OpAssign_ (item_id, user_id)
+}
+
+trait OpPrice
+  extends
+    Operation
+{
+
+  def   item_id : Nat
+  def   price : Money
+
+  lazy val op_type = OperationEnum .mk .price
+
+  def process_market (m : Market) : Option [Market] =
+    if ( (item_id < m .items. length) && (price >= 0)
+    ) Some (MarketMod .mk (true) .price_item (m) (item_id) (price) )
+    else None
+
+  def process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
+    maybe_market match  {
+      case Some (market) => process_market (market)
+      case None => None
+    }
+
+  lazy val process : Option [Market] => Option [Market] =
+     maybe_market =>
+      process_maybe_market (maybe_market)
+
+}
+
+case class OpPrice_ (item_id : Nat, price : Money) extends OpPrice
+
+object OpPrice {
+  def mk (item_id : Nat) (price : Money) : OpPrice =
+    OpPrice_ (item_id, price)
+}
+
+trait OpSell
+  extends
+    Operation
+{
+
+  def   item_id : Nat
+  def   user_id : Nat
+
+  lazy val op_type = OperationEnum .mk .sell
+
+  def process_market (m : Market) : Option [Market] =
+    if ( (item_id < m .items .length) && (user_id < m .accounts .length)
+    ) Some (MarketMod .mk (true) .sell (m) (item_id) (user_id) )
+    else None
+
+  def process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
+    maybe_market match  {
+      case Some (market) => process_market (market)
+      case None => None
+    }
+
+  lazy val process : Option [Market] => Option [Market] =
+     maybe_market =>
+      process_maybe_market (maybe_market)
+
+}
+
+case class OpSell_ (item_id : Nat, user_id : Nat) extends OpSell
+
+object OpSell {
+  def mk (item_id : Nat) (user_id : Nat) : OpSell =
+    OpSell_ (item_id, user_id)
+}
+
+
+trait OperationProcessor
+{
+
+
+
+  private lazy val _mm : MyList = MyList .mk (true)
+
+  def compute_next (maybe_market : Option [Market] ) (op : Operation) : Option [Market] =
+    op .process (maybe_market)
+
+  def process (maybe_market : Option [Market] ) (operations : List [Operation] ) : Option [Market] =
+    _mm .foldl [Operation, Option [Market] ] (operations) (maybe_market) (compute_next)
+
+}
+
+case class OperationProcessor_ () extends OperationProcessor
+
+object OperationProcessor {
+  def mk : OperationProcessor =
+    OperationProcessor_ ()
 }
 

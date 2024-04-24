@@ -1,0 +1,159 @@
+
+class OperationType
+
+  abstract
+    ordinal : Int
+    name : String
+
+end
+
+
+class OperationEnum
+
+  abstract
+
+  undefined = OperationType .mk (0) ("undefined")
+
+  deposit = OperationType .mk (1) ("deposit")
+
+  assign = OperationType .mk (2) ("assign")
+
+  price = OperationType .mk (3) ("price")
+
+  sell = OperationType .mk (4) ("sell")
+
+  values = List (undefined , deposit , assign , price , sell)
+
+end
+
+
+class Operation
+
+  abstract
+    op_type : OperationType
+    process : Option [Market] -> Option [Market]
+
+end
+
+
+class OpUndefined
+  extends
+    Operation
+
+  abstract
+
+  op_type = OperationEnum .mk .undefined
+
+  process : Option [Market] -> Option [Market] =
+    lambda maybe_market --> None
+
+end
+
+
+class OpDeposit
+  extends
+    Operation
+
+  abstract
+    user_id : Nat
+    amount : Money
+
+  op_type = OperationEnum .mk .deposit
+
+  process_market (m : Market) : Option [Market] =
+    if (user_id <= m .accounts .length) and (amount >= 0)
+    then Some (MarketMod .mk (true) .deposit (m) (user_id) (amount) )
+    else None
+
+  process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
+    match maybe_market
+      case Some (market) ==> process_market (market)
+      case None ==> None
+
+  process : Option [Market] -> Option [Market] =
+    lambda maybe_market -->
+      process_maybe_market (maybe_market)
+
+end
+
+
+class OpAssign
+  extends
+    Operation
+
+  abstract
+    item_id : Nat
+    user_id : Nat
+
+  op_type = OperationEnum .mk .assign
+
+  process_market (m : Market) : Option [Market] =
+    if (item_id <= m .items. length) and (user_id < m .accounts .length)
+    then Some (MarketMod .mk (true) .assign (m) (item_id) (user_id) )
+    else None
+
+  process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
+    match maybe_market
+      case Some (market) ==> process_market (market)
+      case None ==> None
+
+  process : Option [Market] -> Option [Market] =
+    lambda maybe_market -->
+      process_maybe_market (maybe_market)
+
+end
+
+
+class OpPrice
+  extends
+    Operation
+
+  abstract
+    item_id : Nat
+    price : Money
+
+  op_type = OperationEnum .mk .price
+
+  process_market (m : Market) : Option [Market] =
+    if (item_id < m .items. length) and (price >= 0)
+    then Some (MarketMod .mk (true) .price_item (m) (item_id) (price) )
+    else None
+
+  process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
+    match maybe_market
+      case Some (market) ==> process_market (market)
+      case None ==> None
+
+  process : Option [Market] -> Option [Market] =
+    lambda maybe_market -->
+      process_maybe_market (maybe_market)
+
+end
+
+
+class OpSell
+  extends
+    Operation
+
+  abstract
+    item_id : Nat
+    user_id : Nat
+
+  op_type = OperationEnum .mk .sell
+
+  process_market (m : Market) : Option [Market] =
+    if (item_id < m .items .length) and (user_id < m .accounts .length)
+    then Some (MarketMod .mk (true) .sell (m) (item_id) (user_id) )
+    else None
+
+  process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
+    match maybe_market
+      case Some (market) ==> process_market (market)
+      case None ==> None
+
+  process : Option [Market] -> Option [Market] =
+    lambda maybe_market -->
+      process_maybe_market (maybe_market)
+
+end
+

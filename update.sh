@@ -5,8 +5,8 @@
 # 2024-02-17
 
 
-pathToSodaDir="core/src/main/scala/soda/se/umu/cs/soda/prototype/example/market"
-pathToLeanDir="Soda/se/umu/cs/soda/prototype/example/market"
+pathToSodaDir="core/src/main/scala/soda/se/umu/cs/soda/prototype/example/market/core"
+pathToLeanDir="Soda/se/umu/cs/soda/prototype/example/market/core"
 
 
 # This translates all Soda files into Scala

@@ -1,0 +1,49 @@
+
+/**
+ * Parser for YAML format.
+ */
+
+class YamlParser
+
+  import
+    java.io.BufferedReader
+    java.io.Reader
+
+  parse_string (part : Any) : Option [String] =
+    match part
+      case p : String ==> Some (p)
+      case otherwise ==> None
+
+  parse_seq_of_pairs (part : Any) : Option [List [String] ] =
+    match part
+      case p : Seq [Any] ==>
+        Some (p .flatMap (lambda e --> parse_string (e) ) .toList )
+      case otherwise ==> None
+
+  parse_record (part : Any) : Option [Tuple2 [String] [List [String] ] ] =
+    match part
+      case p : Tuple2 [Any] [Any] ==>
+        parse_string (p ._1)
+          .flatMap (lambda a -->
+            parse_seq_of_pairs (p ._2)
+              .map (lambda b -->
+                Tuple2 (a , b)
+              )
+          )
+      case otherwise ==> None
+
+  get_as_seq (elem : Any) : List [Tuple2 [String] [List [String] ] ] =
+    match elem
+      case e : Seq [Any] ==> e .flatMap (lambda x --> parse_record (x) ) .toList
+      case otherwise ==> List ()
+
+  parse_record_list (parts : List [Any] )
+      : List [List [Tuple2 [String] [List [String] ] ] ] =
+    parts .map (lambda elem --> get_as_seq (elem) )
+
+  parse (reader : Reader)
+      : List [List [Tuple2 [String] [List [String] ] ] ] =
+    parse_record_list (GenericYamlParser .mk .parse (reader) .toList)
+
+end
+
