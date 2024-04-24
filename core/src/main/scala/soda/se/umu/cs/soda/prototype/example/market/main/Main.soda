@@ -5,11 +5,34 @@
 
 class Main
 
-  execute (arguments : Seq [String] ) : Unit =
-    print ("Under construction ...\n")
+  help = "Usage: it has one parameter, a YAML file containing the operations."
+
+  read_file (file_name : String) : String =
+    @new String (Files .readAllBytes (Paths .get (file_name) ) )
+
+  empty_market = Market .mk (List [Money] () ) (List [Item] () )
+
+  yaml_parser = YamlParser .mk
+
+  operation_parser = OperationParser .mk
+
+  operation_processor = OperationProcessor .mk
+
+  process_file (file_name : String) =
+    operation_processor
+      .process (Some (empty_market) ) (
+         operation_parser .parse (
+           yaml_parser .parse ( @new StringReader (read_file (file_name) ) )
+         )
+      )
+
+  execute (arguments : List [String] ) : Unit =
+    if arguments .length > 0
+    then process_file (arguments .apply (0) )
+    else println (help)
 
   main (arguments : Array [String] ) : Unit =
-    execute (arguments .toSeq)
+    execute (arguments .toList)
 
 end
 
