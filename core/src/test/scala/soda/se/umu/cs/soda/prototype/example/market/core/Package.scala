@@ -129,10 +129,16 @@ case class MyListSpec ()
     assert (obtained == expected)
 
   lazy val example_list_0 : List [Int] =
-     List (0 , 1 , 1 , 2 , 3 , 5 , 8)
+    List (0 , 1 , 1 , 2 , 3 , 5 , 8)
 
   lazy val example_list_1 : List [Int] =
-     List (13 , 21 , 34 , 55 , 89 , 144)
+    List (13 , 21 , 34 , 55 , 89 , 144)
+
+  lazy val short_list : List [Nat] =
+     instance .range (100)
+
+  lazy val long_list : List [Nat] =
+     instance .range (1000000)
 
   lazy val instance : MyList =
     MyList .mk (true)
@@ -150,6 +156,22 @@ case class MyListSpec ()
       obtained = instance .length [Int] (example_list_0)
     ) (
       expected = 7
+    )
+  )
+
+  test ("length_def - short list") (
+    check (
+      obtained = instance .length_def (short_list)
+    ) (
+      expected = 100
+    )
+  )
+
+  test ("length_tr - long list") (
+    check (
+      obtained = instance .length_tr (long_list)
+    ) (
+      expected = 1000000
     )
   )
 

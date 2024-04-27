@@ -273,6 +273,17 @@ trait MyList
       (next : B => A => B) : B =
     _tailrec_foldl [A, B] (list) (initial) (next)
 
+  private def _tailrec_range (n : Nat) (list : List [Nat] ) : List [Nat] =
+    n match  {
+      case Succ_ (k) => _tailrec_range (k) ( (k) :: (list) )
+      case _otherwise => list
+    }
+
+  def range (length : Nat) : List [Nat] =
+    if ( (0 <= length)
+    ) _tailrec_range (length) (Nil)
+    else Nil
+
 /*
  * `length` defined using fold left.
  * This uses foldl, which is tail recursive.

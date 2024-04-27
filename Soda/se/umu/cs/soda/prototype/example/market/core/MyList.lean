@@ -65,6 +65,19 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     _tailrec_foldl ( A ) ( B ) (list) (initial) (next)
 
 
+ private def   _tailrec_range (n : Nat) (list : List ( Nat ) ) : List ( Nat ) :=
+    match n with
+      | Succ_ (k) => _tailrec_range (k) ( (k) :: (list) )
+      | _otherwise => list
+    
+
+
+ def   range (length : Nat) : List ( Nat ) :=
+    if (0 <= length)
+    then _tailrec_range (length) (List.nil)
+    else List.nil
+
+
 /-`length` defined using fold left.
  This uses foldl, which is tail recursive.
 -/
