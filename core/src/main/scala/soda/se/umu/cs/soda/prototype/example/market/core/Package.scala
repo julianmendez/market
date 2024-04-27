@@ -7,6 +7,7 @@ package soda.se.umu.cs.soda.prototype.example.market.core
 
 type Nat = Int
 object Succ_ {
+  def apply (n : Int) : Int = n + 1
   def unapply (n : Int) : Option [Int] =
     if (n <= 0) None else Some (n - 1)
 }
@@ -18,7 +19,6 @@ notation "Succ_" => Nat.succ
 
 /*
 directive coq
-Notation "head '+:' tail" := (cons (head) (tail) ) (at level 99) .
 Notation "'Succ_'" := S (at level 99) .
 */
 
@@ -515,7 +515,7 @@ trait MyList
     simp
 */
 
-  def get [A ] (list : List [A] ) (index : Nat) : Option [A] =
+  def get_fl [A ] (list : List [A] ) (index : Nat) : Option [A] =
     (foldl [A, IndexOption [A] ] (list) (
       IndexOption .mk (0) (None) ) (
          (accum : IndexOption [A] ) =>
@@ -525,6 +525,21 @@ trait MyList
             else IndexOption .mk (accum .current_index + 1) (accum .maybe_elem)
       )
     ) .maybe_elem
+
+  private def _tailrec_get_def [A ] (list : List [A] ) (index : Nat) (current : Nat) : Option [A] =
+    list match  {
+      case Nil => None
+      case (head) :: (tail) =>
+        if ( current == index
+        ) Some (head)
+        else _tailrec_get_def [A] (tail) (index) (Succ_ (current) )
+    }
+
+  def get_def [A ] (list : List [A] ) (index : Nat) : Option [A] =
+    _tailrec_get_def [A] (list) (index) (0)
+
+  def get [A ] (list : List [A] ) (index : Nat) : Option [A] =
+    get_def [A] (list) (index)
 
   private def _replace_if_in_place [A ] (current_index : Nat) (target_index : Nat) (old_value : A) (
       new_value : A) : A =
@@ -547,13 +562,23 @@ trait MyList
         _apply_replacement [A] ) ) .rev_accum
     )
 
+  private def _tailrec_set_def_alt [A ] (list : List [A] ) (index : Nat) (element : A) (current : Nat)
+      : List [A] =
+    list match  {
+      case Nil => Nil
+      case (head) :: (tail) =>
+        if ( current == index
+        ) (element) :: (tail)
+        else (head) :: (_tailrec_set_def_alt [A] (tail) (index) (element) (Succ_ (current) ) )
+    }
+
   def set_def [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
     list match  {
       case Nil => Nil
-      case (_head) :: (tail) =>
+      case (head) :: (tail) =>
         if ( index == 0
         ) (element) :: (tail)
-        else (element) :: (set_def [A] (tail) (monus1 (index) ) (element) )
+        else (head) :: (set_def [A] (tail) (monus1 (index) ) (element) )
     }
 
 /*
@@ -583,7 +608,9 @@ trait MyList
 */
 
   def set [A ] (list : List [A] ) (index : Nat) (element : A) : List [A] =
-    set_fl [A] (list) (index) (element)
+    if ( (0 <= index)
+    ) set_def [A] (list) (index) (element)
+    else list
 
 }
 

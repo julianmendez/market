@@ -264,7 +264,7 @@ class MyList
     rewrite [monus1]
     simp
 
-  get [A : Type] (list : List [A] ) (index : Nat) : Option [A] =
+  get_fl [A : Type] (list : List [A] ) (index : Nat) : Option [A] =
     (foldl [A] [IndexOption [A] ] (list) (
       IndexOption .mk (0) (None) ) (
         lambda (accum : IndexOption [A] ) -->
@@ -274,6 +274,20 @@ class MyList
             else IndexOption .mk (accum .current_index + 1) (accum .maybe_elem)
       )
     ) .maybe_elem
+
+  _tailrec_get_def [A : Type] (list : List [A] ) (index : Nat) (current : Nat) : Option [A] =
+    match list
+      case Nil ==> None
+      case (head) :: (tail) ==>
+        if current == index
+        then Some (head)
+        else _tailrec_get_def [A] (tail) (index) (Succ_ (current) )
+
+  get_def [A : Type] (list : List [A] ) (index : Nat) : Option [A] =
+    _tailrec_get_def [A] (list) (index) (0)
+
+  get [A : Type] (list : List [A] ) (index : Nat) : Option [A] =
+    get_def [A] (list) (index)
 
   _replace_if_in_place [A : Type] (current_index : Nat) (target_index : Nat) (old_value : A) (
       new_value : A) : A =
@@ -290,20 +304,28 @@ class MyList
   _initial_window [A : Type] (index : Nat) (new_value : A) : ChangeWindow [A] =
     ChangeWindow .mk (0) (index) (new_value) (Nil)
 
-
   set_fl [A : Type] (list : List [A] ) (index : Nat) (new_value : A) : List [A] =
     reverse_fl [A] (
       (foldl [A] [ChangeWindow [A] ] (list) (_initial_window [A] (index) (new_value) ) (
         _apply_replacement [A] ) ) .rev_accum
     )
 
+  _tailrec_set_def_alt [A : Type] (list : List [A] ) (index : Nat) (element : A) (current : Nat)
+      : List [A] =
+    match list
+      case Nil ==> Nil
+      case (head) :: (tail) ==>
+        if current == index
+        then (element) :: (tail)
+        else (head) :: (_tailrec_set_def_alt [A] (tail) (index) (element) (Succ_ (current) ) )
+
   set_def [A : Type] (list : List [A] ) (index : Nat) (element : A) : List [A] =
     match list
       case Nil ==> Nil
-      case (_head) :: (tail) ==>
+      case (head) :: (tail) ==>
         if index == 0
         then (element) :: (tail)
-        else (element) :: (set_def [A] (tail) (monus1 (index) ) (element) )
+        else (head) :: (set_def [A] (tail) (monus1 (index) ) (element) )
 
   directive lean
   theorem    len_set (A : Type) (list : List (A)) (element : A)
@@ -330,7 +352,9 @@ class MyList
          rfl
 
   set [A : Type] (list : List [A] ) (index : Nat) (element : A) : List [A] =
-    set_fl [A] (list) (index) (element)
+    if (0 <= index)
+    then set_def [A] (list) (index) (element)
+    else list
 
 end
 
