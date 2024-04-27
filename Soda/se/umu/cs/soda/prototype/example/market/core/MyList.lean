@@ -65,6 +65,19 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     _tailrec_foldl ( A ) ( B ) (list) (initial) (next)
 
 
+ private def   _tailrec_range (n : Nat) (list : List ( Nat ) ) : List ( Nat ) :=
+    match n with
+      | Succ_ (k) => _tailrec_range (k) ( (k) :: (list) )
+      | _otherwise => list
+    
+
+
+ def   range (length : Nat) : List ( Nat ) :=
+    if (0 <= length)
+    then _tailrec_range (length) (List.nil)
+    else List.nil
+
+
 /-`length` defined using fold left.
  This uses foldl, which is tail recursive.
 -/
@@ -286,7 +299,7 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     rewrite [monus1]
     simp
 
- def   get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
+ def   get_fl ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
     (foldl ( A ) ( IndexOption ( A )  ) (list) (
       IndexOption.mk (0) (Option.none) ) (
         fun (accum : IndexOption ( A ) ) =>
@@ -296,6 +309,24 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
             else IndexOption.mk (accum.current_index + 1) (accum.maybe_elem)
       )
     ).maybe_elem
+
+
+ private def   _tailrec_get_def ( A : Type ) (list : List ( A ) ) (index : Nat) (current : Nat) : Option ( A ) :=
+    match list with
+      | List.nil => Option.none
+      | (head) :: (tail) =>
+        if current == index
+        then Option.some (head)
+        else _tailrec_get_def ( A ) (tail) (index) (Succ_ (current) )
+    
+
+
+ def   get_def ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
+    _tailrec_get_def ( A ) (list) (index) (0)
+
+
+ def   get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
+    get_def ( A ) (list) (index)
 
 
 private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_index : Nat) (old_value : A) (
@@ -323,13 +354,24 @@ private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_in
     )
 
 
+private def   _tailrec_set_def_alt ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) (current : Nat)
+       : List ( A ) :=
+    match list with
+      | List.nil => List.nil
+      | (head) :: (tail) =>
+        if current == index
+        then (element) :: (tail)
+        else (head) :: (_tailrec_set_def_alt ( A ) (tail) (index) (element) (Succ_ (current) ) )
+    
+
+
  def   set_def ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
     match list with
       | List.nil => List.nil
-      | (_head) :: (tail) =>
+      | (head) :: (tail) =>
         if index == 0
         then (element) :: (tail)
-        else (element) :: (set_def ( A ) (tail) (monus1 (index) ) (element) )
+        else (head) :: (set_def ( A ) (tail) (monus1 (index) ) (element) )
     
 
 
@@ -357,7 +399,9 @@ private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_in
          rfl
 
  def   set ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
-    set_fl ( A ) (list) (index) (element)
+    if (0 <= index)
+    then set_def ( A ) (list) (index) (element)
+    else list
 
 
 end MyList

@@ -8,9 +8,9 @@ class Market01
 
    items : List [Item] =
      List [Item] (
-       Item_ (0) (125) (false) ,
-       Item_ (1) (375) (false) ,
-       Item_ (1) (10) (false)
+       Item .mk (0) (125) ,
+       Item .mk (1) (0) ,
+       Item .mk (1) (10)
      )
 
 end
@@ -24,9 +24,9 @@ class Market02
 
    items : List [Item] =
      List [Item] (
-       Item_ (0) (125) (false) ,
-       Item_ (1) (375) (true) ,
-       Item_ (1) (10) (false)
+       Item .mk (0) (125) ,
+       Item .mk (1) (375) ,
+       Item .mk (1) (10)
      )
 
 end
@@ -40,9 +40,9 @@ class Market03
 
    items : List [Item] =
      List [Item] (
-       Item_ (0) (125) (false) ,
-       Item_ (2) (375) (false) ,
-       Item_ (1) (10) (false)
+       Item .mk (0) (125) ,
+       Item .mk (2) (0) ,
+       Item .mk (1) (10)
      )
 
 end

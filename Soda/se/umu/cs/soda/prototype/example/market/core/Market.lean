@@ -10,7 +10,6 @@ where
   mk ::
     owner : Nat
     price : Money
-    advertised : Bool
   deriving DecidableEq
 
 namespace Item
@@ -97,7 +96,7 @@ private def   _reassign_item (items : List ( Item ) ) (item_id : Nat) (user_id: 
        : List ( Item ) :=
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
-        _mm.set ( Item ) (items) (item_id) (Item.mk (user_id) (item.price) (item.advertised) )
+        _mm.set ( Item ) (items) (item_id) (Item.mk (user_id) (item.price) )
       | Option.none => items
     
 
@@ -105,7 +104,7 @@ private def   _reassign_item (items : List ( Item ) ) (item_id : Nat) (user_id: 
 private def   _assign_to_user (items : List ( Item ) ) (item_id : Nat) (user_id: Nat)
        : List ( Item ) :=
     if item_id == items.length
-    then Item.mk (user_id) (0) (false) :: items
+    then Item.mk (user_id) (0) :: items
     else _reassign_item (items) (item_id) (user_id)
 
 
@@ -113,15 +112,11 @@ private def   _assign_to_user (items : List ( Item ) ) (item_id : Nat) (user_id:
     Market.mk (m.accounts) (_assign_to_user (m.items) (item_id) (user_id) )
 
 
- def   auto_advertise (p : Money) : Bool :=
-    p > 0
-
-
 private def   _price_item (items : List ( Item ) ) (item_id : Nat) (p : Money)
        : List ( Item ) :=
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
-        _mm.set ( Item ) (items) (item_id) (Item.mk (item.owner) (p) (auto_advertise (p) ) )
+        _mm.set ( Item ) (items) (item_id) (Item.mk (item.owner) (p) )
       | Option.none => items
     
 
@@ -130,22 +125,18 @@ private def   _price_item (items : List ( Item ) ) (item_id : Nat) (p : Money)
     Market.mk (m.accounts) (_price_item (m.items) (item_id) (p) )
 
 
- private def   _advertise (items : List ( Item ) ) (item_id : Nat) : List ( Item ) :=
-    match (_mm.get ( Item ) (items) (item_id) ) with
+ def   is_advertised (market : Market) (item_id : Nat) : Bool :=
+    match (_mm.get ( Item ) (market.items) (item_id) ) with
       | Option.some (item) =>
-        _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (true) )
-      | Option.none => items
+        item.price > 0
+      | Option.none => false
     
-
-
- def   advertise (market : Market) (item_id : Nat) : Market :=
-    Market.mk (market.accounts) (_advertise (market.items) (item_id) )
 
 
  private def   _remove_ad (items : List ( Item ) ) (item_id : Nat) : List ( Item ) :=
     match (_mm.get ( Item ) (items) (item_id) ) with
       | Option.some (item) =>
-        _mm.set ( Item ) (items) (item_id) (Item_ (item.owner) (item.price) (false) )
+        _mm.set ( Item ) (items) (item_id) (Item.mk (item.owner) (0) )
       | Option.none => items
     
 
@@ -184,7 +175,7 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Nat) (target : Na
       | Option.some (item) =>
         Market.mk (
           _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
-          _mm.set ( Item ) (market.items) (item_id) (Item_ (buyer) (item.price) (false) )
+          _mm.set ( Item ) (market.items) (item_id) (Item.mk (buyer) (0) )
         )
       | Option.none => market
     
