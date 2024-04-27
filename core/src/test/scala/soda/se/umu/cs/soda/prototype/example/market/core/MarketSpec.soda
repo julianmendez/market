@@ -15,9 +15,9 @@ class MarketSpec ()
 
   market03 : Market = Market03_ ()
 
-  test ("should advertise an item") (
+  test ("should price an item") (
     check (
-      obtained := module .advertise (market01) (1)
+      obtained := module .price_item (market01) (1) (375)
     ) (
       expected := module .as_market (market02)
     )

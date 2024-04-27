@@ -22,9 +22,9 @@ trait Market01
 
    lazy val items : List [Item] =
      List [Item] (
-       Item_ (0, 125, false) ,
-       Item_ (1, 375, false) ,
-       Item_ (1, 10, false)
+       Item .mk (0) (125) ,
+       Item .mk (1) (0) ,
+       Item .mk (1) (10)
      )
 
 }
@@ -46,9 +46,9 @@ trait Market02
 
    lazy val items : List [Item] =
      List [Item] (
-       Item_ (0, 125, false) ,
-       Item_ (1, 375, true) ,
-       Item_ (1, 10, false)
+       Item .mk (0) (125) ,
+       Item .mk (1) (375) ,
+       Item .mk (1) (10)
      )
 
 }
@@ -70,9 +70,9 @@ trait Market03
 
    lazy val items : List [Item] =
      List [Item] (
-       Item_ (0, 125, false) ,
-       Item_ (2, 375, false) ,
-       Item_ (1, 10, false)
+       Item .mk (0) (125) ,
+       Item .mk (2) (0) ,
+       Item .mk (1) (10)
      )
 
 }
@@ -101,9 +101,9 @@ case class MarketSpec ()
 
   lazy val market03 : Market = Market03_ ()
 
-  test ("should advertise an item") (
+  test ("should price an item") (
     check (
-      obtained = module .advertise (market01) (1)
+      obtained = module .price_item (market01) (1) (375)
     ) (
       expected = module .as_market (market02)
     )
