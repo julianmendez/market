@@ -13,7 +13,7 @@ Steps to run the example :
    - a. [Scala 3][scala]
    - b. [sbt][sbt] (if you need to build the binaries)
    - c. [Java][java] (to execute JAR files)
-   - d. [Lean][lean] (to verify the proofs)
+   - d. [Lean 4][lean] (to verify the proofs)
 2. Get the [Soda][soda] translator binary by either doing the following:
    - a. download the Linux binary from [releases][soda-releases]
    - b. **or** clone the [Soda repository][soda-repo] and compile it, by either:
