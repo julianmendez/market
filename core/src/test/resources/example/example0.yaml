@@ -1,10 +1,16 @@
 ---
 # Market (https://julianmendez.github.io/market/)
-# This is an instance for a MAS market trading
-# This is a YAML file, and requires special attention regarding indentation and use of
+# This is an instance for a multi-agent system (MAS) market trading.
+# Since this is a YAML file, it requires special attention regarding indentation and use of
 # colon (':').
 
-# Operations.
+# The supported operations are:
+# - `deposit` *user* *amount* : declare a user account if necessary, and put money into the
+#   account;
+# - `assign` *item* *user* : declare an item if necessary, and define its owner;
+# - `price` *item* *amount* : define the price of an item, or hide it if its price is 0;
+# - `sell` *item* *user* : exchange an item and its price between a buyer and a seller.
+
 operations:
 - deposit 0 4500
 - deposit 1 75
