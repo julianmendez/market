@@ -30,7 +30,7 @@ lake clean
 lake build
 
 
-# This is updates Lean
+# This updates Lean
 elan update
 
 

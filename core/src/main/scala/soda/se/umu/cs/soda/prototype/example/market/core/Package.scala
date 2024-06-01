@@ -505,7 +505,7 @@ trait MyList
   def monus1 (index : Nat) : Nat =
     index match  {
       case Succ_ (k) => k
-      case _otherwise  => 0
+      case _otherwise => 0
     }
 
 /*

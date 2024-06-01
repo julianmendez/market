@@ -287,7 +287,7 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
  def   monus1 (index : Nat) : Nat :=
     match index with
       | Succ_ (k) => k
-      | _otherwise  => 0
+      | _otherwise => 0
     
 
 
