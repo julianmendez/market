@@ -263,7 +263,7 @@ class MyList
   monus1 (index : Nat) : Nat =
     match index
       case Succ_ (k) ==> k
-      case _otherwise  ==> 0
+      case _otherwise ==> 0
 
   directive lean
   theorem

@@ -13,8 +13,9 @@ Steps to run the example :
    - a. [Scala 3][scala]
    - b. [sbt][sbt] (if you need to build the binaries)
    - c. [Java][java] (to execute JAR files)
-   - d. [Lean][lean] (to verify the proofs)
-2. Get the [Soda][soda] translator binary by either doing the following:
+   - d. [Lean 4][lean] (to verify the proofs)
+   - e. [Soda][soda] (to translate the examples)
+2. Get the Soda translator binary by either doing the following:
    - a. download the Linux binary from [releases][soda-releases]
    - b. **or** clone the [Soda repository][soda-repo] and compile it, by either:
       - i. run the `makeall.sh`, from a Linux compatible environment
@@ -23,17 +24,28 @@ Steps to run the example :
         and the file is `release`. To execute a JAR file, you need a [Java][java] environment
         installed, and you need to run `java -jar filename.jar`, for a JAR file named
         `filename.jar`.
+   - c. make sure that the binary file `soda` is reachable from the command line, for
+     example by updating the environment variable `PATH`.
 3. Once you got the binary translator, go to an empty directory and try
    `soda manual`. It will output a piece of code with many examples, but most importantly,
    this mini-manual is a "Hello, World!" program itself. Write `soda manual > Manual.soda` and
    you get the manual.
 4. To compile this project, run `makeall.sh`, from a Bash terminal. It creates a file named
-   `market` and copies an example called `example0.yaml`.
-5. Try running `market example0.yaml`, and modify its values, to test how it works.
-6. To compile the Lean files, run `update.sh`.
+   `market` and copies the example `example0.yaml` to the project root directory.
+5. Try running `market example0.yaml`, and modify its values, to test how it works. The
+   supported operations are:
+   - **deposit** *user* *amount* : declare a user account if necessary, and put money into the
+     account;
+   - **assign** *item* *user* : declare an item if necessary, and define its owner;
+   - **price** *item* *amount* : define the price of an item, or hide it if its price is 0;
+   - **sell** *item* *user* : exchange an item and its price between a buyer and a seller.
+6. To translate the Soda files into Scala and Lean, and then compile the Lean files, run
+   `update.sh`.
 7. You can edit the Soda files with [IntelliJ][intellij] and compile them with the `soda`
    binary.
-8. You can see and verify the Lean translations with [Visual Studio Code][vscode].
+8. You can see and verify the Lean translations with [Visual Studio Code][vscode]. The
+   translated files are in directory [Soda][soda-lean-translation], and in particular the
+   package [core][soda-lean-translation-core].
 
 
 ## How to learn Soda
@@ -84,5 +96,7 @@ More detailed information can be found in the [release notes][release-notes].
 [intellij]: https://www.jetbrains.com/idea/
 [intellij-conf]: https://github.com/julianmendez/soda/blob/master/translator/src/main/resources/soda/translator/documentation/soda_for_intellij.txt
 [vscode]: https://code.visualstudio.com
+[soda-lean-translation]: https://github.com/julianmendez/market/tree/master/Soda
+[soda-lean-translation-core]: https://github.com/julianmendez/market/tree/master/Soda/se/umu/cs/soda/prototype/example/market/core
 
 
