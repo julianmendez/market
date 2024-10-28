@@ -1,6 +1,6 @@
 import sbt.Keys.scalacOptions
 
-lazy val scala3_4 = "3.4.0"
+lazy val scala3_4 = "3.4.2"
 
 lazy val commonSettings =
   Seq(
@@ -13,8 +13,7 @@ lazy val commonSettings =
     organizationName := "Umea University",
     organizationHomepage := Some(url("https://www.umu.se/en/department-of-computing-science/")),
     developers := List(
-      Developer("julianmendez", "Julian Alfredo Mendez", "julian.mendez@gmail.com", new URL
-      ("https://julianmendez.github.io"))
+      Developer("julianmendez", "Julian Alfredo Mendez", "julian.mendez@gmail.com", url("https://julianmendez.github.io"))
     ),
 
     /**
@@ -33,7 +32,7 @@ lazy val commonSettings =
      * [[https://github.com/scalatest/scalatest]]
      * [[https://repo1.maven.org/maven2/org/scalatest/]]
      */
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
     resolvers += Resolver.mavenLocal,
     publishTo := Some(Resolver.mavenLocal),
     publishMavenStyle := true,
