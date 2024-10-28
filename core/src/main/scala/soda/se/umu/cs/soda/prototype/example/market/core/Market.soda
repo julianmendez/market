@@ -36,6 +36,7 @@ class MarketMod
   notation "_mm.get" => MyList.get
   notation "_mm.set" => MyList.set
   notation "_mm.foldl" => MyList.foldl
+  notation "_mm.append" => MyList.append
 
   as_market (market : Market) : Market =
     Market.mk (market .accounts) (market .items)
@@ -64,7 +65,7 @@ class MarketMod
   _deposit_into_accounts (accounts : List [Money] ) (user_id : Nat) (amount : Money)
       : List [Money] =
     if user_id == accounts .length
-    then amount :: accounts
+    then _mm .append [Money] (accounts) (amount)
     else _deposit_into_known_account (accounts) (user_id) (amount)
 
   deposit (m : Market) (user_id : Nat) (amount : Money) : Market =
@@ -82,7 +83,7 @@ class MarketMod
   _assign_to_user (items : List [Item] ) (item_id : Nat) (user_id: Nat)
       : List [Item] =
     if item_id == items .length
-    then Item .mk (user_id) (0) :: items
+    then _mm .append [Item] (items) (Item .mk (user_id) (0) )
     else _reassign_item (items) (item_id) (user_id)
 
   assign (m : Market) (item_id : Nat) (user_id : Nat) : Market =

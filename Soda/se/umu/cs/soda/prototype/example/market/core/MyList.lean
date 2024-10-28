@@ -284,6 +284,10 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     )
 
 
+ def   append ( A : Type ) (first : List ( A ) ) (element : A) : List ( A ) :=
+    reverse_fl ( A )  (element :: reverse_fl ( A ) (first) )
+
+
  def   monus1 (index : Nat) : Nat :=
     match index with
       | Succ_ (k) => k

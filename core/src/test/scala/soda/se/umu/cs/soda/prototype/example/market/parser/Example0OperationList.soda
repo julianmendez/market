@@ -3,8 +3,8 @@ class Example0OperationList
 
   abstract
 
-  instance : Seq [Operation] =
-    Seq (
+  basic_instance : List [Operation] =
+    List [Operation] (
       OpDeposit .mk (0) (4500) ,
       OpDeposit .mk (1) (75) ,
       OpDeposit .mk (2) (1800) ,
@@ -90,8 +90,20 @@ class Example0OperationList
       OpAssign .mk (28) (20) ,
       OpPrice .mk (28) (80) ,
       OpAssign .mk (29) (5) ,
-      OpPrice .mk (29) (100) ,
-      OpSell .mk (10) (25)
+      OpPrice .mk (29) (100)
     )
 
+  instance : Seq [Operation] =
+    basic_instance .++ (
+      List [Operation] ( OpSell .mk (10) (25) )
+    )
+
+  market_builder = MarketBuilder .mk
+
+  market_basic_instance : Market =
+    market_builder
+      .build (basic_instance)
+      .getOrElse (market_builder .empty_market)
+
 end
+

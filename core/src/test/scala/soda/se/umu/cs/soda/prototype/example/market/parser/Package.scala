@@ -5,16 +5,14 @@ import   org.scalatest.Assertion
 import   java.nio.file.Files
 import   java.nio.file.Paths
 import   java.io.StringReader
+import   soda.se.umu.cs.soda.prototype.example.market.core.Market
+import   soda.se.umu.cs.soda.prototype.example.market.core.MarketBuilder
 import   soda.se.umu.cs.soda.prototype.example.market.core.Operation
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpAssign
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpDeposit
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpPrice
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpSell
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
-
-
-
-
 
 trait Example0Instance
 {
@@ -132,8 +130,8 @@ trait Example0OperationList
 
 
 
-  lazy val instance : Seq [Operation] =
-    Seq (
+  lazy val basic_instance : List [Operation] =
+    List [Operation] (
       OpDeposit .mk (0) (4500) ,
       OpDeposit .mk (1) (75) ,
       OpDeposit .mk (2) (1800) ,
@@ -219,9 +217,20 @@ trait Example0OperationList
       OpAssign .mk (28) (20) ,
       OpPrice .mk (28) (80) ,
       OpAssign .mk (29) (5) ,
-      OpPrice .mk (29) (100) ,
-      OpSell .mk (10) (25)
+      OpPrice .mk (29) (100)
     )
+
+  lazy val instance : Seq [Operation] =
+    basic_instance .++ (
+      List [Operation] ( OpSell .mk (10) (25) )
+    )
+
+  lazy val market_builder = MarketBuilder .mk
+
+  lazy val market_basic_instance : Market =
+    market_builder
+      .build (basic_instance)
+      .getOrElse (market_builder .empty_market)
 
 }
 

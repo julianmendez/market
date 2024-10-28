@@ -12,6 +12,7 @@ import   soda.se.umu.cs.soda.prototype.example.market.core.Item
 import   soda.se.umu.cs.soda.prototype.example.market.core.Market
 import   soda.se.umu.cs.soda.prototype.example.market.core.Money
 import   soda.se.umu.cs.soda.prototype.example.market.core.OperationProcessor
+import   soda.se.umu.cs.soda.prototype.example.market.core.MarketBuilder
 import   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
 import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
 import   soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer
@@ -28,7 +29,9 @@ trait Main
   def read_file (file_name : String) : String =
     new String (Files .readAllBytes (Paths .get (file_name) ) )
 
-  lazy val empty_market = Market .mk (List [Money] () ) (List [Item] () )
+  lazy val market_builder = MarketBuilder .mk
+
+  lazy val empty_market = market_builder .empty_market
 
   lazy val yaml_parser = YamlParser .mk
 
@@ -39,8 +42,8 @@ trait Main
   lazy val operation_processor = OperationProcessor .mk
 
   def process_file (file_name : String) : Option [Market] =
-    operation_processor
-      .process (Some (empty_market) ) (
+    market_builder
+      .build (
          operation_parser .parse (
            yaml_parser .parse ( new StringReader (read_file (file_name) ) )
          )

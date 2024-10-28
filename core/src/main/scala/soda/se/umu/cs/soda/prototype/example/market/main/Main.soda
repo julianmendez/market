@@ -10,7 +10,9 @@ class Main
   read_file (file_name : String) : String =
     @new String (Files .readAllBytes (Paths .get (file_name) ) )
 
-  empty_market = Market .mk (List [Money] () ) (List [Item] () )
+  market_builder = MarketBuilder .mk
+
+  empty_market = market_builder .empty_market
 
   yaml_parser = YamlParser .mk
 
@@ -21,8 +23,8 @@ class Main
   operation_processor = OperationProcessor .mk
 
   process_file (file_name : String) : Option [Market] =
-    operation_processor
-      .process (Some (empty_market) ) (
+    market_builder
+      .build (
          operation_parser .parse (
            yaml_parser .parse ( @new StringReader (read_file (file_name) ) )
          )
