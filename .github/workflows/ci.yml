@@ -17,7 +17,7 @@ jobs:
         - 11.0.21
         - 21.0.1
         scala:
-        - 3.4.2
+        - 3.5.2
     steps:
     - name: Check out
       uses: actions/checkout@v4
