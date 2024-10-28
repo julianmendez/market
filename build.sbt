@@ -54,13 +54,24 @@ lazy val core =
       assembly / assemblyJarName := "core-" + version.value + ".jar"
     )
 
+lazy val measurement =
+  project
+    .withId("measurement")
+    .in(file("measurement"))
+    .aggregate(core)
+    .dependsOn(core)
+    .settings(
+      commonSettings,
+      assembly / mainClass := Some("soda.se.umu.cs.soda.prototype.example.market.measurement.EntryPoint"),
+      assembly / assemblyJarName := "measurement-" + version.value + ".jar"
+    )
 
 lazy val root =
   project
     .withId("market")
     .in(file("."))
-    .aggregate(core)
-    .dependsOn(core)
+    .aggregate(core, measurement)
+    .dependsOn(core, measurement)
     .settings(
       commonSettings,
       assembly / mainClass := Some("soda.se.umu.cs.soda.prototype.example.market.main.EntryPoint"),
