@@ -1,8 +1,9 @@
 package soda.se.umu.cs.soda.prototype.example.market.serializer
 
 import
-  soda.se.umu.cs.soda.prototype.example.market.core.Operation
-  soda.se.umu.cs.soda.prototype.example.market.core.OperationEnum
+  soda.se.umu.cs.soda.prototype.example.market.core.Item
+  soda.se.umu.cs.soda.prototype.example.market.core.Market
+  soda.se.umu.cs.soda.prototype.example.market.core.Money
   soda.se.umu.cs.soda.prototype.example.market.core.OpAssign
   soda.se.umu.cs.soda.prototype.example.market.core.OpAssign_
   soda.se.umu.cs.soda.prototype.example.market.core.OpDeposit
@@ -13,4 +14,7 @@ import
   soda.se.umu.cs.soda.prototype.example.market.core.OpSell_
   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined_
+  soda.se.umu.cs.soda.prototype.example.market.core.Operation
+  soda.se.umu.cs.soda.prototype.example.market.core.OperationEnum
+  soda.se.umu.cs.soda.prototype.example.market.core.OperationProcessor
 

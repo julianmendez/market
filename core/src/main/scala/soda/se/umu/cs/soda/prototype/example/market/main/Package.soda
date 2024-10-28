@@ -15,3 +15,4 @@ import
   soda.se.umu.cs.soda.prototype.example.market.core.OperationProcessor
   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
+  soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer

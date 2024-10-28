@@ -24,19 +24,11 @@ class Main
 
   operation_generator = OperationGenerator .mk
 
-  operation_serializer = OperationSerializer .mk
+  yaml_serializer = YamlSerializer .mk
 
   generate_operations (accounts : Nat) (items : Nat) (transactions : Nat) : List [Operation] =
     operation_generator
       .generate (accounts) (items) (transactions)
-
-  serialize_operations (operations : List [Operation] ) : String =
-    "operations:" +
-    "\n- " +
-    operations
-      .map (lambda operation --> operation_serializer .serialize (operation) )
-      .mkString ("\n- ") +
-    "\n\n"
 
   to_nat (n : Int) : Nat =
     if n < 0
@@ -66,7 +58,7 @@ class Main
 
   create_output (accounts : Nat) (items : Nat) (transactions : Nat) : String =
     (create_header (accounts) (items) (transactions) ) +
-      serialize_operations (
+      yaml_serializer .serialize_operations (
         generate_operations (accounts) (items) (transactions)
       )
 

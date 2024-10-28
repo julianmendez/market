@@ -1,0 +1,27 @@
+
+class MarketSerializer
+
+  abstract
+
+  serialize_accounts (accounts : List [Money] ) : List [Operation] =
+    accounts
+      .zipWithIndex
+      .map (lambda pair --> OpDeposit .mk (pair ._2) (pair ._1) )
+
+  serialize_items (items : List [Item] ) : List [Operation] =
+    items
+      .zipWithIndex
+      .flatMap (lambda pair -->
+        List [Operation] (
+          OpAssign .mk (pair ._2) (pair ._1 .owner) ,
+          OpPrice .mk (pair ._2) (pair ._1 .price)
+        )
+      )
+
+  serialize (m : Market) : List [Operation] =
+     serialize_accounts (m .accounts) .++ (
+       serialize_items (m .items)
+     )
+
+end
+

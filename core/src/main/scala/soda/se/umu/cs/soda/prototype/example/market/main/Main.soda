@@ -14,6 +14,8 @@ class Main
 
   yaml_parser = YamlParser .mk
 
+  yaml_serializer = YamlSerializer .mk
+
   operation_parser = OperationParser .mk
 
   operation_processor = OperationProcessor .mk
@@ -26,17 +28,9 @@ class Main
          )
       )
 
-  _serialize_market (m : Market) : String =
-    "Account balances:\n" +
-      (m .accounts .map (lambda account --> account .toString) .mkString (", ") ) + "\n\n" +
-    "Items:\n" +
-      (m .items .map (lambda item -->
-        "(" + item .owner .toString + ", " + item .price .toString + ")" ) .mkString (" , ") ) +
-    "\n\n"
-
   serialize_market (maybe_market : Option [Market] ) : String =
     match maybe_market
-      case Some (market) ==> _serialize_market (market)
+      case Some (market) ==> yaml_serializer .serialize_market (market)
       case None ==> "Undefined market"
 
   execute (arguments : List [String] ) : Unit =

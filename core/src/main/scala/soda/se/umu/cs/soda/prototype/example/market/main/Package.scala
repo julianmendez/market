@@ -14,6 +14,7 @@ import   soda.se.umu.cs.soda.prototype.example.market.core.Money
 import   soda.se.umu.cs.soda.prototype.example.market.core.OperationProcessor
 import   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
 import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
+import   soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer
 
 /**
  * This is the main entry point.
@@ -31,6 +32,8 @@ trait Main
 
   lazy val yaml_parser = YamlParser .mk
 
+  lazy val yaml_serializer = YamlSerializer .mk
+
   lazy val operation_parser = OperationParser .mk
 
   lazy val operation_processor = OperationProcessor .mk
@@ -43,17 +46,9 @@ trait Main
          )
       )
 
-  private def _serialize_market (m : Market) : String =
-    "Account balances:\n" +
-      (m .accounts .map ( account => account .toString) .mkString (", ") ) + "\n\n" +
-    "Items:\n" +
-      (m .items .map ( item =>
-        "(" + item .owner .toString + ", " + item .price .toString + ")" ) .mkString (" , ") ) +
-    "\n\n"
-
   def serialize_market (maybe_market : Option [Market] ) : String =
     maybe_market match  {
-      case Some (market) => _serialize_market (market)
+      case Some (market) => yaml_serializer .serialize_market (market)
       case None => "Undefined market"
     }
 

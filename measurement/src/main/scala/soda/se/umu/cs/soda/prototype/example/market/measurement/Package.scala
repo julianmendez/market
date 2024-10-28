@@ -5,22 +5,12 @@ package soda.se.umu.cs.soda.prototype.example.market.measurement
  *
  */
 
-import   soda.se.umu.cs.soda.prototype.example.market.core.Market
-import   soda.se.umu.cs.soda.prototype.example.market.core.Operation
-import   soda.se.umu.cs.soda.prototype.example.market.core.OperationProcessor
 import   soda.se.umu.cs.soda.prototype.example.market.core.Operation
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpAssign
-import   soda.se.umu.cs.soda.prototype.example.market.core.OpAssign_
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpDeposit
-import   soda.se.umu.cs.soda.prototype.example.market.core.OpDeposit_
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpPrice
-import   soda.se.umu.cs.soda.prototype.example.market.core.OpPrice_
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpSell
-import   soda.se.umu.cs.soda.prototype.example.market.core.OpSell_
-import   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
-import   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined_
-import   soda.se.umu.cs.soda.prototype.example.market.core.OperationEnum
-import   soda.se.umu.cs.soda.prototype.example.market.serializer.OperationSerializer
+import   soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer
 
 
 
@@ -93,19 +83,11 @@ trait Main
 
   lazy val operation_generator = OperationGenerator .mk
 
-  lazy val operation_serializer = OperationSerializer .mk
+  lazy val yaml_serializer = YamlSerializer .mk
 
   def generate_operations (accounts : Nat) (items : Nat) (transactions : Nat) : List [Operation] =
     operation_generator
       .generate (accounts) (items) (transactions)
-
-  def serialize_operations (operations : List [Operation] ) : String =
-    "operations:" +
-    "\n- " +
-    operations
-      .map ( operation => operation_serializer .serialize (operation) )
-      .mkString ("\n- ") +
-    "\n\n"
 
   def to_nat (n : Int) : Nat =
     if ( n < 0
@@ -135,7 +117,7 @@ trait Main
 
   def create_output (accounts : Nat) (items : Nat) (transactions : Nat) : String =
     (create_header (accounts) (items) (transactions) ) +
-      serialize_operations (
+      yaml_serializer .serialize_operations (
         generate_operations (accounts) (items) (transactions)
       )
 
@@ -226,16 +208,13 @@ trait OperationGenerator
         OpDeposit .mk (user_id) (deposit_of_user (user_id) )
       )
 
-  def make_items (accounts : Nat) (items : Nat) : List [Operation] =
+  def make_items_with_prices (accounts : Nat) (items : Nat) : List [Operation] =
     Range .mk .apply (items)
-      .map ( item_id =>
-        OpAssign .mk (item_id) (owner_of_item (item_id) (accounts) )
-      )
-
-  def put_prices (items : Nat) : List [Operation] =
-    Range .mk .apply (items)
-      .map ( item_id =>
-        OpPrice .mk (item_id) (price_of_item (item_id) )
+      .flatMap ( item_id =>
+        List [Operation] (
+          OpAssign .mk (item_id) (owner_of_item (item_id) (accounts) ) ,
+          OpPrice .mk (item_id) (price_of_item (item_id) )
+        )
       )
 
   def make_transactions (accounts : Nat) (items : Nat) (transactions : Nat) : List [Operation] =
@@ -251,10 +230,8 @@ trait OperationGenerator
     if ( (accounts > 0) && (items > 0) && (transactions > 0)
     )
       make_deposits (accounts) .++ (
-        make_items (accounts) (items) .++ (
-          put_prices (items) .++ (
-            make_transactions (accounts) (items) (transactions)
-          )
+        make_items_with_prices (accounts) (items) .++ (
+          make_transactions (accounts) (items) (transactions)
         )
       )
     else List [Operation] ()
