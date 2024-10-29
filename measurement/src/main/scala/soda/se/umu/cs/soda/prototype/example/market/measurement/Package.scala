@@ -75,9 +75,9 @@ trait Main
     "\n" +
     "\nParameters: ACCOUNTS ITEMS TRANSACTIONS" +
     "\n" +
-    "\n    ACCOUNTS     The number of accounts ('deposit') in the market" +
-    "\n    ITEMS        The number of instance ('item') in the market" +
-    "\n    TRANSACTIONS The number of transactions ('sell') in the market" +
+    "\n  ACCOUNTS      Number of accounts ('deposit') in the market" +
+    "\n  ITEMS         Number of items ('assign' and 'price') in the market" +
+    "\n  TRANSACTIONS  Number of transactions ('sell') in the market" +
     "\n" +
     "\n"
 

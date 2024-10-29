@@ -28,7 +28,16 @@ import   soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer
 trait Main
 {
 
-  lazy val help = "Usage: it has one parameter, a YAML file containing the operations."
+  lazy val help = "" +
+   "This is a multi-agent prototype to show a market modeled in the Soda language." +
+   "\n" +
+   "\nhttps://julianmendez.github.io/market/" +
+   "\n" +
+   "\nParameter: FILE_NAME" +
+   "\n" +
+   "\n  FILE_NAME     YAML file containing the market operations" +
+   "\n" +
+   "\n"
 
   def read_file (file_name : String) : String =
     new String (Files .readAllBytes (Paths .get (file_name) ) )
