@@ -152,11 +152,19 @@ private def   _transfer_with_balances (accounts : List ( Money ) ) (origin : Nat
       (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
 
+private def   _transfer_if_balance_is_sufficient (accounts : List ( Money ) ) (origin : Nat) (target : Nat)
+       (amount : Money) (origin_balance : Money) (target_balance : Money) : List ( Money ) :=
+      if origin_balance >= amount
+      then _mm.set ( Money ) (_mm.set ( Money ) (accounts)
+        (origin) (origin_balance - amount) ) (target) (target_balance + amount)
+      else accounts
+
+
 private def   _transfer_with (accounts : List ( Money ) ) (origin : Nat) (target : Nat) (amount : Money)
        (origin_balance : Money) : List ( Money ) :=
     match (_mm.get ( Money ) (accounts) (target) ) with
       | Option.some (target_balance) =>
-        _transfer_with_balances (accounts) (origin) (target)
+        _transfer_if_balance_is_sufficient (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
       | Option.none => accounts
     
@@ -171,13 +179,20 @@ private def   _transfer (accounts : List ( Money ) ) (origin : Nat) (target : Na
     
 
 
+ private def   _sell_if_for_sale (market : Market) (item_id : Nat) (buyer : Nat) (item : Item) : Market :=
+    if item.price > 0
+    then
+      Market.mk (
+        _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
+        _mm.set ( Item ) (market.items) (item_id) (Item.mk (buyer) (0) )
+      )
+    else market
+
+
  def   sell (market : Market) (item_id : Nat) (buyer : Nat) : Market :=
     match (_mm.get ( Item ) (market.items) (item_id) ) with
       | Option.some (item) =>
-        Market.mk (
-          _transfer (market.accounts) (buyer) (item.owner) (item.price) ) (
-          _mm.set ( Item ) (market.items) (item_id) (Item.mk (buyer) (0) )
-        )
+        _sell_if_for_sale (market) (item_id) (buyer) (item)
       | Option.none => market
     
 
