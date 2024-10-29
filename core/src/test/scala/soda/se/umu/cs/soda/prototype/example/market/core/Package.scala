@@ -12,10 +12,16 @@ import   java.io.StringReader
 import   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
 import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
 
+
+
+
+
 trait Market01
   extends
     Market
 {
+
+
 
    lazy val accounts : List [Int] =
      List [Int] (1000, 500, 12000)
@@ -41,6 +47,8 @@ trait Market02
     Market
 {
 
+
+
    lazy val accounts : List [Int] =
      List [Int] (1000, 500, 12000)
 
@@ -64,6 +72,8 @@ trait Market03
   extends
     Market
 {
+
+
 
    lazy val accounts : List [Int] =
      List [Int] (1000, 875, 11625)

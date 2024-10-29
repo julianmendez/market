@@ -1,3 +1,4 @@
+
 class OperationProcessor
 
   abstract
@@ -9,6 +10,21 @@ class OperationProcessor
 
   process (maybe_market : Option [Market] ) (operations : List [Operation] ) : Option [Market] =
     _mm .foldl [Operation] [Option [Market] ] (operations) (maybe_market) (compute_next)
+
+end
+
+
+class MarketBuilder
+
+  abstract
+
+  operation_processor = OperationProcessor .mk
+
+  empty_market = Market .mk (List [Money] () ) (List [Item] () )
+
+  build (operations : List [Operation] ) : Option [Market] =
+    operation_processor
+      .process (Some (empty_market) ) (operations)
 
 end
 

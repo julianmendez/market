@@ -1,0 +1,94 @@
+
+class OperationGenerator
+
+  abstract
+
+  deposit_factor = 100
+
+  deposit_offset = 0
+
+  max_deposit = 1000000
+
+  owner_factor = 65537
+
+  owner_offset = 1
+
+  buyer_factor = 8191
+
+  buyer_offset = 1
+
+  merchandise_factor = 31
+
+  merchandise_offset = 1
+
+  price_factor = 127
+
+  price_offset = 0
+
+  max_price = 100000
+
+  abs (x : Int) : Nat =
+    if x < 0
+    then -x
+    else x
+
+  generate (index : Nat) (multiplier : Nat) (increment : Nat) (modulus : Nat) : Nat =
+    abs ( (index * multiplier + increment) % modulus)
+
+  deposit_of_user (user_id : Nat) : Nat =
+    generate (user_id) (deposit_factor) (deposit_offset) (max_deposit)
+
+  owner_of_item (item_id : Nat) (accounts : Nat) : Nat =
+    generate (item_id) (owner_factor) (owner_offset) (accounts)
+
+  price_of_item (item_id : Nat) : Nat =
+    generate (item_id) (price_factor) (price_offset) (max_price)
+
+  buyer_of_item (transaction_id : Nat) (accounts : Nat) : Nat =
+    generate (transaction_id) (buyer_factor) (buyer_offset) (accounts)
+
+  item_being_sold (transaction_id : Nat) (items : Nat) : Nat =
+    generate (transaction_id) (merchandise_factor) (merchandise_offset) (items)
+
+  make_deposits (accounts : Nat) : List [Operation] =
+    Range .mk .apply (accounts)
+      .map (lambda user_id -->
+        OpDeposit .mk (user_id) (deposit_of_user (user_id) )
+      )
+
+  make_items_with_prices (accounts : Nat) (items : Nat) : List [Operation] =
+    Range .mk .apply (items)
+      .flatMap (lambda item_id -->
+        List [Operation] (
+          OpAssign .mk (item_id) (owner_of_item (item_id) (accounts) ) ,
+          OpPrice .mk (item_id) (price_of_item (item_id) )
+        )
+      )
+
+  _make_transaction_pair (item_id : Nat) (buyer_id : Nat) : List [Operation] =
+    List [Operation] (
+      OpSell .mk (item_id ) (buyer_id) ,
+      OpPrice .mk (item_id) (price_of_item (item_id) )
+    )
+
+  make_transactions (accounts : Nat) (items : Nat) (transactions : Nat) : List [Operation] =
+    Range .mk .apply (transactions)
+      .flatMap (lambda transaction_id -->
+        _make_transaction_pair (
+          item_being_sold (transaction_id) (items) ) (
+          buyer_of_item (transaction_id) (accounts)
+        )
+      )
+
+  generate (accounts : Nat) (items : Nat) (transactions : Nat) : List [Operation] =
+    if (accounts > 0) and (items > 0) and (transactions > 0)
+    then
+      make_deposits (accounts) .++ (
+        make_items_with_prices (accounts) (items) .++ (
+          make_transactions (accounts) (items) (transactions)
+        )
+      )
+    else List [Operation] ()
+
+end
+

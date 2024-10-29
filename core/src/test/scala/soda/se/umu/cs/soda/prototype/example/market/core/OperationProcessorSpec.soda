@@ -6,7 +6,6 @@ class OperationParserSpec ()
   check [A : Type] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
     assert (obtained == expected)
 
-
   read_file (file_name : String) : String =
     @new String (
       Files .readAllBytes (
@@ -59,3 +58,4 @@ class OperationParserSpec ()
   )
 
 end
+

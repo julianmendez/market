@@ -1,0 +1,45 @@
+
+class OperationGeneratorSpec ()
+  extends
+    AnyFunSuite
+
+  check [A : Type] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
+    assert (obtained == expected)
+
+  generator = OperationGenerator .mk
+
+  accounts = 10000
+
+  items = 20000
+
+  transactions = 1000000
+
+  instance : List [Operation] =
+    generator .generate (accounts) (items) (transactions)
+
+  complies_invariant (op : Operation) : Boolean =
+    match op
+      case OpDeposit_ (user_id , amount) ==>
+        (0 <= user_id) and (user_id < accounts) and (amount >= 0)
+      case OpAssign_ (item_id , user_id) ==>
+        (0 <= item_id) and (item_id < items) and (0 <= user_id) and (user_id < accounts)
+      case OpPrice_ (item_id , price) ==>
+        (0 <= item_id) and (item_id < items) and (price >= 0)
+      case OpSell_ (item_id , user_id) ==>
+        (0 <= item_id) and (item_id < items) and (0 <= user_id) and (user_id < accounts)
+      case otherwise ==> false
+
+  find_exceptions_to_invariant (operations : List [Operation] ) : List [Operation] =
+    operations
+      .filter (lambda operation --> not complies_invariant (operation) )
+
+  test ("count exceptions to invariant") (
+    check (
+      obtained := find_exceptions_to_invariant (instance) .length
+    ) (
+      expected := 0
+    )
+  )
+
+end
+

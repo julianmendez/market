@@ -1,3 +1,4 @@
+
 package soda.se.umu.cs.soda.prototype.example.market.parser
 
 import
@@ -6,6 +7,8 @@ import
   java.nio.file.Files
   java.nio.file.Paths
   java.io.StringReader
+  soda.se.umu.cs.soda.prototype.example.market.core.Market
+  soda.se.umu.cs.soda.prototype.example.market.core.MarketBuilder
   soda.se.umu.cs.soda.prototype.example.market.core.Operation
   soda.se.umu.cs.soda.prototype.example.market.core.OpAssign
   soda.se.umu.cs.soda.prototype.example.market.core.OpDeposit

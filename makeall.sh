@@ -1,22 +1,38 @@
 #!/bin/bash
 
 #
-# This script builds the binary file.
+# This script builds the binary files.
 # It requires `sbt` [https://www.scala-sbt.org/].
 #
 
+scalaVersion="3.5.2"
+executableStub="exec java -jar \$0 \"\$@\" ; exit"
+
 sbt scalaVersion sbtVersion version clean compile test package assembly
 
-scalaVersion="3.4.2"
-binaryFile="market"
-executableStub="exec java -jar \$0 \"\$@\" ; exit"
-jarFile="target/scala-${scalaVersion}/${binaryFile}-*.jar"
+# Build the main binary file
+
+mainBinaryFile="market"
+mainJarFile="target/scala-${scalaVersion}/${mainBinaryFile}-*.jar"
+
+echo ${executableStub} >${mainBinaryFile}
+cat ${mainJarFile} >>${mainBinaryFile}
+chmod u+x ${mainBinaryFile}
+
+# Build the tool to create instances
+
+toolBinaryFile="testInstanceGen"
+toolModuleName="measurement"
+toolJarFile="${toolModuleName}/target/scala-${scalaVersion}/${toolModuleName}-*.jar"
+
+echo ${executableStub} >${toolBinaryFile}
+cat ${toolJarFile} >>${toolBinaryFile}
+chmod u+x ${toolBinaryFile}
+
+# Copy an example
+
 exampleFile="core/src/test/resources/example/example0.yaml"
 localExampleFile="example0.yaml"
-
-echo ${executableStub} >${binaryFile}
-cat ${jarFile} >>${binaryFile}
-chmod u+x ${binaryFile}
 
 if [ ! -f ${localExampleFile} ]; then
   cp -p ${exampleFile} ${localExampleFile}

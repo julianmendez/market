@@ -3,6 +3,8 @@ class Market01
   extends
     Market
 
+  abstract
+
    accounts : List [Int] =
      List [Int] (1000, 500, 12000)
 
@@ -15,9 +17,12 @@ class Market01
 
 end
 
+
 class Market02
   extends
     Market
+
+  abstract
 
    accounts : List [Int] =
      List [Int] (1000, 500, 12000)
@@ -31,9 +36,12 @@ class Market02
 
 end
 
+
 class Market03
   extends
     Market
+
+  abstract
 
    accounts : List [Int] =
      List [Int] (1000, 875, 11625)

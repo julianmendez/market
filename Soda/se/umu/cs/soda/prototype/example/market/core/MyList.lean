@@ -1,5 +1,3 @@
-
-
 import Soda.se.umu.cs.soda.prototype.example.market.core.Basic
 
 class IndexOption ( A : Type )
@@ -282,6 +280,10 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
         fun (elem : A) =>
           (elem) :: (accum)
     )
+
+
+ def   append ( A : Type ) (first : List ( A ) ) (element : A) : List ( A ) :=
+    reverse_fl ( A )  (element :: reverse_fl ( A ) (first) )
 
 
  def   monus1 (index : Nat) : Nat :=

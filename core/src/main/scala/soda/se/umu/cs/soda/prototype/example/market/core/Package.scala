@@ -5,6 +5,10 @@ package soda.se.umu.cs.soda.prototype.example.market.core
  *
  */
 
+
+
+
+
 type Nat = Int
 object Succ_ {
   def apply (n : Int) : Int = n + 1
@@ -21,8 +25,6 @@ notation "Succ_" => Nat.succ
 directive coq
 Notation "'Succ_'" := S (at level 99) .
 */
-
-
 
 
 /*
@@ -74,6 +76,7 @@ trait MarketMod
   notation "_mm.get" => MyList.get
   notation "_mm.set" => MyList.set
   notation "_mm.foldl" => MyList.foldl
+  notation "_mm.append" => MyList.append
 */
 
   def as_market (market : Market) : Market =
@@ -107,7 +110,7 @@ trait MarketMod
   private def _deposit_into_accounts (accounts : List [Money] ) (user_id : Nat) (amount : Money)
       : List [Money] =
     if ( user_id == accounts .length
-    ) amount :: accounts
+    ) _mm .append [Money] (accounts) (amount)
     else _deposit_into_known_account (accounts) (user_id) (amount)
 
   def deposit (m : Market) (user_id : Nat) (amount : Money) : Market =
@@ -126,7 +129,7 @@ trait MarketMod
   private def _assign_to_user (items : List [Item] ) (item_id : Nat) (user_id: Nat)
       : List [Item] =
     if ( item_id == items .length
-    ) Item .mk (user_id) (0) :: items
+    ) _mm .append [Item] (items) (Item .mk (user_id) (0) )
     else _reassign_item (items) (item_id) (user_id)
 
   def assign (m : Market) (item_id : Nat) (user_id : Nat) : Market =
@@ -165,11 +168,18 @@ trait MarketMod
     _mm .set [Money] (_mm .set [Money] (accounts)
       (origin) (origin_balance - amount) ) (target) (target_balance + amount)
 
+  private def _transfer_if_balance_is_sufficient (accounts : List [Money] ) (origin : Nat) (target : Nat)
+      (amount : Money) (origin_balance : Money) (target_balance : Money) : List [Money] =
+      if ( origin_balance >= amount
+      ) _mm .set [Money] (_mm .set [Money] (accounts)
+        (origin) (origin_balance - amount) ) (target) (target_balance + amount)
+      else accounts
+
   private def _transfer_with (accounts : List [Money] ) (origin : Nat) (target : Nat) (amount : Money)
       (origin_balance : Money) : List [Money] =
     (_mm .get [Money] (accounts) (target) ) match  {
       case Some (target_balance) =>
-        _transfer_with_balances (accounts) (origin) (target)
+        _transfer_if_balance_is_sufficient (accounts) (origin) (target)
           (amount) (origin_balance) (target_balance)
       case None => accounts
     }
@@ -182,13 +192,19 @@ trait MarketMod
       case None => accounts
     }
 
+  private def _sell_if_for_sale (market : Market) (item_id : Nat) (buyer : Nat) (item : Item) : Market =
+    if ( item .price > 0
+    )
+      Market .mk (
+        _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
+        _mm .set [Item] (market .items) (item_id) (Item .mk (buyer) (0) )
+      )
+    else market
+
   def sell (market : Market) (item_id : Nat) (buyer : Nat) : Market =
     (_mm .get [Item] (market .items) (item_id) ) match  {
       case Some (item) =>
-        Market .mk (
-          _transfer (market .accounts) (buyer) (item .owner) (item .price) ) (
-          _mm .set [Item] (market .items) (item_id) (Item .mk (buyer) (0) )
-        )
+        _sell_if_for_sale (market) (item_id) (buyer) (item)
       case None => market
     }
 
@@ -208,6 +224,49 @@ object MarketMod {
 }
 
 
+trait OperationProcessor
+{
+
+
+
+  private lazy val _mm : MyList = MyList .mk (true)
+
+  def compute_next (maybe_market : Option [Market] ) (op : Operation) : Option [Market] =
+    op .process (maybe_market)
+
+  def process (maybe_market : Option [Market] ) (operations : List [Operation] ) : Option [Market] =
+    _mm .foldl [Operation, Option [Market] ] (operations) (maybe_market) (compute_next)
+
+}
+
+case class OperationProcessor_ () extends OperationProcessor
+
+object OperationProcessor {
+  def mk : OperationProcessor =
+    OperationProcessor_ ()
+}
+
+trait MarketBuilder
+{
+
+
+
+  lazy val operation_processor = OperationProcessor .mk
+
+  lazy val empty_market = Market .mk (List [Money] () ) (List [Item] () )
+
+  def build (operations : List [Operation] ) : Option [Market] =
+    operation_processor
+      .process (Some (empty_market) ) (operations)
+
+}
+
+case class MarketBuilder_ () extends MarketBuilder
+
+object MarketBuilder {
+  def mk : MarketBuilder =
+    MarketBuilder_ ()
+}
 
 
 /*
@@ -501,6 +560,9 @@ trait MyList
          (elem : A) =>
           (elem) :: (accum)
     )
+
+  def append [A ] (first : List [A] ) (element : A) : List [A] =
+    reverse_fl [A]  (element :: reverse_fl [A] (first) )
 
   def monus1 (index : Nat) : Nat =
     index match  {
@@ -837,28 +899,5 @@ case class OpSell_ (item_id : Nat, user_id : Nat) extends OpSell
 object OpSell {
   def mk (item_id : Nat) (user_id : Nat) : OpSell =
     OpSell_ (item_id, user_id)
-}
-
-
-trait OperationProcessor
-{
-
-
-
-  private lazy val _mm : MyList = MyList .mk (true)
-
-  def compute_next (maybe_market : Option [Market] ) (op : Operation) : Option [Market] =
-    op .process (maybe_market)
-
-  def process (maybe_market : Option [Market] ) (operations : List [Operation] ) : Option [Market] =
-    _mm .foldl [Operation, Option [Market] ] (operations) (maybe_market) (compute_next)
-
-}
-
-case class OperationProcessor_ () extends OperationProcessor
-
-object OperationProcessor {
-  def mk : OperationProcessor =
-    OperationProcessor_ ()
 }
 

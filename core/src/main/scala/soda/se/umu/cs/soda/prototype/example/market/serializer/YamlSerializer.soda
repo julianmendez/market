@@ -1,0 +1,25 @@
+
+class YamlSerializer
+
+  abstract
+
+  market_serializer = MarketSerializer .mk
+
+  operation_serializer = OperationSerializer .mk
+
+  serialize_operations (operations : List [Operation] ) : String =
+    "operations:" +
+    "\n- " +
+    operations
+      .map (lambda operation --> operation_serializer .serialize (operation) )
+      .mkString ("\n- ") +
+    "\n\n"
+
+  serialize_market (m : Market) : String =
+    "---\n" +
+    serialize_operations (
+      market_serializer .serialize (m)
+    )
+
+end
+

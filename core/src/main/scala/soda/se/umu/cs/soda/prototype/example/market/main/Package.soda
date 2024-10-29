@@ -1,3 +1,4 @@
+
 package soda.se.umu.cs.soda.prototype.example.market.main
 
 /*
@@ -13,5 +14,8 @@ import
   soda.se.umu.cs.soda.prototype.example.market.core.Market
   soda.se.umu.cs.soda.prototype.example.market.core.Money
   soda.se.umu.cs.soda.prototype.example.market.core.OperationProcessor
+  soda.se.umu.cs.soda.prototype.example.market.core.MarketBuilder
   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
+  soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer
+

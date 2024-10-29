@@ -1,5 +1,4 @@
 
-
 directive lean
 import Soda.se.umu.cs.soda.prototype.example.market.core.Basic
 
@@ -169,7 +168,6 @@ class MyList
   reverse_tr [A : Type] (list : List [A] ) : List [A] =
     _tailrec_reverse [A] (list) (Nil)
 
-
   reverse_fl [A : Type] (list : List [A] ) : List [A] =
     _tailrec_foldl [A] [List [A] ] (list) (Nil) (
       lambda (accum : List [A] ) -->
@@ -259,6 +257,9 @@ class MyList
         lambda (elem : A) -->
           (elem) :: (accum)
     )
+
+  append [A : Type] (first : List [A] ) (element : A) : List [A] =
+    reverse_fl [A]  (element :: reverse_fl [A] (first) )
 
   monus1 (index : Nat) : Nat =
     match index

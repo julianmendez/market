@@ -1,6 +1,6 @@
 import sbt.Keys.scalacOptions
 
-lazy val scala3_4 = "3.4.2"
+lazy val scala3_5 = "3.5.2"
 
 lazy val commonSettings =
   Seq(
@@ -23,8 +23,8 @@ lazy val commonSettings =
      * [[https://repo1.maven.org/maven2/org/scala-lang/scalap/]]
      * [[https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/]]
      */
-    crossScalaVersions := Seq(scala3_4),
-    scalaVersion := scala3_4,
+    crossScalaVersions := Seq(scala3_5),
+    scalaVersion := scala3_5,
 
     /**
      * ScalaTest
@@ -50,17 +50,28 @@ lazy val core =
        * [[https://bitbucket.org/asomov/snakeyaml-engine]]
        * [[https://repo1.maven.org/maven2/org/snakeyaml/snakeyaml-engine/]]
        */
-      libraryDependencies += "org.snakeyaml" % "snakeyaml-engine" % "2.7",
+      libraryDependencies += "org.snakeyaml" % "snakeyaml-engine" % "2.8",
       assembly / assemblyJarName := "core-" + version.value + ".jar"
     )
 
+lazy val measurement =
+  project
+    .withId("measurement")
+    .in(file("measurement"))
+    .aggregate(core)
+    .dependsOn(core)
+    .settings(
+      commonSettings,
+      assembly / mainClass := Some("soda.se.umu.cs.soda.prototype.example.market.measurement.EntryPoint"),
+      assembly / assemblyJarName := "measurement-" + version.value + ".jar"
+    )
 
 lazy val root =
   project
     .withId("market")
     .in(file("."))
-    .aggregate(core)
-    .dependsOn(core)
+    .aggregate(core, measurement)
+    .dependsOn(core, measurement)
     .settings(
       commonSettings,
       assembly / mainClass := Some("soda.se.umu.cs.soda.prototype.example.market.main.EntryPoint"),

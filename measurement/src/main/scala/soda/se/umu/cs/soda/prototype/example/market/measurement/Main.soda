@@ -1,0 +1,80 @@
+
+/**
+ * This is the main entry point.
+ */
+
+class Main
+
+  abstract
+
+  import
+    scala.util.control.Exception.allCatch
+
+  help = "" +
+    "This creates an instance of synthetically generated transactions." +
+    "\nIt outputs a YAML string containing the operations." +
+    "\n" +
+    "\nParameters: ACCOUNTS ITEMS TRANSACTIONS" +
+    "\n" +
+    "\n  ACCOUNTS      Number of accounts ('deposit') in the market" +
+    "\n  ITEMS         Number of items ('assign' and 'price') in the market" +
+    "\n  TRANSACTIONS  Number of transactions ('sell') in the market" +
+    "\n" +
+    "\n"
+
+  operation_generator = OperationGenerator .mk
+
+  yaml_serializer = YamlSerializer .mk
+
+  generate_operations (accounts : Nat) (items : Nat) (transactions : Nat) : List [Operation] =
+    operation_generator
+      .generate (accounts) (items) (transactions)
+
+  to_nat (n : Int) : Nat =
+    if n < 0
+    then 0
+    else n
+
+  to_int_or_zero (s : String) : Int =
+    allCatch
+      .opt (s .toInt)
+      .getOrElse (0)
+
+  to_nat_or_zero (s : String) : Nat =
+    to_nat (
+      to_int_or_zero (s)
+    )
+
+  create_header (accounts : Nat) (items : Nat) (transactions : Nat) : String =
+    "---" +
+    "\n# "+
+    "\n# This is a synthetically generated instance." +
+    "\n# " +
+    "\n#   accounts: " + accounts .toString +
+    "\n#   items: " + items .toString +
+    "\n#   transactions: " + transactions .toString +
+    "\n#" +
+    "\n"
+
+  create_output (accounts : Nat) (items : Nat) (transactions : Nat) : String =
+    (create_header (accounts) (items) (transactions) ) +
+      yaml_serializer .serialize_operations (
+        generate_operations (accounts) (items) (transactions)
+      )
+
+  execute (arguments : List [String] ) : Unit =
+    if arguments .length > 2
+    then println (
+      create_output (
+        to_nat_or_zero (arguments .apply (0) ) ) (
+        to_nat_or_zero (arguments .apply (1) ) ) (
+        to_nat_or_zero (arguments .apply (2) )
+      )
+    )
+    else println (help)
+
+  main (arguments : Array [String] ) : Unit =
+    execute (arguments .toList)
+
+end
+

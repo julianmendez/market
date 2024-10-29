@@ -12,8 +12,14 @@ import   soda.se.umu.cs.soda.prototype.example.market.core.Item
 import   soda.se.umu.cs.soda.prototype.example.market.core.Market
 import   soda.se.umu.cs.soda.prototype.example.market.core.Money
 import   soda.se.umu.cs.soda.prototype.example.market.core.OperationProcessor
+import   soda.se.umu.cs.soda.prototype.example.market.core.MarketBuilder
 import   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
 import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
+import   soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer
+
+
+
+
 
 /**
  * This is the main entry point.
@@ -22,38 +28,43 @@ import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
 trait Main
 {
 
-  lazy val help = "Usage: it has one parameter, a YAML file containing the operations."
+  lazy val help = "" +
+   "This is a multi-agent prototype to show a market modeled in the Soda language." +
+   "\n" +
+   "\nhttps://julianmendez.github.io/market/" +
+   "\n" +
+   "\nParameter: FILE_NAME" +
+   "\n" +
+   "\n  FILE_NAME     YAML file containing the market operations" +
+   "\n" +
+   "\n"
 
   def read_file (file_name : String) : String =
     new String (Files .readAllBytes (Paths .get (file_name) ) )
 
-  lazy val empty_market = Market .mk (List [Money] () ) (List [Item] () )
+  lazy val market_builder = MarketBuilder .mk
+
+  lazy val empty_market = market_builder .empty_market
 
   lazy val yaml_parser = YamlParser .mk
+
+  lazy val yaml_serializer = YamlSerializer .mk
 
   lazy val operation_parser = OperationParser .mk
 
   lazy val operation_processor = OperationProcessor .mk
 
   def process_file (file_name : String) : Option [Market] =
-    operation_processor
-      .process (Some (empty_market) ) (
+    market_builder
+      .build (
          operation_parser .parse (
            yaml_parser .parse ( new StringReader (read_file (file_name) ) )
          )
       )
 
-  private def _serialize_market (m : Market) : String =
-    "Account balances:\n" +
-      (m .accounts .map ( account => account .toString) .mkString (", ") ) + "\n\n" +
-    "Items:\n" +
-      (m .items .map ( item =>
-        "(" + item .owner .toString + ", " + item .price .toString + ")" ) .mkString (" , ") ) +
-    "\n\n"
-
   def serialize_market (maybe_market : Option [Market] ) : String =
     maybe_market match  {
-      case Some (market) => _serialize_market (market)
+      case Some (market) => yaml_serializer .serialize_market (market)
       case None => "Undefined market"
     }
 
