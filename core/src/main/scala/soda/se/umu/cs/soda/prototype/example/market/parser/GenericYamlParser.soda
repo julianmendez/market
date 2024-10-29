@@ -14,6 +14,9 @@ class GenericYamlParser
     scala.jdk.CollectionConverters.IteratorHasAsScala
     scala.jdk.CollectionConverters.MapHasAsScala
 
+
+  code_point_limit : Int = 1024 * 1024 * 1024
+
   /**
    * Converts Java data structures into immutable Scala data structures .
    * Integer objects are converted into String objects .
@@ -54,7 +57,13 @@ class GenericYamlParser
    */
 
   parse (reader : Reader) : Seq [Any] =
-    ( @new Load (LoadSettings .builder () .build () ) )
+    ( @new Load (
+        LoadSettings
+          .builder ()
+          .setCodePointLimit (code_point_limit)
+          .build ()
+        )
+      )
       .loadAllFromReader (reader)
       .iterator ()
       .asScala

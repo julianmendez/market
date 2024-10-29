@@ -27,6 +27,8 @@ trait GenericYamlParser
   import   scala.jdk.CollectionConverters.IteratorHasAsScala
   import   scala.jdk.CollectionConverters.MapHasAsScala
 
+  lazy val code_point_limit : Int = 1024 * 1024 * 1024
+
   /**
    * Converts Java data structures into immutable Scala data structures .
    * Integer objects are converted into String objects .
@@ -68,7 +70,13 @@ trait GenericYamlParser
    */
 
   def parse (reader : Reader) : Seq [Any] =
-    ( new Load (LoadSettings .builder () .build () ) )
+    ( new Load (
+        LoadSettings
+          .builder ()
+          .setCodePointLimit (code_point_limit)
+          .build ()
+        )
+      )
       .loadAllFromReader (reader)
       .iterator ()
       .asScala
