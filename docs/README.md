@@ -18,7 +18,7 @@ Steps to run the example :
 2. Get the Soda translator binary by either doing the following:
    - a. download the Linux binary from [releases][soda-releases]
    - b. **or** clone the [Soda repository][soda-repo] and compile it, by either:
-      - i. run the `makeall.sh`, from a Linux compatible environment
+      - i. run `bash makeall.sh`, from a Linux compatible environment
       - ii. **or** run `sbt` to get an executable JAR file as indicated in the
         [Soda release notes][soda-release-notes]. The command itself is described in `build`
         and the file is `release`. To execute a JAR file, you need a [Java][java] environment
@@ -30,20 +30,23 @@ Steps to run the example :
    `soda manual`. It will output a piece of code with many examples, but most importantly,
    this mini-manual is a "Hello, World!" program itself. Write `soda manual > Manual.soda` and
    you get the manual.
-4. To compile this project, run `makeall.sh`, from a Bash terminal. It creates a file named
+4. To compile this project, run `bash makeall.sh`, from a Bash terminal. It creates a file named
    `market` and copies the example `example0.yaml` to the project root directory.
-5. Try running `market example0.yaml`, and modify its values, to test how it works. The
-   supported operations are:
+5. Try running `./market example0.yaml > example0Output.yaml`, and modify its values, to test how it works.
+   The supported operations are:
    - **deposit** *user* *amount* : declare a user account if necessary, and put money into the
      account;
    - **assign** *item* *user* : declare an item if necessary, and define its owner;
    - **price** *item* *amount* : define the price of an item, or hide it if its price is 0;
    - **sell** *item* *user* : exchange an item and its price between a buyer and a seller.
-6. To translate the Soda files into Scala and Lean, and then compile the Lean files, run
-   `update.sh`.
-7. You can edit the Soda files with [IntelliJ][intellij] and compile them with the `soda`
+6. Try running the test instance generator with `./testInstanceGen 8000 13000 21000 > testExample.yaml`.
+   This creates an instance of a market with 8000 users, 13000 items, and 21000 transactions.
+7. Try running the market with the test instance `./market testExample.yaml > testExampleOutput.yaml`.
+8. To translate the Soda files into Scala and Lean, and then compile the Lean files, run
+   `bash update.sh`.
+9. You can edit the Soda files with [IntelliJ][intellij] and compile them with the `soda`
    binary.
-8. You can see and verify the Lean translations with [Visual Studio Code][vscode]. The
+10. You can see and verify the Lean translations with [Visual Studio Code][vscode]. The
    translated files are in directory [Soda][soda-lean-translation], and in particular the
    package [core][soda-lean-translation-core].
 
