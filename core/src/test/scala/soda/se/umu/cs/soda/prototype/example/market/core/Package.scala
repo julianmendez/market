@@ -12,6 +12,10 @@ import   java.io.StringReader
 import   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
 import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
 
+
+
+
+
 trait Market01
   extends
     Market

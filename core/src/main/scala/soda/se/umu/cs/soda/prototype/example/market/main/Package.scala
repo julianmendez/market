@@ -17,6 +17,10 @@ import   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
 import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
 import   soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer
 
+
+
+
+
 /**
  * This is the main entry point.
  */

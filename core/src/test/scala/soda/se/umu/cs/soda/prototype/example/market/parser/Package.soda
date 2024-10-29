@@ -1,3 +1,4 @@
+
 package soda.se.umu.cs.soda.prototype.example.market.parser
 
 import
@@ -14,3 +15,4 @@ import
   soda.se.umu.cs.soda.prototype.example.market.core.OpPrice
   soda.se.umu.cs.soda.prototype.example.market.core.OpSell
   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
+

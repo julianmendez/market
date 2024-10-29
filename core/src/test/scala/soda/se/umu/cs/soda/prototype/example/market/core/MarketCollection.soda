@@ -17,6 +17,7 @@ class Market01
 
 end
 
+
 class Market02
   extends
     Market
@@ -34,6 +35,7 @@ class Market02
      )
 
 end
+
 
 class Market03
   extends

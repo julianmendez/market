@@ -5,6 +5,10 @@ package soda.se.umu.cs.soda.prototype.example.market.core
  *
  */
 
+
+
+
+
 type Nat = Int
 object Succ_ {
   def apply (n : Int) : Int = n + 1
@@ -21,8 +25,6 @@ notation "Succ_" => Nat.succ
 directive coq
 Notation "'Succ_'" := S (at level 99) .
 */
-
-
 
 
 /*
@@ -265,8 +267,6 @@ object MarketBuilder {
   def mk : MarketBuilder =
     MarketBuilder_ ()
 }
-
-
 
 
 /*

@@ -14,6 +14,10 @@ import   soda.se.umu.cs.soda.prototype.example.market.core.OpPrice
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpSell
 import   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
 
+
+
+
+
 trait Example0Instance
 {
 

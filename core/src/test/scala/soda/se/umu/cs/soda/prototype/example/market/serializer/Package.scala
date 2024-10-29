@@ -21,6 +21,10 @@ import   soda.se.umu.cs.soda.prototype.example.market.core.OperationProcessor
 import   soda.se.umu.cs.soda.prototype.example.market.parser.OperationParser
 import   soda.se.umu.cs.soda.prototype.example.market.parser.YamlParser
 
+
+
+
+
 case class YamlParserSpec ()
   extends
     AnyFunSuite
