@@ -217,10 +217,16 @@ trait OperationGenerator
         )
       )
 
+  private def _make_transaction_pair (item_id : Nat) (buyer_id : Nat) : List [Operation] =
+    List [Operation] (
+      OpSell .mk (item_id ) (buyer_id) ,
+      OpPrice .mk (item_id) (price_of_item (item_id) )
+    )
+
   def make_transactions (accounts : Nat) (items : Nat) (transactions : Nat) : List [Operation] =
     Range .mk .apply (transactions)
-      .map ( transaction_id =>
-        OpSell .mk (
+      .flatMap ( transaction_id =>
+        _make_transaction_pair (
           item_being_sold (transaction_id) (items) ) (
           buyer_of_item (transaction_id) (accounts)
         )
