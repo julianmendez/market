@@ -49,6 +49,8 @@ Steps to run the example :
 10. You can see and verify the Lean translations with [Visual Studio Code][vscode]. The
    translated files are in directory [Soda][soda-lean-translation], and in particular the
    package [core][soda-lean-translation-core].
+11. The Bash script [tester.sh][tester] tests the market with synthetic data. It requires to
+   have `market` and `testInstanceGen` reachable in the path.
 
 
 ## How to learn Soda
@@ -101,5 +103,6 @@ More detailed information can be found in the [release notes][release-notes].
 [vscode]: https://code.visualstudio.com
 [soda-lean-translation]: https://github.com/julianmendez/market/tree/master/Soda
 [soda-lean-translation-core]: https://github.com/julianmendez/market/tree/master/Soda/se/umu/cs/soda/prototype/example/market/core
+[tester]: https://github.com/julianmendez/market/tree/development/measurement/src/main/bash/tester.sh
 
 
