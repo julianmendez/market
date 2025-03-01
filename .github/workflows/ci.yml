@@ -1,7 +1,9 @@
 ---
 # CI configuration
 # https://docs.github.com/en/actions/guides/building-and-testing-java-with-maven
+# https://github.com/actions/checkout
 # https://github.com/actions/setup-java
+# https://github.com/coursier/setup-action
 
 name: Scala CI
 
@@ -17,8 +19,8 @@ jobs:
         - 11.0.24
         - 21.0.5
         scala:
-        - 3.3.4
-        - 3.5.2
+        - 3.3.5
+        - 3.6.3
     steps:
     - name: Check out
       uses: actions/checkout@v4
@@ -27,6 +29,10 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
         distribution: temurin
+    - name: Setup Scala with sbt
+      uses: coursier/setup-action@v1
+      with:
+        apps: sbt
     - name: Build with sbt
       run: sbt '++ ${{ matrix.scala }}' scalaVersion sbtVersion version clean compile test package assembly
 
