@@ -5,7 +5,7 @@
 # It requires `sbt` [https://www.scala-sbt.org/].
 #
 
-scalaVersion="3.3.4"
+scalaVersion="3.3.5"
 executableStub="exec java -jar \$0 \"\$@\" ; exit"
 
 sbt scalaVersion sbtVersion version clean compile test package assembly
