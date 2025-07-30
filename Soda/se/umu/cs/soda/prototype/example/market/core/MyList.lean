@@ -42,12 +42,14 @@ where
 namespace MyList
 
 
-/-`_tailrec_foldl` is a 'fold left' function for parameterized types.
+/-
+ `_tailrec_foldl` is a 'fold left' function for parameterized types.
  This definition of fold left is tail recursive.
+
 -/
 
 private def   _tailrec_foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (current : B)
-       (next : B -> A -> B) : B :=
+      (next : B -> A -> B) : B :=
     match list with
       | List.nil => current
       | (head) :: (tail) =>
@@ -55,32 +57,36 @@ private def   _tailrec_foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (cur
     
 
 
-/-  `foldl` is a 'fold left' function for parameterized types that uses `_tailrec_foldl`.
+/-
+ `foldl` is a 'fold left' function for parameterized types that uses `_tailrec_foldl`.
+
 -/
 
 def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
-       (next : B -> A -> B) : B :=
+      (next : B -> A -> B) : B :=
     _tailrec_foldl ( A ) ( B ) (list) (initial) (next)
 
 
- private def   _tailrec_range (n : Nat) (list : List ( Nat ) ) : List ( Nat ) :=
+private def   _tailrec_range (n : Nat) (list : List ( Nat ) ) : List ( Nat ) :=
     match n with
       | Succ_ (k) => _tailrec_range (k) ( (k) :: (list) )
       | _otherwise => list
     
 
 
- def   range (length : Nat) : List ( Nat ) :=
+def   range (length : Nat) : List ( Nat ) :=
     if (0 <= length)
     then _tailrec_range (length) (List.nil)
     else List.nil
 
 
-/-`length` defined using fold left.
+/-
+ `length` defined using fold left.
  This uses foldl, which is tail recursive.
+
 -/
 
- def   length_fl ( A : Type ) (list : List ( A ) ) : Nat :=
+def   length_fl ( A : Type ) (list : List ( A ) ) : Nat :=
     _tailrec_foldl ( A ) ( Nat ) (list) (0) (
       fun (accum : Nat) =>
         fun (_elem : A) => accum + 1
@@ -106,7 +112,7 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
         rewrite [Nat.add_comm 1]
         rfl
 
- private def   _tailrec_length ( A : Type ) (list : List ( A ) ) (accum : Nat) : Nat :=
+private def   _tailrec_length ( A : Type ) (list : List ( A ) ) (accum : Nat) : Nat :=
     match list with
       | List.nil => accum
       | (_head) :: (tail) =>
@@ -132,11 +138,11 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
         rewrite [Nat.add_comm 1]
         rfl
 
- def   length_tr ( A : Type ) (list : List ( A ) ) : Nat :=
+def   length_tr ( A : Type ) (list : List ( A ) ) : Nat :=
     _tailrec_length ( A ) (list) (0)
 
 
- def   length_def ( A : Type ) (list : List ( A ) ) : Nat :=
+def   length_def ( A : Type ) (list : List ( A ) ) : Nat :=
     match list with
       | List.nil => 0
       | (_head) :: (tail) => length_def ( A ) (tail) + 1
@@ -172,25 +178,27 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
       rewrite [length_def]
       rfl
 
- def   length ( A : Type ) (list : List ( A ) ) : Nat :=
+def   length ( A : Type ) (list : List ( A ) ) : Nat :=
     length_fl ( A ) (list)
 
 
-/- reverse
+/-
+ reverse
+
 -/
 
- private def   _tailrec_reverse ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) : List ( A ) :=
+private def   _tailrec_reverse ( A : Type ) (list : List ( A ) ) (accum : List ( A ) ) : List ( A ) :=
     match list with
       | List.nil => accum
       | (head) :: (tail) => _tailrec_reverse ( A ) (tail) ( (head) :: (accum) )
     
 
 
- def   reverse_tr ( A : Type ) (list : List ( A ) ) : List ( A ) :=
+def   reverse_tr ( A : Type ) (list : List ( A ) ) : List ( A ) :=
     _tailrec_reverse ( A ) (list) (List.nil)
 
 
- def   reverse_fl ( A : Type ) (list : List ( A ) ) : List ( A ) :=
+def   reverse_fl ( A : Type ) (list : List ( A ) ) : List ( A ) :=
     _tailrec_foldl ( A ) ( List ( A )  ) (list) (List.nil) (
       fun (accum : List ( A ) ) =>
         fun (elem : A) =>
@@ -243,14 +251,16 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
         rewrite [Nat.add_assoc, Nat.add_comm 1]
         rfl
 
- def   reverse ( A : Type ) (list : List ( A ) ) : List ( A ) :=
+def   reverse ( A : Type ) (list : List ( A ) ) : List ( A ) :=
     reverse_fl ( A ) (list)
 
 
-/- map
+/-
+ map
+
 -/
 
- def   map_fl ( A : Type ) ( B : Type ) (list : List ( A ) ) (f : A -> B) : List ( B ) :=
+def   map_fl ( A : Type ) ( B : Type ) (list : List ( A ) ) (f : A -> B) : List ( B ) :=
     reverse_fl ( B ) (
       foldl ( A ) ( List ( B )  ) (list) (List.nil) (
         fun (accum : List ( B ) ) =>
@@ -260,21 +270,23 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     )
 
 
- def   map_def ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B ) : List ( B ) :=
+def   map_def ( A : Type ) ( B : Type ) (list : List ( A ) ) (func : A -> B ) : List ( B ) :=
     match list with
       | List.nil => List.nil
       | (head) :: (tail) => (func (head) ) :: (map_def ( A ) ( B ) (tail) (func) )
     
 
 
- def   map ( A : Type ) ( B : Type ) (list : List ( A ) ) (f : A -> B) : List ( B ) :=
+def   map ( A : Type ) ( B : Type ) (list : List ( A ) ) (f : A -> B) : List ( B ) :=
     map_fl ( A ) ( B ) (list) (f)
 
 
-/- concat
+/-
+ concat
+
 -/
 
- def   concat ( A : Type ) (first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
+def   concat ( A : Type ) (first : List ( A ) ) (second : List ( A ) ) : List ( A ) :=
     _tailrec_foldl ( A ) ( List ( A )  ) (reverse_fl ( A ) (first) ) (second) (
       fun (accum : List ( A ) ) =>
         fun (elem : A) =>
@@ -282,11 +294,11 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     )
 
 
- def   append ( A : Type ) (first : List ( A ) ) (element : A) : List ( A ) :=
+def   append ( A : Type ) (first : List ( A ) ) (element : A) : List ( A ) :=
     reverse_fl ( A )  (element :: reverse_fl ( A ) (first) )
 
 
- def   monus1 (index : Nat) : Nat :=
+def   monus1 (index : Nat) : Nat :=
     match index with
       | Succ_ (k) => k
       | _otherwise => 0
@@ -301,7 +313,7 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     rewrite [monus1]
     simp
 
- def   get_fl ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
+def   get_fl ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
     (foldl ( A ) ( IndexOption ( A )  ) (list) (
       IndexOption.mk (0) (Option.none) ) (
         fun (accum : IndexOption ( A ) ) =>
@@ -313,7 +325,7 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     ).maybe_elem
 
 
- private def   _tailrec_get_def ( A : Type ) (list : List ( A ) ) (index : Nat) (current : Nat) : Option ( A ) :=
+private def   _tailrec_get_def ( A : Type ) (list : List ( A ) ) (index : Nat) (current : Nat) : Option ( A ) :=
     match list with
       | List.nil => Option.none
       | (head) :: (tail) =>
@@ -323,33 +335,33 @@ def   foldl ( A : Type ) ( B : Type ) (list : List ( A ) ) (initial : B)
     
 
 
- def   get_def ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
+def   get_def ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
     _tailrec_get_def ( A ) (list) (index) (0)
 
 
- def   get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
+def   get ( A : Type ) (list : List ( A ) ) (index : Nat) : Option ( A ) :=
     get_def ( A ) (list) (index)
 
 
 private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_index : Nat) (old_value : A) (
-       new_value : A) : A :=
+      new_value : A) : A :=
     if (current_index == target_index)
     then new_value
     else old_value
 
 
- private def   _apply_replacement ( A : Type ) (p : ChangeWindow ( A ) ) (element : A) : ChangeWindow ( A ) :=
+private def   _apply_replacement ( A : Type ) (p : ChangeWindow ( A ) ) (element : A) : ChangeWindow ( A ) :=
     ChangeWindow.mk (p.current_index + 1) (p.target_index) (p.new_value) (
       (_replace_if_in_place ( A ) (p.current_index) (p.target_index) (element) (p.new_value)
       ) :: p.rev_accum
     )
 
 
- private def   _initial_window ( A : Type ) (index : Nat) (new_value : A) : ChangeWindow ( A ) :=
+private def   _initial_window ( A : Type ) (index : Nat) (new_value : A) : ChangeWindow ( A ) :=
     ChangeWindow.mk (0) (index) (new_value) (List.nil)
 
 
- def   set_fl ( A : Type ) (list : List ( A ) ) (index : Nat) (new_value : A) : List ( A ) :=
+def   set_fl ( A : Type ) (list : List ( A ) ) (index : Nat) (new_value : A) : List ( A ) :=
     reverse_fl ( A ) (
       (foldl ( A ) ( ChangeWindow ( A )  ) (list) (_initial_window ( A ) (index) (new_value) ) (
         _apply_replacement ( A ) ) ).rev_accum
@@ -357,7 +369,7 @@ private def   _replace_if_in_place ( A : Type ) (current_index : Nat) (target_in
 
 
 private def   _tailrec_set_def_alt ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) (current : Nat)
-       : List ( A ) :=
+      : List ( A ) :=
     match list with
       | List.nil => List.nil
       | (head) :: (tail) =>
@@ -367,7 +379,7 @@ private def   _tailrec_set_def_alt ( A : Type ) (list : List ( A ) ) (index : Na
     
 
 
- def   set_def ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
+def   set_def ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
     match list with
       | List.nil => List.nil
       | (head) :: (tail) =>
@@ -391,7 +403,6 @@ private def   _tailrec_set_def_alt ( A : Type ) (list : List ( A ) ) (index : Na
        cases idx with
        | zero =>
          rewrite [monus1]
-         rewrite [Nat.zero_eq]
          rfl
        | succ k =>
          rewrite [monus1]
@@ -400,7 +411,7 @@ private def   _tailrec_set_def_alt ( A : Type ) (list : List ( A ) ) (index : Na
          rewrite [ih]
          rfl
 
- def   set ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
+def   set ( A : Type ) (list : List ( A ) ) (index : Nat) (element : A) : List ( A ) :=
     if (0 <= index)
     then set_def ( A ) (list) (index) (element)
     else list

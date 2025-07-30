@@ -663,7 +663,6 @@ trait MyList
        cases idx with
        | zero =>
          rewrite [monus1]
-         rewrite [Nat.zero_eq]
          rfl
        | succ k =>
          rewrite [monus1]
