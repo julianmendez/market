@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package «soda» where
+package «market» where
   -- add package configuration options here
 
 lean_lib «Soda» where
