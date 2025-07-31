@@ -662,7 +662,8 @@ trait MyList
        rewrite [set_def, length_def]
        cases idx with
        | zero =>
-         rewrite [monus1]
+         simp
+         rewrite [length_def]
          rfl
        | succ k =>
          rewrite [monus1]
