@@ -96,8 +96,8 @@ def   length_fl ( A : Type ) (list : List ( A ) ) : Nat :=
   theorem
     len_fl_accum (A : Type) (list : List (A) )
        : forall (accum : Nat) ,
-        _tailrec_foldl (A) (Nat) (list) (accum) (fun (accum : Nat) => fun (elem : A) => accum + 1) =
-           _tailrec_foldl (A) (Nat) (list) (0) (fun (accum : Nat) => fun (elem : A) => accum + 1) + accum := by
+        _tailrec_foldl (A) (Nat) (list) (accum) (fun (accum : Nat) => fun (_elem : A) => accum + 1) =
+           _tailrec_foldl (A) (Nat) (list) (0) (fun (accum : Nat) => fun (_elem : A) => accum + 1) + accum := by
       induction list with
       | nil =>
         intro n
