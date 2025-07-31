@@ -37,7 +37,7 @@ class MarketMod
   notation "_mm.append" => MyList.append
 
   as_market (market : Market) : Market =
-    Market.mk (market .accounts) (market .items)
+    Market .mk (market .accounts) (market .items)
 
   get_items (market : Market) : List [Item] =
     match market

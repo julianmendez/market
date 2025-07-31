@@ -80,7 +80,7 @@ trait MarketMod
 */
 
   def as_market (market : Market) : Market =
-    Market.mk (market .accounts) (market .items)
+    Market .mk (market .accounts) (market .items)
 
   def get_items (market : Market) : List [Item] =
     market match  {
