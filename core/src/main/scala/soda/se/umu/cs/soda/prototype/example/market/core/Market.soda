@@ -27,9 +27,8 @@ end
 class MarketMod
 
   abstract
-    bit : Boolean
 
-  _mm : MyList = MyList_ (true)
+  _mm : MyList = MyList .mk
 
   directive lean
   notation "_mm.get" => MyList.get

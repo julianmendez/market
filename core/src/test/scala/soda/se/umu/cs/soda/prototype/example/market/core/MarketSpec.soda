@@ -6,7 +6,7 @@ class MarketSpec ()
   check [A : Type] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
     assert (obtained == expected)
 
-  module = MarketMod_ (true)
+  module = MarketMod .mk
 
   market01 : Market = Market01_ ()
 

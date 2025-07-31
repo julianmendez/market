@@ -103,7 +103,7 @@ case class MarketSpec ()
   def check [A ] (obtained : A) (expected : A) : org.scalatest.compatible.Assertion =
     assert (obtained == expected)
 
-  lazy val module = MarketMod_ (true)
+  lazy val module = MarketMod .mk
 
   lazy val market01 : Market = Market01_ ()
 
@@ -151,7 +151,7 @@ case class MyListSpec ()
      instance .range (1000000)
 
   lazy val instance : MyList =
-    MyList .mk (true)
+    MyList .mk
 
   test ("reverse") (
     check (

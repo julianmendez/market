@@ -3,7 +3,7 @@ class OperationProcessor
 
   abstract
 
-  _mm : MyList = MyList .mk (true)
+  _mm : MyList = MyList .mk
 
   compute_next (maybe_market : Option [Market] ) (op : Operation) : Option [Market] =
     op .process (maybe_market)

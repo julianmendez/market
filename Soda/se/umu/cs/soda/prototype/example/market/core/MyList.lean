@@ -36,7 +36,7 @@ class MyList
 
 where
   mk ::
-    bit : Bool
+    
   deriving DecidableEq
 
 namespace MyList

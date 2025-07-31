@@ -67,9 +67,9 @@ object Market {
 trait MarketMod
 {
 
-  def   bit : Boolean
 
-  private lazy val _mm : MyList = MyList_ (true)
+
+  private lazy val _mm : MyList = MyList .mk
 
 /*
   directive lean
@@ -216,11 +216,11 @@ trait MarketMod
 
 }
 
-case class MarketMod_ (bit : Boolean) extends MarketMod
+case class MarketMod_ () extends MarketMod
 
 object MarketMod {
-  def mk (bit : Boolean) : MarketMod =
-    MarketMod_ (bit)
+  def mk : MarketMod =
+    MarketMod_ ()
 }
 
 
@@ -229,7 +229,7 @@ trait OperationProcessor
 
 
 
-  private lazy val _mm : MyList = MyList .mk (true)
+  private lazy val _mm : MyList = MyList .mk
 
   def compute_next (maybe_market : Option [Market] ) (op : Operation) : Option [Market] =
     op .process (maybe_market)
@@ -309,7 +309,7 @@ object ChangeWindow {
 trait MyList
 {
 
-  def   bit : Boolean
+
 
 /*
  * `_tailrec_foldl` is a 'fold left' function for parameterized types.
@@ -680,11 +680,11 @@ trait MyList
 
 }
 
-case class MyList_ (bit : Boolean) extends MyList
+case class MyList_ () extends MyList
 
 object MyList {
-  def mk (bit : Boolean) : MyList =
-    MyList_ (bit)
+  def mk : MyList =
+    MyList_ ()
 }
 
 
@@ -777,7 +777,7 @@ trait OpDeposit
 
   def process_market (m : Market) : Option [Market] =
     if ( (user_id <= m .accounts .length) && (amount >= 0)
-    ) Some (MarketMod .mk (true) .deposit (m) (user_id) (amount) )
+    ) Some (MarketMod .mk .deposit (m) (user_id) (amount) )
     else None
 
   def process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
@@ -811,7 +811,7 @@ trait OpAssign
 
   def process_market (m : Market) : Option [Market] =
     if ( (item_id <= m .items. length) && (user_id < m .accounts .length)
-    ) Some (MarketMod .mk (true) .assign (m) (item_id) (user_id) )
+    ) Some (MarketMod .mk .assign (m) (item_id) (user_id) )
     else None
 
   def process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
@@ -845,7 +845,7 @@ trait OpPrice
 
   def process_market (m : Market) : Option [Market] =
     if ( (item_id < m .items. length) && (price >= 0)
-    ) Some (MarketMod .mk (true) .price_item (m) (item_id) (price) )
+    ) Some (MarketMod .mk .price_item (m) (item_id) (price) )
     else None
 
   def process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
@@ -879,7 +879,7 @@ trait OpSell
 
   def process_market (m : Market) : Option [Market] =
     if ( (item_id < m .items .length) && (user_id < m .accounts .length)
-    ) Some (MarketMod .mk (true) .sell (m) (item_id) (user_id) )
+    ) Some (MarketMod .mk .sell (m) (item_id) (user_id) )
     else None
 
   def process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =

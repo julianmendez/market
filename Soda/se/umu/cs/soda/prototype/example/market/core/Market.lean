@@ -36,13 +36,13 @@ class MarketMod
 
 where
   mk ::
-    bit : Bool
+    
   deriving DecidableEq
 
 namespace MarketMod
 
 
-private def   _mm : MyList := MyList_ (true)
+private def   _mm : MyList := MyList.mk
 
 
   notation "_mm.get" => MyList.get

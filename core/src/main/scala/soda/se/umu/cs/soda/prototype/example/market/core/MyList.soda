@@ -26,7 +26,6 @@ end
 class MyList
 
   abstract
-    bit : Boolean
 
 /*
  * `_tailrec_foldl` is a 'fold left' function for parameterized types.
