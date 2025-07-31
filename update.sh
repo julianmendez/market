@@ -26,11 +26,12 @@ done
 
 
 # This compiles a binary in Lean
+lake update
 lake clean
 lake build
 
 
-# This updates Lean
-elan update
+# This updates elan
+elan self update
 
 

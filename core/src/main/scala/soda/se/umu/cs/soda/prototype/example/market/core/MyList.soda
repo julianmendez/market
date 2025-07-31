@@ -26,7 +26,6 @@ end
 class MyList
 
   abstract
-    bit : Boolean
 
 /*
  * `_tailrec_foldl` is a 'fold left' function for parameterized types.
@@ -73,8 +72,8 @@ class MyList
   theorem
     len_fl_accum (A : Type) (list : List (A) )
        : forall (accum : Nat) ,
-        _tailrec_foldl (A) (Nat) (list) (accum) (fun (accum : Nat) => fun (elem : A) => accum + 1) =
-           _tailrec_foldl (A) (Nat) (list) (0) (fun (accum : Nat) => fun (elem : A) => accum + 1) + accum := by
+        _tailrec_foldl (A) (Nat) (list) (accum) (fun (accum : Nat) => fun (_elem : A) => accum + 1) =
+           _tailrec_foldl (A) (Nat) (list) (0) (fun (accum : Nat) => fun (_elem : A) => accum + 1) + accum := by
       induction list with
       | nil =>
         intro n
@@ -352,8 +351,8 @@ class MyList
        rewrite [set_def, length_def]
        cases idx with
        | zero =>
-         rewrite [monus1]
-         rewrite [Nat.zero_eq]
+         simp
+         rewrite [length_def]
          rfl
        | succ k =>
          rewrite [monus1]

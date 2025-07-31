@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package «soda» where
+package «market» where
   -- add package configuration options here
 
 lean_lib «Soda» where
@@ -10,3 +10,4 @@ lean_lib «Soda» where
 @[default_target]
 lean_exe «market» where
   root := `Soda.se.umu.cs.soda.prototype.example.market.main.Main
+

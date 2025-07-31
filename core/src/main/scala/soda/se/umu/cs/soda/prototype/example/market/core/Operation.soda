@@ -62,7 +62,7 @@ class OpDeposit
 
   process_market (m : Market) : Option [Market] =
     if (user_id <= m .accounts .length) and (amount >= 0)
-    then Some (MarketMod .mk (true) .deposit (m) (user_id) (amount) )
+    then Some (MarketMod .mk .deposit (m) (user_id) (amount) )
     else None
 
   process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
@@ -89,7 +89,7 @@ class OpAssign
 
   process_market (m : Market) : Option [Market] =
     if (item_id <= m .items. length) and (user_id < m .accounts .length)
-    then Some (MarketMod .mk (true) .assign (m) (item_id) (user_id) )
+    then Some (MarketMod .mk .assign (m) (item_id) (user_id) )
     else None
 
   process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
@@ -116,7 +116,7 @@ class OpPrice
 
   process_market (m : Market) : Option [Market] =
     if (item_id < m .items. length) and (price >= 0)
-    then Some (MarketMod .mk (true) .price_item (m) (item_id) (price) )
+    then Some (MarketMod .mk .price_item (m) (item_id) (price) )
     else None
 
   process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
@@ -143,7 +143,7 @@ class OpSell
 
   process_market (m : Market) : Option [Market] =
     if (item_id < m .items .length) and (user_id < m .accounts .length)
-    then Some (MarketMod .mk (true) .sell (m) (item_id) (user_id) )
+    then Some (MarketMod .mk .sell (m) (item_id) (user_id) )
     else None
 
   process_maybe_market (maybe_market : Option [Market] ) : Option [Market] =
