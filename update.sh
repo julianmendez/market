@@ -25,13 +25,12 @@ for file in ${files}; do
 done
 
 
+# This updates elan
+elan self update
+
 # This compiles a binary in Lean
 lake update
 lake clean
 lake build
-
-
-# This updates elan
-elan self update
 
 
