@@ -6,6 +6,8 @@
 
 class GenericYamlParser
 
+  abstract
+
   import
     org.snakeyaml.engine.v2.api.Load
     org.snakeyaml.engine.v2.api.LoadSettings

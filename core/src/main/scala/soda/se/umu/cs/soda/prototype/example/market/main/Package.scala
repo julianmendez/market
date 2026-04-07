@@ -28,6 +28,8 @@ import   soda.se.umu.cs.soda.prototype.example.market.serializer.YamlSerializer
 trait Main
 {
 
+
+
   lazy val help = "" +
    "This is a multi-agent prototype to show a market modeled in the Soda language." +
    "\n" +

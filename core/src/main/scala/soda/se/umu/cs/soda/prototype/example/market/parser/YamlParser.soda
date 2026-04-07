@@ -5,6 +5,8 @@
 
 class YamlParser
 
+  abstract
+
   import
     java.io.BufferedReader
     java.io.Reader

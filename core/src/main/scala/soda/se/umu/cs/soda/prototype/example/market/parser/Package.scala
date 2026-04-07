@@ -20,6 +20,8 @@ import   soda.se.umu.cs.soda.prototype.example.market.core.OpUndefined
 trait GenericYamlParser
 {
 
+
+
   import   org.snakeyaml.engine.v2.api.Load
   import   org.snakeyaml.engine.v2.api.LoadSettings
   import   java.io.Reader
@@ -161,6 +163,8 @@ object OperationParser {
 
 trait YamlParser
 {
+
+
 
   import   java.io.BufferedReader
   import   java.io.Reader
