@@ -1,8 +1,8 @@
 import sbt.Keys.scalacOptions
 
-lazy val scala3_3 = "3.3.5"
+lazy val scala3_3 = "3.3.7"
 
-lazy val scala3_6 = "3.6.4"
+lazy val scala3_8 = "3.8.3"
 
 lazy val commonSettings =
   Seq(
@@ -25,7 +25,7 @@ lazy val commonSettings =
      * [[https://repo1.maven.org/maven2/org/scala-lang/scalap/]]
      * [[https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/]]
      */
-    crossScalaVersions := Seq(scala3_3, scala3_6),
+    crossScalaVersions := Seq(scala3_3, scala3_8),
     scalaVersion := scala3_3,
 
     /**
@@ -34,7 +34,7 @@ lazy val commonSettings =
      * [[https://github.com/scalatest/scalatest]]
      * [[https://repo1.maven.org/maven2/org/scalatest/]]
      */
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.19" % "test",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % "test",
     resolvers += Resolver.mavenLocal,
     publishTo := Some(Resolver.mavenLocal),
     publishMavenStyle := true,
@@ -52,7 +52,7 @@ lazy val core =
        * [[https://bitbucket.org/asomov/snakeyaml-engine]]
        * [[https://repo1.maven.org/maven2/org/snakeyaml/snakeyaml-engine/]]
        */
-      libraryDependencies += "org.snakeyaml" % "snakeyaml-engine" % "2.8",
+      libraryDependencies += "org.snakeyaml" % "snakeyaml-engine" % "3.0.1",
       assembly / assemblyJarName := "core-" + version.value + ".jar"
     )
 
