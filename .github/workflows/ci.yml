@@ -16,11 +16,11 @@ jobs:
     strategy:
       matrix:
         java:
-        - 11.0.24
-        - 21.0.5
+        - 17.0.18
+        - 25.0.2
         scala:
-        - 3.3.5
-        - 3.6.4
+        - 3.3.7
+        - 3.8.3
     steps:
     - name: Check out
       uses: actions/checkout@v6
@@ -30,7 +30,7 @@ jobs:
         java-version: ${{ matrix.java }}
         distribution: temurin
     - name: Setup Scala with sbt
-      uses: coursier/setup-action@v2
+      uses: coursier/setup-action@v3
       with:
         apps: sbt
     - name: Build with sbt
