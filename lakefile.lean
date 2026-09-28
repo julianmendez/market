@@ -5,7 +5,7 @@ package «market» where
   -- add package configuration options here
 
 require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git" @ "v4.33.0"
+  "https://github.com/leanprover-community/mathlib4.git" @ "v4.34.0"
 
 lean_lib «Soda» where
   -- add library configuration options here
